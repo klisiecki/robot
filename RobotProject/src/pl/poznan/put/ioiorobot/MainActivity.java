@@ -1,14 +1,17 @@
 package pl.poznan.put.ioiorobot;
 
+import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.android.IOIOActivity;
 import pl.poznan.put.ioiorobot.util.SystemUiHider;
-
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -16,33 +19,45 @@ import android.view.View;
  *
  * @see SystemUiHider
  */
-public class MainActivity extends Activity {
-	/**
-	 * Whether or not the system UI should be auto-hidden after
-	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-	 */
+public class MainActivity extends IOIOActivity {
+	
+	class Looper extends BaseIOIOLooper {
+		@Override
+		protected void setup() throws ConnectionLostException, InterruptedException {
+			runOnUiThread(new Runnable() {
+				public void run() {
+					Toast.makeText(getApplicationContext(), "Connected!",
+							Toast.LENGTH_SHORT).show();
+				}
+			});
+		}
+		
+		@Override
+		public void loop() throws ConnectionLostException, InterruptedException {
+
+		}
+		
+		@Override
+		public void disconnected() {
+			runOnUiThread(new Runnable() {
+				public void run() {
+					Toast.makeText(getApplicationContext(), "Disonnected!",
+							Toast.LENGTH_SHORT).show();
+				}
+			});
+		}
+
+	}
+	
+	@Override
+	protected IOIOLooper createIOIOLooper() {
+		return new Looper();
+	}
+	
 	private static final boolean AUTO_HIDE = true;
-
-	/**
-	 * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-	 * user interaction before hiding the system UI.
-	 */
 	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-
-	/**
-	 * If set, will toggle the system UI visibility upon interaction. Otherwise,
-	 * will show the system UI visibility upon interaction.
-	 */
 	private static final boolean TOGGLE_ON_CLICK = true;
-
-	/**
-	 * The flags to pass to {@link SystemUiHider#getInstance}.
-	 */
 	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-
-	/**
-	 * The instance of the {@link SystemUiHider} for this activity.
-	 */
 	private SystemUiHider mSystemUiHider;
 
 	@Override
@@ -160,5 +175,5 @@ public class MainActivity extends Activity {
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
 	
-	//test2
+	
 }
