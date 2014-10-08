@@ -4,6 +4,8 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+import pl.poznan.put.ioiorobot.motors.IMotorsController;
+import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.util.SystemUiHider;
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -11,6 +13,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
 
 /**
@@ -20,6 +24,9 @@ import android.widget.Toast;
  * @see SystemUiHider
  */
 public class MainActivity extends IOIOActivity {
+	private SeekBar speedBar;
+
+	private IMotorsController motorsController;
 	
 	class Looper extends BaseIOIOLooper {
 		@Override
@@ -30,6 +37,8 @@ public class MainActivity extends IOIOActivity {
 							Toast.LENGTH_SHORT).show();
 				}
 			});
+			
+			motorsController = new MotorsController(ioio_, 1, 2, 3, 16, 17, 18);
 		}
 		
 		@Override
@@ -126,11 +135,29 @@ public class MainActivity extends IOIOActivity {
 			}
 		});
 
-		// Upon interacting with UI controls, delay any scheduled hide()
-		// operations to prevent the jarring behavior of controls going away
-		// while interacting with the UI.
-		findViewById(R.id.dummy_button).setOnTouchListener(
-				mDelayHideTouchListener);
+		findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+		
+		speedBar = (SeekBar) findViewById(R.id.speedBar);
+		speedBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				motorsController.setSpeed(progress - 50);
+			}
+		});
 	}
 
 	@Override
