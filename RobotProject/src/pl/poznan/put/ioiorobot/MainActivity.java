@@ -11,21 +11,19 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
- */
 public class MainActivity extends IOIOActivity {
 	private SeekBar speedBar;
-
+	private SeekBar directionBar;
+	
+	private TextView textView;
 	private IMotorsController motorsController;
 	
 	class Looper extends BaseIOIOLooper {
@@ -38,7 +36,7 @@ public class MainActivity extends IOIOActivity {
 				}
 			});
 			
-			motorsController = new MotorsController(ioio_, 1, 2, 3, 16, 17, 18);
+			motorsController = new MotorsController(ioio_, 1, 2, 3, 16, 17, 14);
 		}
 		
 		@Override
@@ -62,8 +60,9 @@ public class MainActivity extends IOIOActivity {
 	protected IOIOLooper createIOIOLooper() {
 		return new Looper();
 	}
-	
-	private static final boolean AUTO_HIDE = true;
+	private static final String TAG = "robot";
+
+	private static final boolean AUTO_HIDE = false;
 	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
 	private static final boolean TOGGLE_ON_CLICK = true;
 	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
@@ -138,6 +137,7 @@ public class MainActivity extends IOIOActivity {
 		findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 		
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
+		directionBar = (SeekBar) findViewById(R.id.directionBar);
 		speedBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			
 			@Override
@@ -155,9 +155,46 @@ public class MainActivity extends IOIOActivity {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromUser) {
-				motorsController.setSpeed(progress - 50);
+				if (motorsController != null) {
+					motorsController.setSpeed(progress - 100);
+				}
+				if (textView != null) {
+					textView.setText((progress-100)+"");
+				}
+				Log.d(TAG,(progress -100) + " progress");
 			}
 		});
+		
+		directionBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				if (motorsController != null) {
+					motorsController.setDirection(progress - 100);
+				}
+				if (textView != null) {
+					textView.setText((progress-100)+"");
+				}
+				Log.d(TAG,(progress -100) + " progress");
+			}
+		});
+		
+		textView = (TextView) findViewById(R.id.textView);
+		
+		Log.d(TAG, "konstruktor");
 	}
 
 	@Override

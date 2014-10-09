@@ -4,6 +4,7 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
+import android.util.Log;
 
 public class MotorsController implements IMotorsController {
 	private static final int FREQUENCY = 100;
@@ -30,9 +31,9 @@ public class MotorsController implements IMotorsController {
 		r1 = ioio_.openDigitalOutput(r1Pin, false);
 		r2 = ioio_.openDigitalOutput(r2Pin, false);
 		rPwm = ioio_.openPwmOutput(rPwmPin, FREQUENCY);
-		
+
 		MotorThread t = new MotorThread();
-		t.start();
+		// t.start();
 	}
 
 	public int getDirection() {
@@ -64,22 +65,47 @@ public class MotorsController implements IMotorsController {
 	}
 
 	class MotorThread extends Thread {
+		public MotorThread() {
+			// TODO Auto-generated constructor stub
+			start();
+			Log.e("robot", "MotorThread constructor");
+		}
+
 		@Override
 		public void run() {
-			try {
-				if (speed > 0) {
-					l1.write(true);
-					l2.write(false);
-					r1.write(true);
-					r2.write(false);
-				} else {
-					l1.write(false);
-					l2.write(false);
-					r1.write(false);
-					r2.write(false);
+			while (true) {
+				try {
+					if (speed > 5) {
+						l1.write(true);
+						l2.write(false);
+						r1.write(true);
+						r2.write(false);
+					} else if (speed < -5) {
+						l1.write(false);
+						l2.write(true);
+						r1.write(false);
+						r2.write(true);
+					} else {
+						l1.write(false);
+						l2.write(false);
+						r1.write(false);
+						r2.write(false);
+					}
+					float left = ((float) Math.abs(speed) + (float)direction*speed/100f)/100f;
+					float right = ((float)Math.abs(speed) - (float)direction*speed/100f)/100f;
+					if (left < 0.2f) left = 0;
+					if (right< 0.2f) right = 0;
+					lPwm.setDutyCycle(Math.min(left,1f));
+					rPwm.setDutyCycle(Math.min(right, 1f));
+					Log.d("robot", left + " | " + right);
 					
+//					lPwm.setDutyCycle(1);
+//					rPwm.setDutyCycle(1);
+					Thread.sleep(20);
+				} catch (Exception e) {
 				}
-			} catch (ConnectionLostException e) {
+
+
 			}
 		}
 	}
