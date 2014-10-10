@@ -97,7 +97,7 @@ public class MotorsController implements IMotorsController {
 					if (right< 0.2f) right = 0;
 					lPwm.setDutyCycle(Math.min(left,1f));
 					rPwm.setDutyCycle(Math.min(right, 1f));
-					Log.d("robot", left + " | " + right);
+					//Log.d("robot", left + " | " + right);
 					
 //					lPwm.setDutyCycle(1);
 //					rPwm.setDutyCycle(1);
