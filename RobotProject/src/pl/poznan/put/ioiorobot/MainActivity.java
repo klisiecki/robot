@@ -8,6 +8,7 @@ import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
+import pl.poznan.put.ioiorobot.temp.VerticalSeekBar;
 import pl.poznan.put.ioiorobot.util.SystemUiHider;
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -147,14 +148,16 @@ public class MainActivity extends IOIOActivity {
 
 		findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
-		speedBar = (SeekBar) findViewById(R.id.speedBar);
+		speedBar = (VerticalSeekBar) findViewById(R.id.speedBar);
 		directionBar = (SeekBar) findViewById(R.id.directionBar);
+		
 		speedBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
+			
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
-
+				int progress = 100;
+				seekBar.setProgress(progress);
+				this.onProgressChanged(seekBar, progress, false);	
 			}
 
 			@Override
@@ -173,14 +176,15 @@ public class MainActivity extends IOIOActivity {
 				}
 				Log.d(TAG, (progress - 100) + " progress");
 			}
+
+
 		});
 
 		directionBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
-
+				seekBar.setProgress(100);
 			}
 
 			@Override
