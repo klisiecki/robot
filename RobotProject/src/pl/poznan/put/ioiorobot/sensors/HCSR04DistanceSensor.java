@@ -8,19 +8,20 @@ import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import android.util.Log;
 
 public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
-	private static final int SERVO_MIN = 600;
-	private static final int SERVO_MAX = 2300;
+	private static final int SERVO_MIN = 800; //600
+	private static final int SERVO_MAX = 2100; //2300
 
 	private static final int ANGLE_MIN = -90;
 	private static final int ANGLE_MAX = 90;
 	private static final int ANGLE_STEP = 10;
-	
+
 	private static final int STEP_DELAY = 40;
 
 	private static final int RESULTS_SIZE = (ANGLE_MAX - ANGLE_MIN) / ANGLE_STEP;
@@ -30,11 +31,15 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 	private PulseInput echo;
 
 	private List<Pair> results;
-
+	
+	IOIO ioio_;
+	int echoPin;
 	public HCSR04DistanceSensor(IOIO ioio_, int servoPin, int triggerPin, int echoPin) throws ConnectionLostException {
 		servo = ioio_.openPwmOutput(servoPin, 100);
 		trigger = ioio_.openDigitalOutput(triggerPin, false);
 		echo = ioio_.openPulseInput(echoPin, PulseMode.POSITIVE);
+		this.ioio_ = ioio_;
+		this.echoPin = echoPin;
 		results = new ArrayList<IDistanceSensor.Pair>(RESULTS_SIZE);
 		for (int i = 0; i < RESULTS_SIZE; i++) {
 			results.add(new Pair(0, 0));
@@ -48,6 +53,15 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 	}
 
 	@Override
+	public List<Integer> getResultsOnly() {
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		for (IDistanceSensor.Pair pair : results) {
+			result.add(pair.distance);
+		}
+		return result;
+	}
+
+	@Override
 	public void run() {
 		try {
 			int position = ANGLE_MIN;
@@ -55,32 +69,55 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 			Thread.sleep(1000);
 			while (true) {
 				for (int i = 0; i < RESULTS_SIZE; i++) {
+					Thread.sleep(STEP_DELAY);
 					servo.setPulseWidth(map(position));
 					Thread.sleep(STEP_DELAY);
-					results.set(i, new Pair(position,getDistance()));
-					position += ANGLE_STEP;
-					Log.d("robot", i +"+, "+ position + ", map: "+map(position));
+					results.set(i, new Pair(position, getDistance()));
+					Log.d("robot", i + "+, " + position + ", map: " + map(position) + " | "+results.get(i).distance);
+					if (i != RESULTS_SIZE - 1)
+						position += ANGLE_STEP;
 				}
 
-				for (int i = RESULTS_SIZE - 1; i >= 0; i--) {
+				for (int i = RESULTS_SIZE - 2; i > 0; i--) {
+					position -= ANGLE_STEP;
+					Thread.sleep(STEP_DELAY);
 					servo.setPulseWidth(map(position));
 					Thread.sleep(STEP_DELAY);
-					results.set(i, new Pair(position,getDistance()));
-					position -= ANGLE_STEP;
-					Log.d("robot", i +"-, "+ position + ", map: "+map(position));
+					results.set(i, new Pair(position, getDistance()));
+					Log.d(" ", i + "-, " + position + ", map: " + map(position) + " | "+results.get(i).distance);
 				}
+				position -= ANGLE_STEP;
 			}
+//			List<Integer> ids =
+//					Arrays.asList(new Integer[] {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1});
+//			List<Integer> vals = 
+//					Arrays.asList(new Integer[] {-90,-80,-70,-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60,70,80,70,60,50,40,30,20,10,0,-10,-20,-30,-40,-50,-60,-70,-80});
+//			while(true) {
+//				int i = (int) (Math.random() * 34.0);
+//			//for (int i = 0; i < 34; i++) {
+//				Thread.sleep(STEP_DELAY);
+//				servo.setPulseWidth(map(vals.get(i)));
+//				Thread.sleep(STEP_DELAY);
+//				results.set(ids.get(i), new Pair(vals.get(i), getDistance()));
+//				Log.d("robot", ids.get(i) + ", " + vals.get(i) + " |"+results.get(ids.get(i)).distance);
+//			}
+			
 		} catch (Exception e) {
-			Log.e("robot",e.toString());
+			Log.e("robot", e.toString());
 		}
 	}
 
 	private int getDistance() throws ConnectionLostException, InterruptedException {
-		TimeUnit.MICROSECONDS.sleep(2);
-		trigger.write(true);
-		TimeUnit.MICROSECONDS.sleep(10);
+		//echo = ioio_.openPulseInput(echoPin, PulseMode.POSITIVE);
 		trigger.write(false);
+		sleep(5);
+		trigger.write(true);
+		//TimeUnit.MICROSECONDS.sleep(10);
+		sleep(1);
+		trigger.write(false);
+		//sleep(100);
 		int echoSeconds = (int) (echo.getDuration() * 1000 * 1000);
+		//echo.close();
 		return (int) echoSeconds / 29 / 2;
 	}
 
