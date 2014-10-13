@@ -15,8 +15,8 @@ public class SimpleBarGraph extends View {
 	private Paint barPaint;
 	
 	int graphWidth;
-	int graphHeight = 100;
-	int maxValue = 60;
+	int graphHeight = 250;
+	int maxValue = 150;
 	
 	private List<Integer> values = new ArrayList<Integer>();
 
@@ -55,6 +55,7 @@ public class SimpleBarGraph extends View {
     
 	public void setValues(List<Integer> values) {
 		this.values = values;
+		this.invalidate();
 	}    
     
 
@@ -71,10 +72,10 @@ public class SimpleBarGraph extends View {
     @Override
     protected void onDraw(Canvas canvas) {
     	//####
-    	values.add(10);
-    	values.add(50);
-    	values.add(5);
-    	values.add(30);
+//    	values.add(10);
+//    	values.add(50);
+//    	values.add(5);
+//    	values.add(30);
     	//####
     	
     	List<Integer> valuesCopy = values;
@@ -86,7 +87,7 @@ public class SimpleBarGraph extends View {
     		int value = valuesCopy.get(i);
     		int scaledValue = value > maxValue ? maxValue : value;
     		
-    		int left = graphWidth*i/barsNumber;
+    		int left = graphWidth*i/barsNumber+5;
     		int top = graphHeight - (int) (graphHeight * ((float)scaledValue / maxValue));
     		int right = graphWidth*(i+1)/barsNumber;
     		int bottom = graphHeight;

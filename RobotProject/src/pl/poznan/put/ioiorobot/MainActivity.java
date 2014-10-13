@@ -8,6 +8,7 @@ import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
+import pl.poznan.put.ioiorobot.temp.SimpleBarGraph;
 import pl.poznan.put.ioiorobot.temp.VerticalSeekBar;
 import pl.poznan.put.ioiorobot.util.SystemUiHider;
 import android.annotation.TargetApi;
@@ -29,6 +30,8 @@ public class MainActivity extends IOIOActivity {
 	private TextView textView;
 	private IMotorsController motorsController;
 	private IDistanceSensor distanceSensor;
+	
+	private SimpleBarGraph barGraph;
 
 	class Looper extends BaseIOIOLooper {
 		@Override
@@ -55,7 +58,8 @@ public class MainActivity extends IOIOActivity {
 					
 					@Override
 					public void run() {
-						textView.setText(distanceSensor.getResults().toString());
+	//					textView.setText(distanceSensor.getResults().toString());
+						barGraph.setValues(distanceSensor.getResultsOnly());
 						// TODO Auto-generated method stub
 						
 					}
@@ -206,7 +210,7 @@ public class MainActivity extends IOIOActivity {
 		});
 
 		textView = (TextView) findViewById(R.id.textView);
-
+		barGraph = (SimpleBarGraph) findViewById(R.id.simpleBarGraph1);
 		Log.d(TAG, "konstruktor");
 	}
 
