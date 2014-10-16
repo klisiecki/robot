@@ -20,7 +20,7 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 
 	private static final int ANGLE_MIN = -90;
 	private static final int ANGLE_MAX = 90;
-	private static final int ANGLE_STEP = 10;
+	private static final int ANGLE_STEP = 5;
 
 	private static final int STEP_DELAY = 40;
 

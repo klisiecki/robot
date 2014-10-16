@@ -15,7 +15,7 @@ public class SimpleBarGraph extends View {
 	private Paint barPaint;
 	
 	int graphWidth;
-	int graphHeight = 250;
+	int graphHeight = 150;
 	int maxValue = 150;
 	
 	private List<Integer> values = new ArrayList<Integer>();

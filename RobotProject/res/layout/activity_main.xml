@@ -5,28 +5,6 @@
     android:background="#0099cc"
     tools:context="pl.poznan.put.ioiorobot.MainActivity" >
 
-    <!--
-         The primary full-screen view. This can be replaced with whatever view
-         is needed to present your content, e.g. VideoView, SurfaceView,
-         TextureView, etc.
-    -->
-
-    <TextView
-        android:id="@+id/fullscreen_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        android:text="@string/dummy_content"
-        android:textColor="#33b5e5"
-        android:textSize="50sp"
-        android:textStyle="bold" />
-
-    <!--
-         This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows.
-    -->
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -36,7 +14,7 @@
             android:id="@+id/fullscreen_content_controls"
             style="?metaButtonBarStyle"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="match_parent"
             android:layout_gravity="bottom|center_horizontal"
             android:background="@color/black_overlay"
             tools:ignore="UselessParent" >
@@ -54,18 +32,15 @@
                 android:layout_gravity="bottom"
                 android:orientation="vertical" >
 
+                <org.opencv.android.JavaCameraView
+                    android:id="@+id/camera_view"
+                    android:layout_width="300dp"
+                    android:layout_height="200dp" />
+
                 <pl.poznan.put.ioiorobot.temp.SimpleBarGraph
                     android:id="@+id/simpleBarGraph1"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content" />
-
-                <Button
-                    android:id="@+id/dummy_button"
-                    style="?metaButtonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/dummy_button" />
 
                 <SeekBar
                     android:id="@+id/directionBar"
@@ -73,13 +48,6 @@
                     android:layout_height="wrap_content"
                     android:max="200"
                     android:progress="100" />
-
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Large Text"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
