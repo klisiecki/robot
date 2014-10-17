@@ -16,6 +16,7 @@ import pl.poznan.put.ioiorobot.temp.VerticalSeekBar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -30,6 +31,8 @@ public class MainActivity extends IOIOActivity {
 	private IDistanceSensor distanceSensor;
 	private Camera camera;
 	private SimpleBarGraph barGraph;
+	
+	
 
 	class Looper extends BaseIOIOLooper {
 		@Override
@@ -42,6 +45,7 @@ public class MainActivity extends IOIOActivity {
 
 			try {
 				motorsController = new MotorsController(ioio_, 1, 2, 3, 16, 17, 14);
+				motorsController.setSpeed(50);
 				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
 			} catch (ConnectionLostException e) {
 				Log.e(TAG, e.toString());
@@ -62,6 +66,8 @@ public class MainActivity extends IOIOActivity {
 						
 					}
 				});
+			motorsController.setDirection(camera.getxTargetPosition());
+			Log.d(TAG, camera.getxTargetPosition()+"");
 			Thread.sleep(50);
 		}
 
@@ -86,6 +92,7 @@ public class MainActivity extends IOIOActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
 		speedBar = (VerticalSeekBar) findViewById(R.id.speedBar);
 		directionBar = (SeekBar) findViewById(R.id.directionBar);
