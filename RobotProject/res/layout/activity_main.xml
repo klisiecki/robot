@@ -19,7 +19,7 @@
             android:background="@color/black_overlay"
             tools:ignore="UselessParent" >
 
-            <pl.poznan.put.ioiorobot.temp.VerticalSeekBar
+            <pl.poznan.put.ioiorobot.widgets.VerticalSeekBar
                 android:id="@+id/speedBar"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
@@ -37,7 +37,7 @@
                     android:layout_width="300dp"
                     android:layout_height="200dp" />
 
-                <pl.poznan.put.ioiorobot.temp.SimpleBarGraph
+                <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
                     android:id="@+id/simpleBarGraph1"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content" />

@@ -51,7 +51,7 @@ public class Camera implements CvCameraViewListener2 {
 	}
 
 	public void resume() {
-		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, context, loaderCallback);
+		//OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, context, loaderCallback);
 	}
 
 	@Override
@@ -75,6 +75,12 @@ public class Camera implements CvCameraViewListener2 {
 		getYellowMat(dst, dst);
 		Point center = detectObject(mat, dst, "C", result);
 		xTargetPosition = (int) (((double) center.x / (double) mat.width())*200.0-100.0);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return result;
 
 	}
@@ -97,17 +103,13 @@ public class Camera implements CvCameraViewListener2 {
 		int k = getBiggestContourIndex(contours);
 		Rect bounds = setContourRect(contours, k);
 
-		Point center = new Point();
-		getCenterPoint(bounds.tl(), bounds.br(), center);
+		Point center = CameraUtils.getCenter(bounds.tl(), bounds.br());
 		Core.rectangle(dst, bounds.tl(), bounds.br(), new Scalar(255, 255, 0), 2, 8, 0);
 
 		return center;
 	}
 
-	public static void getCenterPoint(Point tl, Point br, Point dst) {
-		dst.x = (tl.x + br.x) / 2;
-		dst.y = (tl.y + br.y) / 2;
-	}
+
 
 	public static int getBiggestContourIndex(List<MatOfPoint> contours) {
 		double maxArea = 0;
