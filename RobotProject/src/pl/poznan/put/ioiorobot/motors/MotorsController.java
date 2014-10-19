@@ -74,6 +74,7 @@ public class MotorsController implements IMotorsController {
 		@Override
 		public void run() {
 			while (true) {
+								
 				try {
 					if (speed > 5) {
 						l1.write(true);
@@ -97,7 +98,7 @@ public class MotorsController implements IMotorsController {
 					if (right< 0.2f) right = 0;
 					lPwm.setDutyCycle(Math.min(left,1f));
 					rPwm.setDutyCycle(Math.min(right, 1f));
-					//Log.d("robot", left + " | " + right);
+					Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed + "     L = " + left + "   R = " + right);
 					
 //					lPwm.setDutyCycle(1);
 //					rPwm.setDutyCycle(1);
