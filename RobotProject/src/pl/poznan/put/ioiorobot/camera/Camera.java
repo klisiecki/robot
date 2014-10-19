@@ -51,7 +51,7 @@ public class Camera implements CvCameraViewListener2 {
 	}
 
 	public void resume() {
-		//OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, context, loaderCallback);
+		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, context, loaderCallback);
 	}
 
 	@Override
@@ -68,6 +68,12 @@ public class Camera implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+		return findColorShapes(inputFrame);
+		//return findRegularShapes(inputFrame);
+
+	}
+
+	private Mat findColorShapes(CvCameraViewFrame inputFrame) {
 		Mat mat = inputFrame.rgba();
 		Mat dst = new Mat();
 		Mat result = new Mat();
@@ -75,14 +81,54 @@ public class Camera implements CvCameraViewListener2 {
 		getYellowMat(dst, dst);
 		Point center = detectObject(mat, dst, "C", result);
 		xTargetPosition = (int) (((double) center.x / (double) mat.width())*200.0-100.0);
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return result;
-
+	}
+	
+	private Mat findRegularShapes(CvCameraViewFrame inputFrame) {
+		Mat img = inputFrame.rgba();
+		Mat gray = inputFrame.gray();
+		
+		
+//		Mat grayThreshold = gray;;
+//		//Imgproc.threshold(gray, grayThreshold, 127.0, 255.0, Imgproc.THRESH_BINARY);
+//		Imgproc.adaptiveThreshold(gray, grayThreshold, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 15, 4);
+//		
+//		Imgproc.erode(grayThreshold, grayThreshold, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3)));
+//		//return grayThreshold;
+		
+		Mat canny = gray;
+		Mat edges = canny;
+		Imgproc.Canny(canny, edges, 50, 100);
+		
+		
+		return canny;
+		
+//		Mat contourImg = canny;
+		
+//		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+//		Imgproc.findContours(grayThreshold, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
+//
+//		
+//		for(MatOfPoint cnt : contours) {
+//			MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
+//			MatOfPoint2f approxCurve = new MatOfPoint2f();
+//			double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
+//			Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
+//			
+//			if(approxCurve.toList().size()==3) {
+//				List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+//				cntList.add(cnt);
+//				Imgproc.drawContours(img, cntList, 0, new Scalar(255, 0, 0), 4);
+//			}
+//			else if(approxCurve.toList().size()==4) {
+//				List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+//				cntList.add(cnt);
+//				
+//				Imgproc.drawContours(img, cntList, 0, new Scalar(0,255, 0), 4);
+//			}
+//		}
+//		
+//		return img;		
 	}
 
 	public static void getBlueMat(Mat src, Mat dst) {

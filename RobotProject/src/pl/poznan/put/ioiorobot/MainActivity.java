@@ -14,6 +14,8 @@ import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
+import pl.poznan.put.ioiorobot.widgets.Joystick;
+import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
 import pl.poznan.put.ioiorobot.widgets.VerticalSeekBar;
 import android.os.Bundle;
@@ -29,8 +31,7 @@ public class MainActivity extends IOIOActivity {
 	private static final String TAG = "robot";
 
 	// Views
-	private SeekBar speedBar;
-	private SeekBar directionBar;
+	private Joystick joystick;
 	private SimpleBarGraph barGraph;
 
 	// Controls
@@ -46,7 +47,7 @@ public class MainActivity extends IOIOActivity {
 
 			try {
 				motorsController = new MotorsController(ioio_, 1, 2, 3, 16, 17, 14);
-				motorsController.setSpeed(50);
+				//motorsController.setSpeed(50);
 				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
 			} catch (ConnectionLostException e) {
 				Log.e(TAG, e.toString());
@@ -65,9 +66,9 @@ public class MainActivity extends IOIOActivity {
 					}
 				});
 				int val = distances.get(distances.size()/2);
-				motorsController.setSpeed(val  > 10 ? 50 : 0);
+				//motorsController.setSpeed(val  > 10 ? 50 : 0);
 			}
-			motorsController.setDirection(camera.getxTargetPosition());
+			//motorsController.setDirection(camera.getxTargetPosition());
 			Thread.sleep(100);
 		}
 
@@ -101,52 +102,33 @@ public class MainActivity extends IOIOActivity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
 		
-		speedBar = (VerticalSeekBar) findViewById(R.id.speedBar);
-		directionBar = (SeekBar) findViewById(R.id.directionBar);
 		camera = new Camera((CameraBridgeViewBase) findViewById(R.id.camera_view), this);
+		joystick = (Joystick) findViewById(R.id.joystick);
 		barGraph = (SimpleBarGraph) findViewById(R.id.simpleBarGraph1);
 	}
 
 	private void initListeners() {
-		speedBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
+		
+		joystick.setJostickMovedListener(new JoystickMovedListener() {
+			
 			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				int progress = 100;
-				seekBar.setProgress(progress);
-				this.onProgressChanged(seekBar, progress, false);
-			}
-
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
-
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+			public void OnReleased() {
 				if (motorsController != null) {
-					motorsController.setSpeed(progress - 100);
+					motorsController.setDirection(0);
+					motorsController.setSpeed(0);
+				}				
+			}
+			
+			@Override
+			public void OnMoved(int xPos, int yPos) {
+				if (motorsController != null) {
+					motorsController.setDirection(xPos);
+					motorsController.setSpeed(yPos);
 				}
+				
 			}
 		});
-
-		directionBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				seekBar.setProgress(100);
-			}
-
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
-
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				if (motorsController != null) {
-					motorsController.setDirection(progress - 100);
-				}
-			}
-		});
+		
 	}
 	
 	private void showToast(final String message) {

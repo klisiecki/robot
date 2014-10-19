@@ -11,44 +11,36 @@
         android:fitsSystemWindows="true" >
 
         <LinearLayout
-            android:id="@+id/fullscreen_content_controls"
-            style="?metaButtonBarStyle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom|center_horizontal"
-            android:background="@color/black_overlay"
-            tools:ignore="UselessParent" >
-
-            <pl.poznan.put.ioiorobot.widgets.VerticalSeekBar
-                android:id="@+id/speedBar"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:max="200"
-                android:progress="100" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="vertical" >
 
             <LinearLayout
+                android:id="@+id/fullscreen_content_controls"
+                style="?metaButtonBarStyle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:orientation="vertical" >
+                android:layout_height="match_parent"
+                android:layout_gravity="bottom|center_horizontal"
+                android:background="@color/black_overlay"
+                tools:ignore="UselessParent" >
 
                 <org.opencv.android.JavaCameraView
                     android:id="@+id/camera_view"
                     android:layout_width="300dp"
                     android:layout_height="200dp" />
-
-                <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
-                    android:id="@+id/simpleBarGraph1"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" />
-
-                <SeekBar
-                    android:id="@+id/directionBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:max="200"
-                    android:progress="100" />
+                
+                <pl.poznan.put.ioiorobot.widgets.Joystick
+	                android:id="@+id/joystick"
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent" />
+                
             </LinearLayout>
+
+            <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
+                android:id="@+id/simpleBarGraph1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </FrameLayout>
 
