@@ -1,4 +1,4 @@
-package pl.poznan.put.ioiorobot.temp;
+package pl.poznan.put.ioiorobot.widgets;
 
 import android.content.Context;
 import android.graphics.Canvas;

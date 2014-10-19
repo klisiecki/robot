@@ -1,4 +1,4 @@
-package pl.poznan.put.ioiorobot.temp;
+package pl.poznan.put.ioiorobot.widgets;
 
 import java.util.ArrayList;
 import java.util.List;

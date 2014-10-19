@@ -20,9 +20,9 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 
 	private static final int ANGLE_MIN = -90;
 	private static final int ANGLE_MAX = 90;
-	private static final int ANGLE_STEP = 5;
+	private static final int ANGLE_STEP = 10;
 
-	private static final int STEP_DELAY = 40;
+	private static final int STEP_DELAY = 60;
 
 	private static final int RESULTS_SIZE = (ANGLE_MAX - ANGLE_MIN) / ANGLE_STEP;
 
@@ -40,6 +40,7 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 		for (int i = 0; i < RESULTS_SIZE; i++) {
 			results.add(new Pair(0, 0));
 		}
+		Log.d("robot", "hcsr");
 		start();
 	}
 
@@ -59,13 +60,13 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 
 	@Override
 	public void run() {
+		Log.d("robot", "run");
 		try {
 			int position = ANGLE_MIN;
 			servo.setPulseWidth(map(position));
 			Thread.sleep(1000);
 			while (true) {
 				for (int i = 0; i < RESULTS_SIZE; i++) {
-//					Thread.sleep(STEP_DELAY);
 					servo.setPulseWidth(map(position));
 					Thread.sleep(STEP_DELAY);
 					results.set(i, new Pair(position, getDistance()));
@@ -76,7 +77,6 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 
 				for (int i = RESULTS_SIZE - 2; i > 0; i--) {
 					position -= ANGLE_STEP;
-//					Thread.sleep(STEP_DELAY);
 					servo.setPulseWidth(map(position));
 					Thread.sleep(STEP_DELAY);
 					results.set(i, new Pair(position, getDistance()));
@@ -90,8 +90,6 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 	}
 
 	private int getDistance() throws ConnectionLostException, InterruptedException {
-//		trigger.write(false);
-//		sleep(5);
 		trigger.write(true);
 		sleep(1);
 		trigger.write(false);
