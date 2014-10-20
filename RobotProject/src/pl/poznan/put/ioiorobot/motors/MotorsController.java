@@ -33,7 +33,6 @@ public class MotorsController implements IMotorsController {
 		rPwm = ioio_.openPwmOutput(rPwmPin, FREQUENCY);
 
 		MotorThread t = new MotorThread();
-		// t.start();
 	}
 
 	public int getDirection() {
@@ -66,7 +65,6 @@ public class MotorsController implements IMotorsController {
 
 	class MotorThread extends Thread {
 		public MotorThread() {
-			// TODO Auto-generated constructor stub
 			start();
 			Log.e("robot", "MotorThread constructor");
 		}
@@ -98,10 +96,8 @@ public class MotorsController implements IMotorsController {
 					if (right< 0.2f) right = 0;
 					lPwm.setDutyCycle(Math.min(left,1f));
 					rPwm.setDutyCycle(Math.min(right, 1f));
-					Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed + "     L = " + left + "   R = " + right);
-					
-//					lPwm.setDutyCycle(1);
-//					rPwm.setDutyCycle(1);
+					//Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed + "     L = " + left + "   R = " + right);
+
 					Thread.sleep(20);
 				} catch (Exception e) {
 				}

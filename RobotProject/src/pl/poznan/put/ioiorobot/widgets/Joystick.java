@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.drawable.shapes.OvalShape;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -22,9 +24,7 @@ public class Joystick extends View {
     private Paint joystickPaint;
     private int touchX, touchY;
 
-    //private int handleInnerBoundaries;
     private JoystickMovedListener listener;
-    //private int sensitivity;
 
 
     public Joystick(Context context) {
@@ -58,8 +58,6 @@ public class Joystick extends View {
         //handlePaint.setAlpha(100);
 
         maxValue = 100;
-
-        //sensitivity = 100; // TODO
     }
 
     
@@ -70,8 +68,8 @@ public class Joystick extends View {
     
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    	int desiredWidth = 100;
-    	int desiredHeight = 100;
+    	int desiredWidth = 1000;
+    	int desiredHeight = 1000;
 
         width = measureSize(widthMeasureSpec, desiredWidth);
         height = measureSize(heightMeasureSpec, desiredHeight);
@@ -101,6 +99,8 @@ public class Joystick extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawCircle(width/2, height/2, Math.min(width/2, height/2), backgroundPaint);
+        //canvas.drawOval(new RectF(0, 0, width, height), backgroundPaint);
+        
         canvas.drawCircle(width/2 + touchX, height/2 + touchY, joystickRadius, joystickPaint);
 
         canvas.save();
@@ -119,12 +119,18 @@ public class Joystick extends View {
             touchY = (int) event.getY();
             touchY = Math.max(Math.min(touchY, height), 0) - height/2;
 
+            if(Math.sqrt(touchX*touchX+touchY*touchY) > Math.sqrt(2 * Math.min(width/2,height/2) * Math.min(width/2,height/2))-joystickRadius) {
+            	touchX = 0;
+            	touchY = 0;
+            }
+
             if(listener != null) {
             	int posX = touchX != 0 ? (int)(touchX / (width/2.0) * maxValue) : 0;
             	int posY = touchY != 0 ? (int)(touchY / (height/2.0) * maxValue) : 0;
             	listener.OnMoved(posX, -posY);
             }
 
+            
             invalidate();
         } else if (actionType == MotionEvent.ACTION_UP) {
         	touchX = 0;

@@ -27,18 +27,45 @@
 
                 <org.opencv.android.JavaCameraView
                     android:id="@+id/camera_view"
-                    android:layout_width="300dp"
-                    android:layout_height="200dp" />
-                
+                    android:layout_width="800px"
+                    android:layout_height="480px" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="top"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Kamera"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                    <ToggleButton
+                        android:id="@+id/cameraToggleButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical|center_horizontal|top"
+                        android:minHeight="28dip"
+                        android:text="ToggleButton" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/black_overlay" />
+
+                </LinearLayout>
+
                 <pl.poznan.put.ioiorobot.widgets.Joystick
-	                android:id="@+id/joystick"
-	                android:layout_width="fill_parent"
-	                android:layout_height="fill_parent" />
-                
+                    android:id="@+id/joystick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
             </LinearLayout>
 
             <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
-                android:id="@+id/simpleBarGraph1"
+                android:id="@+id/distanceBarGraph"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>

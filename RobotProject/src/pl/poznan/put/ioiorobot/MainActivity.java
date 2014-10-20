@@ -25,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class MainActivity extends IOIOActivity {
 	
@@ -33,6 +34,7 @@ public class MainActivity extends IOIOActivity {
 	// Views
 	private Joystick joystick;
 	private SimpleBarGraph barGraph;
+	private ToggleButton cameraButton;
 
 	// Controls
 	private IMotorsController motorsController;
@@ -57,18 +59,28 @@ public class MainActivity extends IOIOActivity {
 
 		@Override
 		public void loop() throws ConnectionLostException, InterruptedException {
-			List<Integer> distances;
+			
 			if (distanceSensor.getResults() != null) {
-				distances = distanceSensor.getResultsOnly();
+				List<Integer> distances = distanceSensor.getResultsOnly();
 				runOnUiThread(new Runnable() {
 					public void run() {
 						barGraph.setValues(distanceSensor.getResultsOnly());
 					}
 				});
-				int val = distances.get(distances.size()/2);
-				//motorsController.setSpeed(val  > 10 ? 50 : 0);
 			}
-			//motorsController.setDirection(camera.getxTargetPosition());
+			
+			if(cameraButton.isChecked()) {
+					motorsController.setDirection(camera.getxTargetPosition());
+					if (distanceSensor.getResults() != null) {
+						List<Integer> distances = distanceSensor.getResultsOnly();
+						int val = distances.get(distances.size()/2);
+						motorsController.setSpeed(val  > 10 ? 50 : 0);
+					}
+					else{
+						motorsController.setSpeed(50);
+					}
+			}
+			
 			Thread.sleep(100);
 		}
 
@@ -104,7 +116,8 @@ public class MainActivity extends IOIOActivity {
 		
 		camera = new Camera((CameraBridgeViewBase) findViewById(R.id.camera_view), this);
 		joystick = (Joystick) findViewById(R.id.joystick);
-		barGraph = (SimpleBarGraph) findViewById(R.id.simpleBarGraph1);
+		barGraph = (SimpleBarGraph) findViewById(R.id.distanceBarGraph);
+		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);
 	}
 
 	private void initListeners() {
