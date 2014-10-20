@@ -111,7 +111,7 @@ public class Joystick extends View {
         int actionType = event.getAction();
         if (actionType == MotionEvent.ACTION_MOVE) {
 
-        	Log.d("robot", "\t\t" + event.getX() + " | " + event.getY());
+        	//Log.d("robot", "\t\t" + event.getX() + " | " + event.getY());
         	
             touchX = (int) event.getX();
             touchX = Math.max(Math.min(touchX, width), 0) - width/2;
@@ -119,14 +119,21 @@ public class Joystick extends View {
             touchY = (int) event.getY();
             touchY = Math.max(Math.min(touchY, height), 0) - height/2;
 
-            if(Math.sqrt(touchX*touchX+touchY*touchY) > Math.sqrt(2 * Math.min(width/2,height/2) * Math.min(width/2,height/2))-joystickRadius) {
-            	touchX = 0;
-            	touchY = 0;
-            }
+            int size = Math.min(width/2,height/2) - joystickRadius;
+            if(touchX>size) { touchX = size; }
+            if(touchX<-size) { touchX = -size; }
+            if(touchY>size) { touchY = size; }
+            if(touchY<-size) { touchY = -size; }
+            
+//            if(Math.sqrt(touchX*touchX+touchY*touchY) > Math.sqrt(2 * Math.min(width/2,height/2) * Math.min(width/2,height/2))-joystickRadius) {
+//            	touchX = 0;
+//            	touchY = 0;
+//            }
 
             if(listener != null) {
-            	int posX = touchX != 0 ? (int)(touchX / (width/2.0) * maxValue) : 0;
-            	int posY = touchY != 0 ? (int)(touchY / (height/2.0) * maxValue) : 0;
+            	int posX = touchX != 0 ? (int)( (double)touchX / size * maxValue) : 0;
+            	int posY = touchY != 0 ? (int)( (double)touchY / size * maxValue) : 0;
+            	//Log.d("robot", "posX = " + posX + "   posY = " + posY);
             	listener.OnMoved(posX, -posY);
             }
 

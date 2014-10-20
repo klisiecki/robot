@@ -70,7 +70,7 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 					servo.setPulseWidth(map(position));
 					Thread.sleep(STEP_DELAY);
 					results.set(i, new Pair(position, getDistance()));
-					Log.d("robot", i + "+, " + position + ", map: " + map(position) + " | "+results.get(i).distance);
+					//Log.d("robot", i + "+, " + position + ", map: " + map(position) + " | "+results.get(i).distance);
 					if (i != RESULTS_SIZE - 1)
 						position += ANGLE_STEP;
 				}

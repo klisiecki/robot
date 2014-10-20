@@ -90,13 +90,16 @@ public class MotorsController implements IMotorsController {
 						r1.write(false);
 						r2.write(false);
 					}
-					float left = ((float) Math.abs(speed) + (float)direction*speed/100f)/100f;
-					float right = ((float)Math.abs(speed) - (float)direction*speed/100f)/100f;
+					float left = Math.min( ((float) Math.abs(speed) + direction)/100f, 1f);
+					float right = Math.min( ((float) Math.abs(speed) - direction)/100f, 1f);
+
+//					float left = ((float) Math.abs(speed) + (float)direction*speed/100f)/100f;
+//					float right = ((float)Math.abs(speed) - (float)direction*speed/100f)/100f;
 					if (left < 0.2f) left = 0;
 					if (right< 0.2f) right = 0;
 					lPwm.setDutyCycle(Math.min(left,1f));
 					rPwm.setDutyCycle(Math.min(right, 1f));
-					//Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed + "     L = " + left + "   R = " + right);
+					Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed + "     L = " + left + "   R = " + right);
 
 					Thread.sleep(20);
 				} catch (Exception e) {

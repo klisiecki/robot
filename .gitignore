@@ -53,3 +53,8 @@ local.properties
 
 .gitignore~
 .recommenders/
+
+libs/IOIOLib/target/android/bin/ioiolibandroid.jar
+libs/IOIOLibAccessory/bin/ioiolibaccessory.jar
+libs/IOIOLibBT/bin/ioiolibbt.jar
+
