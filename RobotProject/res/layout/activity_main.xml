@@ -27,8 +27,8 @@
 
                 <org.opencv.android.JavaCameraView
                     android:id="@+id/camera_view"
-                    android:layout_width="800px"
-                    android:layout_height="480px" />
+                    android:layout_width="300dp"
+                    android:layout_height="180dp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -56,6 +56,25 @@
                         android:layout_height="2dp"
                         android:background="@color/black_overlay" />
 
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Sensor"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                    <ToggleButton
+                        android:id="@+id/sensorToggleButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical|center_horizontal|top"
+                        android:minHeight="28dip"
+                        android:text="ToggleButton" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/black_overlay" />
                 </LinearLayout>
 
                 <pl.poznan.put.ioiorobot.widgets.Joystick

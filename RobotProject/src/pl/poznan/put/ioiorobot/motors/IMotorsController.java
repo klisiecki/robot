@@ -10,4 +10,8 @@ public interface IMotorsController {
 	int getSpeed();
 
 	void setSpeed(int speed);
+	
+	void stop();
+	
+	void start();
 }

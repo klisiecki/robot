@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import android.util.Log;
 
 public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {

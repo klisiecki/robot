@@ -11,6 +11,8 @@ public class MotorsController implements IMotorsController {
 
 	private int direction;
 	private int speed;
+	
+	private boolean enabled = true;
 
 	private IOIO ioio_;
 	private DigitalOutput l1;
@@ -72,7 +74,6 @@ public class MotorsController implements IMotorsController {
 		@Override
 		public void run() {
 			while (true) {
-								
 				try {
 					if (speed > 5) {
 						l1.write(true);
@@ -92,7 +93,9 @@ public class MotorsController implements IMotorsController {
 					}
 					float left = Math.min( ((float) Math.abs(speed) + direction)/100f, 1f);
 					float right = Math.min( ((float) Math.abs(speed) - direction)/100f, 1f);
-
+					if(!enabled) {
+						left = right = 0;
+					}
 //					float left = ((float) Math.abs(speed) + (float)direction*speed/100f)/100f;
 //					float right = ((float)Math.abs(speed) - (float)direction*speed/100f)/100f;
 					if (left < 0.2f) left = 0;
@@ -101,12 +104,23 @@ public class MotorsController implements IMotorsController {
 					rPwm.setDutyCycle(Math.min(right, 1f));
 					Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed + "     L = " + left + "   R = " + right);
 
-					Thread.sleep(20);
+					Thread.sleep(1);
 				} catch (Exception e) {
 				}
 
 
 			}
 		}
+	}
+
+	@Override
+	public void stop() {
+		enabled = false;
+		
+	}
+
+	@Override
+	public void start() {
+		enabled = true;
 	}
 }

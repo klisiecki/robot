@@ -17,13 +17,12 @@ import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
-import pl.poznan.put.ioiorobot.widgets.VerticalSeekBar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -35,6 +34,7 @@ public class MainActivity extends IOIOActivity {
 	private Joystick joystick;
 	private SimpleBarGraph barGraph;
 	private ToggleButton cameraButton;
+	private ToggleButton sensorsButton;
 
 	// Controls
 	private IMotorsController motorsController;
@@ -71,7 +71,7 @@ public class MainActivity extends IOIOActivity {
 			
 			if(cameraButton.isChecked()) {
 					motorsController.setDirection(camera.getxTargetPosition());
-					if (distanceSensor.getResults() != null) {
+					if (distanceSensor.getResults() != null && sensorsButton.isChecked()) {
 						List<Integer> distances = distanceSensor.getResultsOnly();
 						int val = distances.get(distances.size()/2);
 						motorsController.setSpeed(val  > 10 ? 50 : 0);
@@ -118,6 +118,7 @@ public class MainActivity extends IOIOActivity {
 		joystick = (Joystick) findViewById(R.id.joystick);
 		barGraph = (SimpleBarGraph) findViewById(R.id.distanceBarGraph);
 		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);
+		sensorsButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
 	}
 
 	private void initListeners() {
@@ -142,6 +143,16 @@ public class MainActivity extends IOIOActivity {
 			}
 		});
 		
+		cameraButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (!isChecked) {
+					motorsController.setSpeed(0);
+					motorsController.setDirection(0);
+				}
+			}
+		});
 	}
 	
 	private void showToast(final String message) {
