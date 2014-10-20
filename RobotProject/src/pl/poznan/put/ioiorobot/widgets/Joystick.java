@@ -48,14 +48,14 @@ public class Joystick extends View {
         backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         backgroundPaint.setColor(Color.rgb(0xbb, 0xe0, 0xf0));
         backgroundPaint.setStrokeWidth(1);
-        backgroundPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        //circlePaint.setAlpha(100);
+        backgroundPaint.setStyle(Paint.Style.STROKE);
+//        backgroundPaint.setAlpha(200);
 
         joystickPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         joystickPaint.setColor(Color.rgb(0x00, 0x77, 0xaa));
         joystickPaint.setStrokeWidth(1);
-        joystickPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        //handlePaint.setAlpha(100);
+        joystickPaint.setStyle(Paint.Style.STROKE);
+//        joystickPaint.setAlpha(100);
 
         maxValue = 100;
     }

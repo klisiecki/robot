@@ -45,7 +45,7 @@ public class Camera implements CvCameraViewListener2 {
 				cameraView.setCameraIndex(0);
 				cameraView.enableFpsMeter();
 				cameraView.enableView();
-				cameraView.setMaxFrameSize(800, 480);
+				cameraView.setMaxFrameSize(960, 540);
 			}
 		};
 	}

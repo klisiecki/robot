@@ -3,37 +3,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
-    tools:context="pl.poznan.put.ioiorobot.MainActivity" >
+    tools:context="pl.poznan.put.ioiorobot.RobotActivity" >
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true" >
+        android:clickable="false" >
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="bottom"
             android:orientation="vertical" >
 
-            <LinearLayout
-                android:id="@+id/fullscreen_content_controls"
-                style="?metaButtonBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="bottom|center_horizontal"
-                android:background="@color/black_overlay"
-                tools:ignore="UselessParent" >
+            <org.opencv.android.JavaCameraView
+                android:id="@+id/camera_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </RelativeLayout>
 
-                <org.opencv.android.JavaCameraView
-                    android:id="@+id/camera_view"
-                    android:layout_width="300dp"
-                    android:layout_height="180dp" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:gravity="bottom"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom" >
 
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="top"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:orientation="vertical" >
 
                     <TextView
@@ -75,6 +85,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="2dp"
                         android:background="@color/black_overlay" />
+
+
+                    <TextView
+                        android:id="@+id/batteryTextView"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="--%"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                    
                 </LinearLayout>
 
                 <pl.poznan.put.ioiorobot.widgets.Joystick
@@ -88,6 +108,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>
-    </FrameLayout>
+    </RelativeLayout>
 
 </FrameLayout>
