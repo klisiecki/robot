@@ -12,13 +12,16 @@ import org.opencv.android.CameraBridgeViewBase;
 import pl.poznan.put.ioiorobot.camera.Camera;
 import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
+import pl.poznan.put.ioiorobot.sensors.Accelerometer;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
+import pl.poznan.put.ioiorobot.sensors.IAccelerometer;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
@@ -44,6 +47,7 @@ public class RobotActivity extends IOIOActivity {
 	private IMotorsController motorsController;
 	private IDistanceSensor distanceSensor;
 	private IBatteryStatus batteryStatus;
+	private IAccelerometer accelerometer;
 	private Camera camera;
 
 	class Looper extends BaseIOIOLooper {
@@ -131,6 +135,8 @@ public class RobotActivity extends IOIOActivity {
 		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);
 		sensorsButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
 		batteryTextView = (TextView) findViewById(R.id.batteryTextView);
+		
+		accelerometer = new Accelerometer((SensorManager) (getSystemService(SENSOR_SERVICE)));
 	}
 
 	private void initListeners() {
