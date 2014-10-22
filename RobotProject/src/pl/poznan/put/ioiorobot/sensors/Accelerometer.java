@@ -18,7 +18,11 @@ public class Accelerometer implements IAccelerometer {
 		private Sensor accelerometer;
 		private float sensorX;
 		private float sensorY;
-		private long sensorTime;
+		private long timestamp;
+		private long lastTimestamp = 0;
+		private float velocityX = 0;
+		private float positionX = 0;
+
 		private long mLastT;
 		private float mLastDeltaT;
 
@@ -28,19 +32,34 @@ public class Accelerometer implements IAccelerometer {
 		private float mAccelY;
 		private float mLastPosX;
 		private float mLastPosY;
-		private float mOneMinusFriction;
 
 		public Listener() {
-			accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-			sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+			accelerometer = sensorManager
+					.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+			sensorManager.registerListener(this, accelerometer,
+					SensorManager.SENSOR_DELAY_UI);
 		}
 
 		@Override
 		public void onSensorChanged(SensorEvent event) {
 			sensorX = event.values[0];
 			sensorY = event.values[1];
-			sensorTime = event.timestamp;
-			update(sensorX, sensorY, sensorTime);
+			timestamp = event.timestamp;
+			// Log.d("robot", "ACC X= " + sensorX + "\n    Y= " + sensorY);
+
+			if (lastTimestamp != 0) {
+				final float dT = (float) (timestamp - lastTimestamp) / 1000000000.0f;
+				if (Math.abs(sensorX) > 0.05) {
+					velocityX += sensorX * dT;
+					//Log.d("robot", "\t\tvelocityX += " + sensorX);
+				}
+				positionX += velocityX * dT;
+				
+				//Log.d("robot", "positionX = " + positionX + "     velocityX = " + velocityX);
+			}
+
+			lastTimestamp = timestamp;
+
 		}
 
 		private void update(float sx, float sy, long timestamp) {
@@ -90,8 +109,8 @@ public class Accelerometer implements IAccelerometer {
 			mPosY = y;
 			mAccelX = ax;
 			mAccelY = ay;
-			
-			Log.d("robot","("+mPosX+", "+mPosY+")");
+
+			// Log.d("robot","("+mPosX+", "+mPosY+")");
 		}
 
 		@Override

@@ -86,7 +86,6 @@
                         android:layout_height="2dp"
                         android:background="@color/black_overlay" />
 
-
                     <TextView
                         android:id="@+id/batteryTextView"
                         android:layout_width="fill_parent"
@@ -94,13 +93,45 @@
                         android:gravity="center"
                         android:text="--%"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
-                    
                 </LinearLayout>
 
                 <pl.poznan.put.ioiorobot.widgets.Joystick
                     android:id="@+id/joystick"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical" >
+
+                    <SeekBar
+                        android:id="@+id/seekBar1"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:max="100"
+                        android:progress="1" />
+                    
+                    <SeekBar
+                        android:id="@+id/seekBar2"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:max="100"
+                        android:progress="1" />
+                    
+                    <SeekBar
+                        android:id="@+id/seekBar3"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:max="50"
+                        android:progress="1" />
+                    
+                </LinearLayout>
+                
             </LinearLayout>
 
             <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph

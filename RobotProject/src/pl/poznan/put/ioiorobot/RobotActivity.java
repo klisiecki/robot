@@ -21,6 +21,7 @@ import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
+import android.app.Application;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -123,6 +124,7 @@ public class RobotActivity extends IOIOActivity {
 		camera.resume();
 	}
 
+
 	private void initView() {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -136,7 +138,7 @@ public class RobotActivity extends IOIOActivity {
 		sensorsButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
 		batteryTextView = (TextView) findViewById(R.id.batteryTextView);
 		
-		accelerometer = new Accelerometer((SensorManager) (getSystemService(SENSOR_SERVICE)));
+		//accelerometer = new Accelerometer((SensorManager) (getSystemService(SENSOR_SERVICE)));
 	}
 
 	private void initListeners() {
