@@ -2,5 +2,7 @@
 <resources>
 
     <string name="app_name">Robot</string>
+    <string name="camera">Kamera</string>
+    <string name="sensor">Sensor</string>
 
 </resources>

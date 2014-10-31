@@ -2,20 +2,24 @@ package pl.poznan.put.ioiorobot.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.View.MeasureSpec;
 
 public class SimpleBarGraph extends View {
+	
+	private int width;
+	private int height;
 
 	private Paint backgroundPaint;
 	private Paint barPaint;
 	
 	int graphWidth;
-	int graphHeight = 150;
 	int maxValue = 150;
 	
 	private List<Integer> values = new ArrayList<Integer>();
@@ -59,15 +63,33 @@ public class SimpleBarGraph extends View {
 	}    
     
 
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-	    int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
-	    //int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
-	    
-	    graphWidth = parentWidth;
-	    
-	    this.setMeasuredDimension(graphWidth, graphHeight);
-	}
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    	int desiredWidth = 3000;
+    	int desiredHeight = 3000;
+        width = measureSize(widthMeasureSpec, desiredWidth);
+        height = measureSize(heightMeasureSpec, desiredHeight);
+        width = height = Math.min(width, height);
+
+        setMeasuredDimension(width, height);
+    }
+
+    private int measureSize(int measureSpec, int desired) {
+        int result = 0;
+        int mode = MeasureSpec.getMode(measureSpec);
+        int size = MeasureSpec.getSize(measureSpec);
+        
+        if (mode == MeasureSpec.EXACTLY) {
+            result = size;
+        } else if (mode == MeasureSpec.AT_MOST) {
+            result = Math.min(desired, size);
+        } else {
+            result = desired;
+        }
+
+        return result;
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -81,16 +103,16 @@ public class SimpleBarGraph extends View {
     	List<Integer> valuesCopy = values;
     	int barsNumber = valuesCopy.size();
     	
-    	canvas.drawRect(0, 0, graphWidth, graphHeight, backgroundPaint);
+    	canvas.drawRect(0, 0, graphWidth, height, backgroundPaint);
     	
     	for(int i=0; i<barsNumber; i++) {
     		int value = valuesCopy.get(i);
     		int scaledValue = value > maxValue ? maxValue : value;
     		
     		int left = graphWidth*i/barsNumber+5;
-    		int top = graphHeight - (int) (graphHeight * ((float)scaledValue / maxValue));
+    		int top = height - (int) (height * ((float)scaledValue / maxValue));
     		int right = graphWidth*(i+1)/barsNumber;
-    		int bottom = graphHeight;
+    		int bottom = height;
     		canvas.drawRect(left, top, right, bottom, barPaint);
     	}
 
