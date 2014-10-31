@@ -62,14 +62,15 @@ public class Camera implements CvCameraViewListener2 {
 				cameraView.enableView();
 				
 //				// Żadna próba wymuszenia większej rozdzielczości nie pomogła :/
-//				WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-//				Display display = wm.getDefaultDisplay();
-//				DisplayMetrics metrics = new DisplayMetrics();
-//				display.getMetrics(metrics);
-//				int width = metrics.widthPixels;
-//				int height = metrics.heightPixels;
+				WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+				Display display = wm.getDefaultDisplay();
+				DisplayMetrics metrics = new DisplayMetrics();
+				display.getMetrics(metrics);
+				int width = metrics.widthPixels;
+				int height = metrics.heightPixels;
+				Log.d("robot", "camera size= " + width + " x " + height); 
 //				
-//				cameraView.setMaxFrameSize(width, height);
+//				cameraView.setMaxFrameSize(800, 600);
 			}
 		};
 		
@@ -99,6 +100,7 @@ public class Camera implements CvCameraViewListener2 {
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		//return findColorShapes(inputFrame);
 		return findRegularShapes(inputFrame);
+		//return inputFrame.rgba();
 		// Zwrócenie obrazu w innym rozmiarze niż wejściowy powoduje brak obrazu
 	}
 
@@ -177,45 +179,59 @@ public class Camera implements CvCameraViewListener2 {
 		Mat baseImgGray = inputFrame.gray();
 		
 		Log.d("robot", "seekBar1 = " + seekBar1.getProgress() + "      seekBar2 = " + seekBar2.getProgress() + "      seekBar3 = " + seekBar3.getProgress());
+								
 		
-		Mat image = baseImgGray;
+		Mat mask = new Mat();
+		baseImgRgba.copyTo(mask);
+		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
+		getYellowMat(mask, mask);
+
+		
+		Mat image = new Mat();
+		baseImgRgba.copyTo(image, mask);
+		
+		/* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
+		Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
+		
+		//return image;
 		
 		
-//		Imgproc.threshold(image, image, 127.0, 255.0, Imgproc.THRESH_BINARY);
+		/*Imgproc.threshold(image, image, 127.0, 255.0, Imgproc.THRESH_BINARY);*/
 		
 		int blockSize = 9; // seekBar1.getProgress()*2 + 3
 		int C = 7; // seekBar2.getProgress()
 		Imgproc.adaptiveThreshold(image, image, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, blockSize, C);
 		
 		
+		/*
 		int size = seekBar3.getProgress()+1;
 		
-//		if(seekBar1.getProgress() > 50) { Imgproc.erode(image, image, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size,size))); }
-//		if(seekBar2.getProgress() > 50) { Imgproc.dilate(image, image, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size,size))); }
+		if(seekBar1.getProgress() > 50) { Imgproc.erode(image, image, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size,size))); }
+		if(seekBar2.getProgress() > 50) { Imgproc.dilate(image, image, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size,size))); }
 		
 		
-//		if(seekBar1.getProgress() > 50) {
-//			Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(size,size));
-//			Imgproc.morphologyEx(image, image, Imgproc.MORPH_CLOSE, kernel);
-//		}
+		if(seekBar1.getProgress() > 50) {
+			Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(size,size));
+			Imgproc.morphologyEx(image, image, Imgproc.MORPH_CLOSE, kernel);
+		}
 		
 		
-//		Imgproc.Canny(image, image, seekBar1.getProgress(), 3*seekBar1.getProgress());
-
+		Imgproc.Canny(image, image, seekBar1.getProgress(), 3*seekBar1.getProgress());
+		*/
 		
 //		return image;
 		
 		
 		
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_SIMPLE);
 
 		Mat img = baseImgRgba;
 		
 		for(MatOfPoint cnt : contours) {
 			
 			// Pomijanie małych obiektów
-			int threshold = 10; // seekBar3.getProgress();
+			int threshold = 600; //seekBar1.getProgress()*10;
 			if(Imgproc.contourArea(cnt) < threshold) continue;
 			
 			MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
@@ -244,7 +260,7 @@ public class Camera implements CvCameraViewListener2 {
 				List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 				cntList.add(cnt);
 				
-				Imgproc.drawContours(img, cntList, 0, new Scalar(255, 255, 0), 4);
+				Imgproc.drawContours(img, cntList, 0, new Scalar(0, 255, 255), 4);
 			}
 		}
 		
