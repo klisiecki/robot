@@ -34,6 +34,8 @@
         <uses-library
             android:name="com.android.future.usb.accessory"
             android:required="false" />
+        
+        
     </application>
 
 </manifest>
