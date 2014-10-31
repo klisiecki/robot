@@ -30,6 +30,7 @@ public class Joystick extends View {
     public Joystick(Context context) {
         super (context);
         initJoystick();
+        
     }
 
     public Joystick(Context context, AttributeSet attrs) {
@@ -70,10 +71,10 @@ public class Joystick extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     	int desiredWidth = 1000;
     	int desiredHeight = 1000;
-
+    	setMinimumWidth(100);
         width = measureSize(widthMeasureSpec, desiredWidth);
         height = measureSize(heightMeasureSpec, desiredHeight);
-
+        width = height = Math.min(width, height);
         joystickRadius = (int) (Math.min(width, height) * 0.15);
 
         setMeasuredDimension(width, height);

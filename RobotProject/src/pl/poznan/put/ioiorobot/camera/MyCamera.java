@@ -1,6 +1,7 @@
 package pl.poznan.put.ioiorobot.camera;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfPoint;
@@ -21,7 +23,6 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import pl.poznan.put.ioiorobot.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.provider.ContactsContract.CommonDataKinds.Im;
@@ -31,23 +32,23 @@ import android.view.Display;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 
-public class Camera implements CvCameraViewListener2 {
+public class MyCamera implements CvCameraViewListener2 {
 
 	private CameraBridgeViewBase cameraView;
 	private BaseLoaderCallback loaderCallback;
 	private Context context;
-	
+
 	private SeekBar seekBar1;
 	private SeekBar seekBar2;
 	private SeekBar seekBar3;
-	
+
 	private int xTargetPosition;
 
 	public int getxTargetPosition() {
 		return xTargetPosition;
 	}
-	
-	public Camera(final CameraBridgeViewBase cameraView, final Context context) {
+
+	public MyCamera(final CameraBridgeViewBase cameraView, final Context context) {
 		super();
 		this.cameraView = cameraView;
 		this.context = context;
@@ -60,7 +61,9 @@ public class Camera implements CvCameraViewListener2 {
 				cameraView.setCameraIndex(0);
 				cameraView.enableFpsMeter();
 				cameraView.enableView();
+
 				
+				/*
 //				// Żadna próba wymuszenia większej rozdzielczości nie pomogła :/
 				WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 				Display display = wm.getDefaultDisplay();
@@ -69,11 +72,13 @@ public class Camera implements CvCameraViewListener2 {
 				int width = metrics.widthPixels;
 				int height = metrics.heightPixels;
 				Log.d("robot", "camera size= " + width + " x " + height); 
-//				
-//				cameraView.setMaxFrameSize(800, 600);
+				
+				cameraView.setMaxFrameSize(800, 600);
+				*/
+
 			}
 		};
-		
+
 		seekBar1 = (SeekBar) ((Activity) context).findViewById(R.id.seekBar1);
 		seekBar2 = (SeekBar) ((Activity) context).findViewById(R.id.seekBar2);
 		seekBar3 = (SeekBar) ((Activity) context).findViewById(R.id.seekBar3);
@@ -85,7 +90,7 @@ public class Camera implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		//Log.d("robot", "onCameraViewStarted " + width + " x " + height);
+		// Log.d("robot", "onCameraViewStarted " + width + " x " + height);
 		// TODO Auto-generated method stub
 
 	}
@@ -101,6 +106,7 @@ public class Camera implements CvCameraViewListener2 {
 		//return findColorShapes(inputFrame);
 		return findRegularShapes(inputFrame);
 		//return inputFrame.rgba();
+
 		// Zwrócenie obrazu w innym rozmiarze niż wejściowy powoduje brak obrazu
 	}
 
@@ -109,19 +115,23 @@ public class Camera implements CvCameraViewListener2 {
 		Mat dst = new Mat();
 		Mat result = new Mat();
 		Imgproc.cvtColor(mat, dst, Imgproc.COLOR_RGB2HSV, 3);
+
+		Log.d("robot", CameraUtils.getPixelColor(dst, 100, 100) + "");
 		getYellowMat(dst, dst);
 		Point center = detectObject(mat, dst, "C", result);
-		xTargetPosition = (int) (((double) center.x / (double) mat.width())*200.0-100.0);
+		xTargetPosition = (int) (((double) center.x / (double) mat.width()) * 200.0 - 100.0);
 		return result;
 	}
-	
 
 	public static void getBlueMat(Mat src, Mat dst) {
 		Core.inRange(src, new Scalar(100, 100, 100), new Scalar(120, 255, 255), dst);
 	}
 
-	public static void getYellowMat(Mat src, Mat dst) {
-		Core.inRange(src, new Scalar(20, 100, 100), new Scalar(30, 255, 255), dst);
+	public void getYellowMat(Mat src, Mat dst) {
+//		Core.inRange(src, new Scalar(seekBar2.getProgress(), seekBar1.getProgress(), 60),
+//				new Scalar(seekBar3.getProgress(), 255, 255), dst);
+		Core.inRange(src, new Scalar(20, 100, 10),
+				new Scalar(30, 255, 255), dst);
 	}
 
 	public static Point detectObject(Mat src, Mat image, String text, Mat dst) {
@@ -139,8 +149,6 @@ public class Camera implements CvCameraViewListener2 {
 
 		return center;
 	}
-
-
 
 	public static int getBiggestContourIndex(List<MatOfPoint> contours) {
 		double maxArea = 0;
@@ -172,11 +180,11 @@ public class Camera implements CvCameraViewListener2 {
 		}
 		return boundRect;
 	}
-	
-	
+
 	private Mat findRegularShapes(CvCameraViewFrame inputFrame) {
 		Mat baseImgRgba = inputFrame.rgba();
 		Mat baseImgGray = inputFrame.gray();
+
 		
 		Log.d("robot", "seekBar1 = " + seekBar1.getProgress() + "      seekBar2 = " + seekBar2.getProgress() + "      seekBar3 = " + seekBar3.getProgress());
 								
