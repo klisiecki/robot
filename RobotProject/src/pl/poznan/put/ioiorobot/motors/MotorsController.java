@@ -91,13 +91,14 @@ public class MotorsController implements IMotorsController {
 						r1.write(false);
 						r2.write(false);
 					}
-					float left = Math.min( ((float) Math.abs(speed) + direction)/100f, 1f);
-					float right = Math.min( ((float) Math.abs(speed) - direction)/100f, 1f);
+//					float left = Math.min( ((float) Math.abs(speed) + direction)/100f, 1f);
+//					float right = Math.min( ((float) Math.abs(speed) - direction)/100f, 1f);
+					
+					float left = ((float) Math.abs(speed) + (float)direction*speed/100f)/200f;
+					float right = ((float)Math.abs(speed) - (float)direction*speed/100f)/200f;
 					if(!enabled) {
 						left = right = 0;
 					}
-//					float left = ((float) Math.abs(speed) + (float)direction*speed/100f)/100f;
-//					float right = ((float)Math.abs(speed) - (float)direction*speed/100f)/100f;
 					if (left < 0.2f) left = 0;
 					if (right< 0.2f) right = 0;
 					lPwm.setDutyCycle(Math.min(left,1f));

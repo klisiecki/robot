@@ -165,7 +165,7 @@ public class RobotActivity extends IOIOActivity {
 			public void OnMoved(int xPos, int yPos) {
 				if (motorsController != null) {
 					motorsController.setDirection(xPos);
-					motorsController.setSpeed(yPos);
+					motorsController.setSpeed((int) (Math.sqrt(xPos*xPos+yPos*yPos)*(yPos > 0 ? 1 : -1)));
 				}
 
 			}

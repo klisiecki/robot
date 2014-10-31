@@ -7,7 +7,7 @@ import android.util.Log;
 
 public class BatteryStatus implements IBatteryStatus {
 	private final static double MIN = 5.5;
-	private final static double MAX = 7.5;
+	private final static double MAX = 6.7;
 	
 	private final static int CAPACITY = 100;
 
