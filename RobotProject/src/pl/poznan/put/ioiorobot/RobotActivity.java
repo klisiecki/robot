@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.opencv.android.CameraBridgeViewBase;
 
-import pl.poznan.put.ioiorobot.camera.Camera;
+import pl.poznan.put.ioiorobot.camera.MyCamera;
 import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.sensors.Accelerometer;
@@ -22,6 +22,8 @@ import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
 import android.app.Application;
+import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,7 +51,9 @@ public class RobotActivity extends IOIOActivity {
 	private IDistanceSensor distanceSensor;
 	private IBatteryStatus batteryStatus;
 	private IAccelerometer accelerometer;
-	private Camera camera;
+	private MyCamera camera;
+	
+	private Camera cam;
 
 	class Looper extends BaseIOIOLooper {
 
@@ -115,6 +119,10 @@ public class RobotActivity extends IOIOActivity {
 		super.onCreate(savedInstanceState);
 		initView();
 		initListeners();
+//		cam = Camera.open();
+//		Parameters params = cam.getParameters();
+//		params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+//		cam.setParameters(params);
 		Log.d(TAG, "onCreate");
 	}
 
@@ -131,7 +139,7 @@ public class RobotActivity extends IOIOActivity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
 
-		camera = new Camera((CameraBridgeViewBase) findViewById(R.id.camera_view), this);
+		camera = new MyCamera((CameraBridgeViewBase) findViewById(R.id.camera_view), this);
 		joystick = (Joystick) findViewById(R.id.joystick);
 		barGraph = (SimpleBarGraph) findViewById(R.id.distanceBarGraph);
 		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);

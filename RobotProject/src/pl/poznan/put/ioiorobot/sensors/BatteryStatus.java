@@ -30,7 +30,7 @@ public class BatteryStatus implements IBatteryStatus {
 		} catch (Exception e) {
 		}
 		
-		Log.d("robot", val + " volt");
+//		Log.d("robot", val + " volt");
 		int result = (int) ((val - MIN) / (MAX - MIN) * 100);
 		return Math.max(Math.min(result, 100), 0);
 	}
