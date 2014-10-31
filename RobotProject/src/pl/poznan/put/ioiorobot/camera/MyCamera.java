@@ -234,7 +234,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_SIMPLE);
 
-		Mat img = baseImgRgba;
+		Mat resultImage = baseImgRgba;
 		
 		for(MatOfPoint cnt : contours) {
 			
@@ -242,38 +242,58 @@ public class MyCamera implements CvCameraViewListener2 {
 			int threshold = 600; //seekBar1.getProgress()*10;
 			if(Imgproc.contourArea(cnt) < threshold) continue;
 			
-			MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
-			MatOfPoint2f approxCurve = new MatOfPoint2f();
-			double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
-			Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
+			drawContour(resultImage, cnt);
 			
-			if(approxCurve.toList().size()==3) {
-				List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-				cntList.add(cnt);
-				Imgproc.drawContours(img, cntList, 0, new Scalar(255, 0, 0), 4);
-			}
-			else if(approxCurve.toList().size()==4) {
-				List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-				cntList.add(cnt);
-				
-				Imgproc.drawContours(img, cntList, 0, new Scalar(0,255, 0), 4);
-			}
-			else if(approxCurve.toList().size()==5) {
-				List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-				cntList.add(cnt);
-				
-				Imgproc.drawContours(img, cntList, 0, new Scalar(0, 0, 255), 4);
-			}
-			else {
-				List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-				cntList.add(cnt);
-				
-				Imgproc.drawContours(img, cntList, 0, new Scalar(0, 255, 255), 4);
-			}
+			Mat fragment;
+			fragment = cutFragment(baseImgRgba, resultImage, cnt);
+			
 		}
 		
-		return img;		
+		return resultImage;		
 
+	}
+
+	private Mat cutFragment(Mat baseImgRgba, Mat resultImage, MatOfPoint cnt) {
+		Mat fragment;
+		
+		Rect rect = Imgproc.boundingRect(cnt);
+		Core.rectangle(resultImage, new Point(rect.x,rect.y), new Point(rect.x+rect.width,rect.y+rect.height), new Scalar(255, 0, 0), 5);
+		fragment = baseImgRgba.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
+		
+		return fragment;
+	}
+
+	private void drawContour(Mat resultImage, MatOfPoint cnt) {
+		
+		MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
+		MatOfPoint2f approxCurve = new MatOfPoint2f();
+		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
+		Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
+		
+		if(approxCurve.toList().size()==3) {
+			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+			cntList.add(cnt);
+			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(255, 0, 0), 4);
+		}
+		else if(approxCurve.toList().size()==4) {
+			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+			cntList.add(cnt);
+			
+			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0,255, 0), 4);
+		}
+		else if(approxCurve.toList().size()==5) {
+			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+			cntList.add(cnt);
+			
+			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 4);
+		}
+		else {
+			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+			cntList.add(cnt);
+			
+			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 255, 255), 4);
+		}
+		
 	}
 
 }
