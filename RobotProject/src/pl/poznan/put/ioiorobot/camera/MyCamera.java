@@ -62,7 +62,6 @@ public class MyCamera implements CvCameraViewListener2 {
 				cameraView.enableFpsMeter();
 				cameraView.enableView();
 
-				
 				/*
 //				// Żadna próba wymuszenia większej rozdzielczości nie pomogła :/
 				WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -126,6 +125,10 @@ public class MyCamera implements CvCameraViewListener2 {
 	public static void getBlueMat(Mat src, Mat dst) {
 		Core.inRange(src, new Scalar(100, 100, 100), new Scalar(120, 255, 255), dst);
 	}
+	
+	public static void getWhiteMat(Mat src, Mat dst) {
+		Core.inRange(src, new Scalar(0, 0, 70), new Scalar(255, 100, 255), dst);
+	}
 
 	public void getYellowMat(Mat src, Mat dst) {
 //		Core.inRange(src, new Scalar(seekBar2.getProgress(), seekBar1.getProgress(), 60),
@@ -186,7 +189,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat baseImgGray = inputFrame.gray();
 
 		
-		Log.d("robot", "seekBar1 = " + seekBar1.getProgress() + "      seekBar2 = " + seekBar2.getProgress() + "      seekBar3 = " + seekBar3.getProgress());
+		//Log.d("robot", "seekBar1 = " + seekBar1.getProgress() + "      seekBar2 = " + seekBar2.getProgress() + "      seekBar3 = " + seekBar3.getProgress());
 								
 		
 		Mat mask = new Mat();
@@ -234,7 +237,10 @@ public class MyCamera implements CvCameraViewListener2 {
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_SIMPLE);
 
+		
 		Mat resultImage = baseImgRgba;
+		
+		MatOfPoint maxCnt = null;
 		
 		for(MatOfPoint cnt : contours) {
 			
@@ -244,10 +250,30 @@ public class MyCamera implements CvCameraViewListener2 {
 			
 			drawContour(resultImage, cnt);
 			
-			Mat fragment;
-			fragment = cutFragment(baseImgRgba, resultImage, cnt);
+			Mat fragment = cutFragment(baseImgRgba, resultImage, cnt);
+			//Core.rectangle(fragment, new Point(0, 0), new Point(fragment.height()/2, fragment.width()/2), new Scalar(0, 255, 0), 10);
+			
+			if(maxCnt == null) { maxCnt = new MatOfPoint(cnt); }
+			else if(Imgproc.contourArea(cnt) > Imgproc.contourArea(maxCnt)) { maxCnt = new MatOfPoint(cnt); }
 			
 		}
+		
+		// Rysowanie największego znalezionego obszaru
+		if(maxCnt != null) {
+		//	fragment.copyTo(resultImage.rowRange(0, fragment.height()-1).colRange(0, fragment.width()-1));
+			Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt);
+			if(fragment.width() != 0 && fragment.height() != 0) {
+				int slotHeight = Math.min(400, resultImage.height());
+				int slotWidth = Math.min( slotHeight*fragment.width()/fragment.height(), resultImage.width());
+				Mat slot = resultImage.submat(0, slotHeight, 0, slotWidth); //(0, fragment.height()-1, 0, fragment.width()-1);
+				
+				Imgproc.resize(fragment, slot, slot.size());
+				Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 20);
+			}
+		}
+
+		
+		
 		
 		return resultImage;		
 
