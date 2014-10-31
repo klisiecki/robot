@@ -3,8 +3,10 @@ package pl.poznan.put.ioiorobot.camera;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 
 public class CameraUtils {
 	public static Point getCenter(Point tl, Point br) {
@@ -21,4 +23,6 @@ public class CameraUtils {
 		
 		return result;
 	}
+	
+
 }

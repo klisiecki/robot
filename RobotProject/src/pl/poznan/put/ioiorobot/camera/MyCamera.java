@@ -1,7 +1,6 @@
 package pl.poznan.put.ioiorobot.camera;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
@@ -21,15 +19,12 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.utils.Converters;
 
 import pl.poznan.put.ioiorobot.R;
 import android.app.Activity;
 import android.content.Context;
-import android.provider.ContactsContract.CommonDataKinds.Im;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
-import android.view.WindowManager;
 import android.widget.SeekBar;
 
 public class MyCamera implements CvCameraViewListener2 {
@@ -63,17 +58,16 @@ public class MyCamera implements CvCameraViewListener2 {
 				cameraView.enableView();
 
 				/*
-//				// Żadna próba wymuszenia większej rozdzielczości nie pomogła :/
-				WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-				Display display = wm.getDefaultDisplay();
-				DisplayMetrics metrics = new DisplayMetrics();
-				display.getMetrics(metrics);
-				int width = metrics.widthPixels;
-				int height = metrics.heightPixels;
-				Log.d("robot", "camera size= " + width + " x " + height); 
-				
-				cameraView.setMaxFrameSize(800, 600);
-				*/
+				 * // // Żadna próba wymuszenia większej rozdzielczości nie
+				 * pomogła :/ WindowManager wm = (WindowManager)
+				 * context.getSystemService(Context.WINDOW_SERVICE); Display
+				 * display = wm.getDefaultDisplay(); DisplayMetrics metrics =
+				 * new DisplayMetrics(); display.getMetrics(metrics); int width
+				 * = metrics.widthPixels; int height = metrics.heightPixels;
+				 * Log.d("robot", "camera size= " + width + " x " + height);
+				 * 
+				 * cameraView.setMaxFrameSize(800, 600);
+				 */
 
 			}
 		};
@@ -102,9 +96,9 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		//return findColorShapes(inputFrame);
+		// return findColorShapes(inputFrame);
 		return findRegularShapes(inputFrame);
-		//return inputFrame.rgba();
+		// return inputFrame.rgba();
 
 		// Zwrócenie obrazu w innym rozmiarze niż wejściowy powoduje brak obrazu
 	}
@@ -125,16 +119,16 @@ public class MyCamera implements CvCameraViewListener2 {
 	public static void getBlueMat(Mat src, Mat dst) {
 		Core.inRange(src, new Scalar(100, 100, 100), new Scalar(120, 255, 255), dst);
 	}
-	
+
 	public static void getWhiteMat(Mat src, Mat dst) {
 		Core.inRange(src, new Scalar(0, 0, 70), new Scalar(255, 100, 255), dst);
 	}
 
 	public void getYellowMat(Mat src, Mat dst) {
-//		Core.inRange(src, new Scalar(seekBar2.getProgress(), seekBar1.getProgress(), 60),
-//				new Scalar(seekBar3.getProgress(), 255, 255), dst);
-		Core.inRange(src, new Scalar(20, 100, 10),
-				new Scalar(30, 255, 255), dst);
+		// Core.inRange(src, new Scalar(seekBar2.getProgress(),
+		// seekBar1.getProgress(), 60),
+		// new Scalar(seekBar3.getProgress(), 255, 255), dst);
+		Core.inRange(src, new Scalar(20, 100, 10), new Scalar(30, 255, 255), dst);
 	}
 
 	public static Point detectObject(Mat src, Mat image, String text, Mat dst) {
@@ -188,138 +182,175 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat baseImgRgba = inputFrame.rgba();
 		Mat baseImgGray = inputFrame.gray();
 
-		
-		//Log.d("robot", "seekBar1 = " + seekBar1.getProgress() + "      seekBar2 = " + seekBar2.getProgress() + "      seekBar3 = " + seekBar3.getProgress());
-								
-		
+		Log.d("robot", "seekBar1 = " + seekBar1.getProgress() + "      seekBar2 = " + seekBar2.getProgress()
+				+ "      seekBar3 = " + seekBar3.getProgress());
+
 		Mat mask = new Mat();
 		baseImgRgba.copyTo(mask);
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
 		getYellowMat(mask, mask);
 
-		
 		Mat image = new Mat();
 		baseImgRgba.copyTo(image, mask);
-		
+
 		/* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
 		Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
-		
-		//return image;
-		
-		
-		/*Imgproc.threshold(image, image, 127.0, 255.0, Imgproc.THRESH_BINARY);*/
-		
+
+		// return image;
+
+		/* Imgproc.threshold(image, image, 127.0, 255.0, Imgproc.THRESH_BINARY); */
+
 		int blockSize = 9; // seekBar1.getProgress()*2 + 3
 		int C = 7; // seekBar2.getProgress()
-		Imgproc.adaptiveThreshold(image, image, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, blockSize, C);
-		
-		
-		/*
-		int size = seekBar3.getProgress()+1;
-		
-		if(seekBar1.getProgress() > 50) { Imgproc.erode(image, image, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size,size))); }
-		if(seekBar2.getProgress() > 50) { Imgproc.dilate(image, image, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size,size))); }
-		
-		
-		if(seekBar1.getProgress() > 50) {
-			Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(size,size));
-			Imgproc.morphologyEx(image, image, Imgproc.MORPH_CLOSE, kernel);
-		}
-		
-		
-		Imgproc.Canny(image, image, seekBar1.getProgress(), 3*seekBar1.getProgress());
-		*/
-		
-//		return image;
-		
-		
-		
-		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.adaptiveThreshold(image, image, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV,
+				blockSize, C);
 
-		
+		/*
+		 * int size = seekBar3.getProgress()+1;
+		 * 
+		 * if(seekBar1.getProgress() > 50) { Imgproc.erode(image, image,
+		 * Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new
+		 * Size(size,size))); } if(seekBar2.getProgress() > 50) {
+		 * Imgproc.dilate(image, image,
+		 * Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new
+		 * Size(size,size))); }
+		 * 
+		 * 
+		 * if(seekBar1.getProgress() > 50) { Mat kernel =
+		 * Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new
+		 * Size(size,size)); Imgproc.morphologyEx(image, image,
+		 * Imgproc.MORPH_CLOSE, kernel); }
+		 * 
+		 * 
+		 * Imgproc.Canny(image, image, seekBar1.getProgress(),
+		 * 3*seekBar1.getProgress());
+		 */
+
+		// return image;
+
+		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
 		Mat resultImage = baseImgRgba;
-		
+
 		MatOfPoint maxCnt = null;
-		
-		for(MatOfPoint cnt : contours) {
-			
+
+		for (MatOfPoint cnt : contours) {
+
 			// Pomijanie małych obiektów
-			int threshold = 600; //seekBar1.getProgress()*10;
-			if(Imgproc.contourArea(cnt) < threshold) continue;
-			
+			int threshold = 600; // seekBar1.getProgress()*10;
+			if (Imgproc.contourArea(cnt) < threshold)
+				continue;
+
 			drawContour(resultImage, cnt);
-			
+
 			Mat fragment = cutFragment(baseImgRgba, resultImage, cnt);
-			//Core.rectangle(fragment, new Point(0, 0), new Point(fragment.height()/2, fragment.width()/2), new Scalar(0, 255, 0), 10);
-			
-			if(maxCnt == null) { maxCnt = new MatOfPoint(cnt); }
-			else if(Imgproc.contourArea(cnt) > Imgproc.contourArea(maxCnt)) { maxCnt = new MatOfPoint(cnt); }
-			
+			// Core.rectangle(fragment, new Point(0, 0), new
+			// Point(fragment.height()/2, fragment.width()/2), new Scalar(0,
+			// 255, 0), 10);
+
+			if (maxCnt == null) {
+				maxCnt = new MatOfPoint(cnt);
+			} else if (Imgproc.contourArea(cnt) > Imgproc.contourArea(maxCnt)) {
+				maxCnt = new MatOfPoint(cnt);
+			}
+
 		}
-		
+
 		// Rysowanie największego znalezionego obszaru
-		if(maxCnt != null) {
-		//	fragment.copyTo(resultImage.rowRange(0, fragment.height()-1).colRange(0, fragment.width()-1));
+		if (maxCnt != null) {
+			// fragment.copyTo(resultImage.rowRange(0,
+			// fragment.height()-1).colRange(0, fragment.width()-1));
 			Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt);
-			if(fragment.width() != 0 && fragment.height() != 0) {
+			if (fragment.width() != 0 && fragment.height() != 0) {
 				int slotHeight = Math.min(400, resultImage.height());
-				int slotWidth = Math.min( slotHeight*fragment.width()/fragment.height(), resultImage.width());
-				Mat slot = resultImage.submat(0, slotHeight, 0, slotWidth); //(0, fragment.height()-1, 0, fragment.width()-1);
-				
+				int slotWidth = Math.min(slotHeight * fragment.width() / fragment.height(), resultImage.width());
+				Mat slot = resultImage.submat(0, slotHeight, 0, slotWidth); // (0,
+																			// fragment.height()-1,
+																			// 0,
+																			// fragment.width()-1);
+
 				Imgproc.resize(fragment, slot, slot.size());
 				Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 20);
 			}
 		}
 
-		
-		
-		
-		return resultImage;		
-
+		return resultImage;
 	}
 
 	private Mat cutFragment(Mat baseImgRgba, Mat resultImage, MatOfPoint cnt) {
 		Mat fragment;
-		
+
 		Rect rect = Imgproc.boundingRect(cnt);
-		Core.rectangle(resultImage, new Point(rect.x,rect.y), new Point(rect.x+rect.width,rect.y+rect.height), new Scalar(255, 0, 0), 5);
+		Core.rectangle(resultImage, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
+				new Scalar(255, 0, 0), 5);
 		fragment = baseImgRgba.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
-		
+
 		return fragment;
 	}
 
 	private void drawContour(Mat resultImage, MatOfPoint cnt) {
-		
+
 		MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
 		MatOfPoint2f approxCurve = new MatOfPoint2f();
 		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
 		Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
-		
-		if(approxCurve.toList().size()==3) {
+
+		if (approxCurve.toList().size() == 3) {
 			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 			cntList.add(cnt);
 			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(255, 0, 0), 4);
-		}
-		else if(approxCurve.toList().size()==4) {
+		} else if (approxCurve.toList().size() == 4) {
 			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 			cntList.add(cnt);
-			
-			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0,255, 0), 4);
-		}
-		else if(approxCurve.toList().size()==5) {
+
+			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 255, 0), 4);
+		} else if (approxCurve.toList().size() == 5) {
 			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 			cntList.add(cnt);
-			
 			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 4);
-		}
-		else {
+		} else {
 			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 			cntList.add(cnt);
-			
+
 			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 255, 255), 4);
 		}
-		
+
+	}
+
+	public static Mat warp(Mat inputMat, Point p1, Point p2, Point p3, Point p4) {
+		int resultWidth = 500;
+		int resultHeight = 500;
+
+		Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);
+
+		Point ocvPIn1 = new Point(p1.x, p1.y);
+		Point ocvPIn2 = new Point(p2.x, p2.y);
+		Point ocvPIn3 = new Point(p3.x, p3.y);
+		Point ocvPIn4 = new Point(p4.x, p4.y);
+		List<Point> source = new ArrayList<Point>();
+		source.add(ocvPIn1);
+		source.add(ocvPIn2);
+		source.add(ocvPIn3);
+		source.add(ocvPIn4);
+		Mat startM = Converters.vector_Point2f_to_Mat(source);
+
+		Point ocvPOut1 = new Point(0, 0);
+		Point ocvPOut2 = new Point(0, resultHeight);
+		Point ocvPOut3 = new Point(resultWidth, resultHeight);
+		Point ocvPOut4 = new Point(resultWidth, 0);
+		List<Point> dest = new ArrayList<Point>();
+		dest.add(ocvPOut1);
+		dest.add(ocvPOut2);
+		dest.add(ocvPOut3);
+		dest.add(ocvPOut4);
+		Mat endM = Converters.vector_Point2f_to_Mat(dest);
+
+		Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
+
+		Imgproc.warpPerspective(inputMat, outputMat, perspectiveTransform, new Size(resultWidth, resultHeight),
+				Imgproc.INTER_CUBIC);
+		return outputMat;
 	}
 
 }
