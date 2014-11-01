@@ -128,7 +128,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		// Core.inRange(src, new Scalar(seekBar2.getProgress(),
 		// seekBar1.getProgress(), 60),
 		// new Scalar(seekBar3.getProgress(), 255, 255), dst);
-		Core.inRange(src, new Scalar(20, 100, 10), new Scalar(30, 255, 255), dst);
+		Core.inRange(src, new Scalar(20, 10, 10), new Scalar(45, 255, 255), dst);
 	}
 
 	public static Point detectObject(Mat src, Mat image, String text, Mat dst) {
@@ -263,19 +263,63 @@ public class MyCamera implements CvCameraViewListener2 {
 			// fragment.height()-1).colRange(0, fragment.width()-1));
 			Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt);
 			if (fragment.width() != 0 && fragment.height() != 0) {
-				int slotHeight = Math.min(400, resultImage.height());
-				int slotWidth = Math.min(slotHeight * fragment.width() / fragment.height(), resultImage.width());
-				Mat slot = resultImage.submat(0, slotHeight, 0, slotWidth); // (0,
-																			// fragment.height()-1,
-																			// 0,
-																			// fragment.width()-1);
-
-				Imgproc.resize(fragment, slot, slot.size());
-				Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 20);
+				
+				findCornerHarris(fragment);
+				
+//				fragment = warp(fragment, new Point(fragment.width()*2/10, 0),
+//						new Point(0, fragment.height()), 
+//						new Point(fragment.width(), fragment.height()),
+//						new Point(fragment.width()*8/10, 0) );
+				
+				
+				showFragment(resultImage, fragment, 400);
 			}
 		}
 
 		return resultImage;
+	}
+
+	private void showFragment(Mat resultImage, Mat fragment, int height) {
+		{
+		int slotHeight = Math.min(height, resultImage.height());
+		int slotWidth = Math.min(slotHeight * fragment.width() / fragment.height(), resultImage.width());
+		Mat slot = resultImage.submat(0, slotHeight, 0, slotWidth); // (0,
+																	// fragment.height()-1,
+																	// 0,
+																	// fragment.width()-1);
+		
+		Imgproc.resize(fragment, slot, slot.size());
+		Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 20);
+		}
+	}
+
+	
+	private void findCornerHarris(Mat fragment) {
+		Mat fragmentGray = new Mat();
+		fragment.copyTo(fragmentGray);
+		
+		Mat cornerMap = new Mat();
+		fragmentGray.copyTo(cornerMap);
+		
+		Imgproc.cvtColor(fragment, fragmentGray, Imgproc.COLOR_RGB2GRAY);
+		
+		int blockSize1 = 10; //2
+		int apertureSize = 3; //3
+		double k = 0.04; //0.04
+						
+		Imgproc.cornerHarris(fragmentGray, cornerMap, blockSize1, apertureSize, k, Imgproc.BORDER_DEFAULT );
+		
+		for(int y=0; y < fragment.height(); y++)
+			for(int x=0; x < fragment.width(); x++) {
+				double[] harris = cornerMap.get(y, x);
+				if( harris[0] > 10e-04 ){
+					Core.circle(fragment, new Point(x,y), 5, new Scalar(255,90, 200), 5);
+				}
+			}				
+		
+//				Imgproc.cvtColor(cornerMap, cornerMap, Imgproc.COLOR_GRAY2RGB, 4);
+//				fragment = cornerMap;
+	
 	}
 
 	private Mat cutFragment(Mat baseImgRgba, Mat resultImage, MatOfPoint cnt) {
