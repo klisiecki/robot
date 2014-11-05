@@ -2,6 +2,7 @@ package pl.poznan.put.ioiorobot.camera;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -128,8 +129,9 @@ public class MyCamera implements CvCameraViewListener2 {
 		// Core.inRange(src, new Scalar(seekBar2.getProgress(),
 		// seekBar1.getProgress(), 60),
 		// new Scalar(seekBar3.getProgress(), 255, 255), dst);
-		
-		//Core.inRange(src, new Scalar(20, 10, 10), new Scalar(45, 255, 255), dst);
+
+		// Core.inRange(src, new Scalar(20, 10, 10), new Scalar(45, 255, 255),
+		// dst);
 		Core.inRange(src, new Scalar(20, 80, 64), new Scalar(30, 255, 255), dst);
 	}
 
@@ -184,13 +186,15 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat baseImgRgba = inputFrame.rgba();
 		Mat baseImgGray = inputFrame.gray();
 
-		Log.d("robot", "seekBar1 = " + seekBar1.getProgress() + "      seekBar2 = " + seekBar2.getProgress()
-				+ "      seekBar3 = " + seekBar3.getProgress());
+		// Log.d("robot", "seekBar1 = " + seekBar1.getProgress() +
+		// "      seekBar2 = " + seekBar2.getProgress()
+		// + "      seekBar3 = " + seekBar3.getProgress());
 
 		Mat mask = new Mat();
 		baseImgRgba.copyTo(mask);
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
-		getYellowMat(mask, mask);
+		// getYellowMat(mask, mask);
+		getWhiteMat(mask, mask);
 
 		Mat image = new Mat();
 		baseImgRgba.copyTo(image, mask);
@@ -236,18 +240,17 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat resultImage = baseImgRgba;
 
 		MatOfPoint maxCnt = null;
-
+		List<Point> points = null;
 		for (MatOfPoint cnt : contours) {
 
 			// Pomijanie małych obiektów
-			int threshold = 600; // seekBar1.getProgress()*10;
+			int threshold = 200; // seekBar1.getProgress()*10;
 			if (Imgproc.contourArea(cnt) < threshold)
 				continue;
 
-//			drawContour(resultImage, cnt);
+			points = getPointsFromContour(cnt);
 
 			Mat fragment = cutFragment(baseImgRgba, resultImage, cnt, false);
-
 
 			if (maxCnt == null) {
 				maxCnt = new MatOfPoint(cnt);
@@ -260,20 +263,38 @@ public class MyCamera implements CvCameraViewListener2 {
 		// Rysowanie największego znalezionego obszaru
 		if (maxCnt != null) {
 			Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt, false);
-			//fragment = fragment.clone();
+			// fragment = fragment.clone();
 			if (fragment.width() != 0 && fragment.height() != 0) {
-				
-//				findCornerHarris(fragment);
 
-				findCornerHoughTransform(fragment);
-				
-//				fragment = warp(fragment, new Point(fragment.width()*2/10, 0),
-//						new Point(0, fragment.height()), 
-//						new Point(fragment.width(), fragment.height()),
-//						new Point(fragment.width()*8/10, 0) );
-				
-				
-				showFragment(resultImage, fragment, 400);
+				// findCornerHarris(fragment);
+
+				// findCornerHoughTransform(fragment);
+				if (points.size() == 4) {
+					Rect rect = Imgproc.boundingRect(maxCnt);
+					double x = rect.tl().x;
+					double y = rect.tl().y;
+					try {
+					sortCorners(points);
+					} catch (Exception e) {}
+					for (Point p : points) {
+						Core.circle(resultImage, p, 5, new Scalar(0, 255, 0), 5);
+						p.x -= x;
+						p.y -= y;
+					}
+					Log.d("robot", "" + points.get(0) + points.get(1) + points.get(2) + points.get(3));
+					
+//					fragment = warp(fragment, points.get(1), points.get(2), points.get(3), points.get(0));
+					fragment = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
+					// fragment = warp(fragment, points.get(1), points.get(0),
+					// points.get(3), points.get(2));
+				}
+				// fragment = warp(fragment, new Point(fragment.width()*2/10,
+				// 0),
+				// new Point(0, fragment.height()),
+				// new Point(fragment.width(), fragment.height()),
+				// new Point(fragment.width()*8/10, 0) );
+
+				showFragment(resultImage, fragment, 200);
 			}
 		}
 
@@ -281,207 +302,202 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	private void findCornerHoughTransform(Mat fragment) {
-		//http://opencv-code.com/tutorials/automatic-perspective-correction-for-quadrilateral-objects/
-		
+		// http://opencv-code.com/tutorials/automatic-perspective-correction-for-quadrilateral-objects/
+
 		Mat image = fragment.clone();
-		
+
 		Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY, 1);
-		
-		
+
 		Imgproc.Canny(image, image, 100, 100);
-		
-		
-	    Mat lines = new Mat();
-	    int threshold = 100;
-	    int minLineSize = 15;
-	    int lineGap = 10;
 
-	    Imgproc.HoughLinesP(image, lines, 1, Math.PI/180, threshold, minLineSize, lineGap);
+		Mat lines = new Mat();
+		int threshold = 100;
+		int minLineSize = 15;
+		int lineGap = 10;
 
-	    
-	    // Rysowanie znalezionych linii
-	    for (int x = 0; x < lines.cols(); x++) 
-	    {
-	          double[] vec = lines.get(0, x);
-	          double x1 = vec[0], 
-	                 y1 = vec[1],
-	                 x2 = vec[2],
-	                 y2 = vec[3];
-	          Point start = new Point(x1, y1);
-	          Point end = new Point(x2, y2);
+		Imgproc.HoughLinesP(image, lines, 1, Math.PI / 180, threshold, minLineSize, lineGap);
 
-	          Core.line(fragment, start, end, new Scalar(90, 255, 90), 3);
-	    }
-	    
-	    
-	    List<Point> cornersArray = new ArrayList<Point>();
-	    
-	    for (int i = 0; i < lines.cols(); i++)
-	    {
-	        for (int j = i+1; j < lines.cols(); j++)
-	        {
-	        	
-	            double[] a = lines.get(0, i);
-	            double[] b = lines.get(0, j);
-	            
-	            int x1 = (int) a[0], y1 = (int) a[1], x2 = (int) a[2], y2 = (int) a[3];
-	            int x3 = (int) b[0], y3 = (int) b[1], x4 = (int) b[2], y4 = (int) b[3];
+		// Rysowanie znalezionych linii
+		for (int x = 0; x < lines.cols(); x++) {
+			double[] vec = lines.get(0, x);
+			double x1 = vec[0], y1 = vec[1], x2 = vec[2], y2 = vec[3];
+			Point start = new Point(x1, y1);
+			Point end = new Point(x2, y2);
 
-                Point pt = new Point();
-	            float d = ((float)(x1-x2) * (y3-y4)) - ((y1-y2) * (x3-x4));
-	            if (d!=0) {
-	                pt.x = ((x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4)) / d;
-	                pt.y = ((x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4)) / d;
-	            }
-	            else {
-	            	pt.x = -1;
-	            	pt.y = -1;
-	            }
+			Core.line(fragment, start, end, new Scalar(90, 255, 90), 3);
+		}
 
-	            
-	            if (pt.x >= 0 && pt.y >= 0){
-	            	Core.circle(fragment, pt, 5, new Scalar(255, 90, 200), 5);
-	            }
-  
-	            
-	            cornersArray.add(pt);
-	            
-	        }
-	    }
-	    
-        
-	    if(cornersArray.size() != 0) {
-	        MatOfPoint corners = new MatOfPoint();
-	        corners.fromList(cornersArray);
-	        
-	        MatOfPoint2f cnt2f = new MatOfPoint2f(corners.toArray());
+		List<Point> cornersArray = new ArrayList<Point>();
+
+		for (int i = 0; i < lines.cols(); i++) {
+			for (int j = i + 1; j < lines.cols(); j++) {
+
+				double[] a = lines.get(0, i);
+				double[] b = lines.get(0, j);
+
+				int x1 = (int) a[0], y1 = (int) a[1], x2 = (int) a[2], y2 = (int) a[3];
+				int x3 = (int) b[0], y3 = (int) b[1], x4 = (int) b[2], y4 = (int) b[3];
+
+				Point pt = new Point();
+				float d = ((float) (x1 - x2) * (y3 - y4)) - ((y1 - y2) * (x3 - x4));
+				if (d != 0) {
+					pt.x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d;
+					pt.y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d;
+				} else {
+					pt.x = -1;
+					pt.y = -1;
+				}
+
+				if (pt.x >= 0 && pt.y >= 0) {
+					Core.circle(fragment, pt, 5, new Scalar(255, 90, 200), 5);
+				}
+
+				cornersArray.add(pt);
+
+			}
+		}
+
+		if (cornersArray.size() != 0) {
+			MatOfPoint corners = new MatOfPoint();
+			corners.fromList(cornersArray);
+
+			MatOfPoint2f cnt2f = new MatOfPoint2f(corners.toArray());
 			MatOfPoint2f approxCurve = new MatOfPoint2f();
 			double epsilon = 0.02 * Imgproc.arcLength(cnt2f, true);
 			Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
-	
+
 			if (approxCurve.toList().size() == 4) {
 
 				// Get mass center
 				Point center = new Point(0.0, 0.0);
 				for (int i = 0; i < cornersArray.size(); i++) {
-				    center.x += cornersArray.get(i).x;
+					center.x += cornersArray.get(i).x;
 					center.y += cornersArray.get(i).y;
 				}
-				center = new Point(center.x * (double) cornersArray.size(),
-									center.x * (double) cornersArray.size());
-				
-				if(cornersArray.size() == 4)
+				center = new Point(center.x * (double) cornersArray.size(), center.x * (double) cornersArray.size());
+
+				if (cornersArray.size() == 4)
 					sortCorners(cornersArray, center);
-				
+
 				Core.circle(fragment, cornersArray.get(0), 15, new Scalar(100, 100, 100), 5);
 				Core.circle(fragment, cornersArray.get(1), 15, new Scalar(150, 150, 150), 5);
 				Core.circle(fragment, cornersArray.get(2), 15, new Scalar(200, 200, 200), 5);
 				Core.circle(fragment, cornersArray.get(3), 15, new Scalar(250, 250, 250), 5);
-				
-				fragment = warp(fragment, cornersArray.get(0), cornersArray.get(1), cornersArray.get(2), cornersArray.get(3));
-				
-//				fragment = warp(fragment, new Point(fragment.width()*2/10, 0),
-//											new Point(0, fragment.height()), 
-//											new Point(fragment.width(), fragment.height()),
-//											new Point(fragment.width()*8/10, 0) );
-				
+
+				fragment = warp(fragment, cornersArray.get(0), cornersArray.get(1), cornersArray.get(2),
+						cornersArray.get(3));
+
+				// fragment = warp(fragment, new Point(fragment.width()*2/10,
+				// 0),
+				// new Point(0, fragment.height()),
+				// new Point(fragment.width(), fragment.height()),
+				// new Point(fragment.width()*8/10, 0) );
+
 			}
 
-	    }
-		
-		
-	    
-		
-		//Imgproc.cvtColor(image, image, Imgproc.COLOR_GRAY2RGB, 4);
-		
-		
-	}
-	
-	
-	
-	
-	void sortCorners(List<Point> cornersArray, Point center)
-	{
-	    List<Point> top = new ArrayList<Point>();
-	    List<Point> bot = new ArrayList<Point>();
+		}
 
-	    for (int i = 0; i < cornersArray.size(); i++)
-	    {
-	        if (cornersArray.get(i).y < center.y)
-	            top.add(cornersArray.get(i));
-	        else
-	            bot.add(cornersArray.get(i));
-	    }
+		// Imgproc.cvtColor(image, image, Imgproc.COLOR_GRAY2RGB, 4);
 
-	    Point tl = top.get(0).x > top.get(1).x ? top.get(1) : top.get(0);
-	    Point tr = top.get(0).x > top.get(1).x ? top.get(0) : top.get(1);
-	    Point bl = bot.get(0).x > bot.get(1).x ? bot.get(1) : bot.get(0);
-	    Point br = bot.get(0).x > bot.get(1).x ? bot.get(0) : bot.get(1);
-
-	    cornersArray.clear();
-	    cornersArray.add(tl);
-	    cornersArray.add(tr);
-	    cornersArray.add(br);
-	    cornersArray.add(bl);
 	}
 
-	
-	
-	
+	void sortCorners(List<Point> cornersArray) {
+		double x = 0, y = 0;
+		for (Point p : cornersArray) {
+			x += p.x;
+			y += p.y;
+		}
+
+		Point center = new Point(x / 4, y / 4);
+		sortCorners(cornersArray, center);
+	}
+
+	void sortCorners(List<Point> cornersArray, Point center) {
+		List<Point> top = new ArrayList<Point>();
+		List<Point> bot = new ArrayList<Point>();
+
+		for (int i = 0; i < cornersArray.size(); i++) {
+			if (cornersArray.get(i).y < center.y)
+				top.add(cornersArray.get(i));
+			else
+				bot.add(cornersArray.get(i));
+		}
+
+		Point tl = top.get(0).x > top.get(1).x ? top.get(1) : top.get(0);
+		Point tr = top.get(0).x > top.get(1).x ? top.get(0) : top.get(1);
+		Point bl = bot.get(0).x > bot.get(1).x ? bot.get(1) : bot.get(0);
+		Point br = bot.get(0).x > bot.get(1).x ? bot.get(0) : bot.get(1);
+
+		cornersArray.clear();
+		cornersArray.add(tl);
+		cornersArray.add(tr);
+		cornersArray.add(br);
+		cornersArray.add(bl);
+	}
 
 	private void showFragment(Mat resultImage, Mat fragment, int height) {
 		{
-		int slotHeight = Math.min(height, resultImage.height());
-		int slotWidth = Math.min(slotHeight * fragment.width() / fragment.height(), resultImage.width());
-		Mat slot = resultImage.submat(0, slotHeight, 0, slotWidth); // (0,
-																	// fragment.height()-1,
-																	// 0,
-																	// fragment.width()-1);
-		
-		Imgproc.resize(fragment, slot, slot.size());
-		Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 20);
+			int slotHeight = Math.min(height, resultImage.height());
+			int slotWidth = Math.min(slotHeight * fragment.width() / fragment.height(), resultImage.width());
+			Mat slot = resultImage.submat(0, slotHeight, 0, slotWidth); // (0,
+																		// fragment.height()-1,
+																		// 0,
+																		// fragment.width()-1);
+
+			Imgproc.resize(fragment, slot, slot.size());
+			Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 20);
 		}
 	}
 
-	
 	private void findCornerHarris(Mat fragment) {
 		Mat fragmentGray = new Mat();
 		fragment.copyTo(fragmentGray);
-		
+
 		Mat cornerMap = new Mat();
 		fragmentGray.copyTo(cornerMap);
-		
+
 		Imgproc.cvtColor(fragment, fragmentGray, Imgproc.COLOR_RGB2GRAY);
-		
-		int blockSize1 = 10; //2
-		int apertureSize = 3; //3
-		double k = 0.04; //0.04
-						
-		Imgproc.cornerHarris(fragmentGray, cornerMap, blockSize1, apertureSize, k, Imgproc.BORDER_DEFAULT );
-		
-		for(int y=0; y < fragment.height(); y++)
-			for(int x=0; x < fragment.width(); x++) {
+
+		int blockSize1 = 10; // 2
+		int apertureSize = 3; // 3
+		double k = 0.04; // 0.04
+
+		Imgproc.cornerHarris(fragmentGray, cornerMap, blockSize1, apertureSize, k, Imgproc.BORDER_DEFAULT);
+
+		for (int y = 0; y < fragment.height(); y++)
+			for (int x = 0; x < fragment.width(); x++) {
 				double[] harris = cornerMap.get(y, x);
-				if( harris[0] > 10e-04 ){
-					Core.circle(fragment, new Point(x,y), 5, new Scalar(255,90, 200), 5);
+				if (harris[0] > 10e-04) {
+					Core.circle(fragment, new Point(x, y), 5, new Scalar(255, 90, 200), 5);
 				}
-			}				
-		
-//				Imgproc.cvtColor(cornerMap, cornerMap, Imgproc.COLOR_GRAY2RGB, 4);
-//				fragment = cornerMap;
-	
+			}
+
+		// Imgproc.cvtColor(cornerMap, cornerMap, Imgproc.COLOR_GRAY2RGB, 4);
+		// fragment = cornerMap;
+
 	}
 
 	private Mat cutFragment(Mat baseImgRgba, Mat resultImage, MatOfPoint cnt, boolean drawRect) {
 		Mat fragment;
 
 		Rect rect = Imgproc.boundingRect(cnt);
-		if(drawRect) {
-			Core.rectangle(resultImage, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 0, 0), 5);
+		if (drawRect) {
+			Core.rectangle(resultImage, new Point(rect.x, rect.y),
+					new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 0, 0), 5);
 		}
 		fragment = baseImgRgba.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
 
 		return fragment;
+	}
+
+	private double getAngle(Point p0, Point p1, Point p2) {
+		return Math.toDegrees(Math.atan2(p0.x - p1.x, p0.y - p1.y) - Math.atan2(p2.x - p1.x, p2.y - p1.y));
+	}
+
+	private double angleBetween(Point center, Point current, Point previous) {
+
+		return Math.toDegrees(Math.atan2(current.x - center.x, current.y - center.y)
+				- Math.atan2(previous.x - center.x, previous.y - center.y));
 	}
 
 	private void drawContour(Mat resultImage, MatOfPoint cnt) {
@@ -491,26 +507,55 @@ public class MyCamera implements CvCameraViewListener2 {
 		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
 		Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
 
-		if (approxCurve.toList().size() == 3) {
-			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-			cntList.add(cnt);
-			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(255, 0, 0), 4);
-		} else if (approxCurve.toList().size() == 4) {
-			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-			cntList.add(cnt);
+		List<Point> points = getPointsFromContour(cnt);
 
-			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 255, 0), 4);
-		} else if (approxCurve.toList().size() == 5) {
+		if (points.size() == 3) {
 			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 			cntList.add(cnt);
-			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 4);
+			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(255, 0, 0), 2);
+
+		} else if (points.size() == 4) {
+			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+			cntList.add(cnt);
+			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 255, 0), 2);
+		} else if (points.size() == 5) {
+			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+			cntList.add(cnt);
+			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 2);
 		} else {
 			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 			cntList.add(cnt);
 
-			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 255, 255), 4);
+			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 255, 255), 2);
 		}
 
+	}
+
+	private List<Point> getPointsFromContour(MatOfPoint cnt) {
+		MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
+		MatOfPoint2f approxCurve = new MatOfPoint2f();
+		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
+		Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
+
+		List<Point> points = new LinkedList<Point>(approxCurve.toList());
+
+		while (points.size() > 4) {
+			int maxIndex = 1;
+			double maxAngle = 0;
+			for (int i = 1; i <= points.size(); i++) {
+				Point p0 = points.get(i - 1);
+				Point p1 = points.get(i % points.size());
+				Point p2 = points.get((i + 1) % points.size());
+				double angle = getAngle(p0, p1, p2);
+				if (angle > maxAngle) {
+					maxAngle = angle;
+					maxIndex = i % points.size();
+				}
+
+			}
+			points.remove(maxIndex);
+		}
+		return points;
 	}
 
 	public static Mat warp(Mat inputMat, Point p1, Point p2, Point p3, Point p4) {
