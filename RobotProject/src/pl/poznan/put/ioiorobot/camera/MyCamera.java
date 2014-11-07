@@ -28,6 +28,10 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.SeekBar;
 
+/**
+ * @author karol
+ *
+ */
 public class MyCamera implements CvCameraViewListener2 {
 
 	private CameraBridgeViewBase cameraView;
@@ -97,10 +101,10 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		// return findColorShapes(inputFrame);
+		// return finColorShapes(inputFrame);
 		return findRegularShapes(inputFrame);
 		// return inputFrame.rgba();
-
+		// return inputFrame.rgba();
 		// Zwrócenie obrazu w innym rozmiarze niż wejściowy powoduje brak obrazu
 	}
 
@@ -240,21 +244,16 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat resultImage = baseImgRgba;
 
 		MatOfPoint maxCnt = null;
-		List<Point> points = null;
 		for (MatOfPoint cnt : contours) {
 
 			// Pomijanie małych obiektów
 			int threshold = 200; // seekBar1.getProgress()*10;
 			if (Imgproc.contourArea(cnt) < threshold)
 				continue;
+			drawContour(resultImage, cnt);
+			Mat fragment = cutFragment(baseImgRgba, resultImage, cnt, true);
 
-			points = getPointsFromContour(cnt);
-
-			Mat fragment = cutFragment(baseImgRgba, resultImage, cnt, false);
-
-			if (maxCnt == null) {
-				maxCnt = new MatOfPoint(cnt);
-			} else if (Imgproc.contourArea(cnt) > Imgproc.contourArea(maxCnt)) {
+			if (maxCnt == null || Imgproc.contourArea(cnt) > Imgproc.contourArea(maxCnt)) {
 				maxCnt = new MatOfPoint(cnt);
 			}
 
@@ -263,42 +262,82 @@ public class MyCamera implements CvCameraViewListener2 {
 		// Rysowanie największego znalezionego obszaru
 		if (maxCnt != null) {
 			Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt, false);
+			CameraUtils.drawBounds(resultImage, maxCnt, new Scalar(255, 0, 0), 3);
 			// fragment = fragment.clone();
 			if (fragment.width() != 0 && fragment.height() != 0) {
 
 				// findCornerHarris(fragment);
-
 				// findCornerHoughTransform(fragment);
-				if (points.size() == 4) {
-					Rect rect = Imgproc.boundingRect(maxCnt);
-					double x = rect.tl().x;
-					double y = rect.tl().y;
-					try {
-					sortCorners(points);
-					} catch (Exception e) {}
-					for (Point p : points) {
-						Core.circle(resultImage, p, 5, new Scalar(0, 255, 0), 5);
-						p.x -= x;
-						p.y -= y;
-					}
-					Log.d("robot", "" + points.get(0) + points.get(1) + points.get(2) + points.get(3));
-					
-//					fragment = warp(fragment, points.get(1), points.get(2), points.get(3), points.get(0));
-					fragment = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
-					// fragment = warp(fragment, points.get(1), points.get(0),
-					// points.get(3), points.get(2));
-				}
-				// fragment = warp(fragment, new Point(fragment.width()*2/10,
-				// 0),
-				// new Point(0, fragment.height()),
-				// new Point(fragment.width(), fragment.height()),
-				// new Point(fragment.width()*8/10, 0) );
 
-				showFragment(resultImage, fragment, 200);
+				warpFragmentFromContour(resultImage, maxCnt, fragment);
 			}
 		}
 
 		return resultImage;
+	}
+
+	/**
+	 * Funkcja tworzy czworokąt z podanego konturu, przekształca do kwadratu i
+	 * wyświetla w rogu ekranu
+	 * 
+	 * @param resultImage
+	 * @param maxCnt
+	 * @param fragment
+	 */
+	private void warpFragmentFromContour(Mat resultImage, MatOfPoint maxCnt, Mat fragment) {
+		List<Point> points = getRectanglePointsFromContour(maxCnt);
+		if (points.size() == 4) {
+			Rect rect = Imgproc.boundingRect(maxCnt);
+
+			Point fragmentTL = rect.tl();
+			try {
+				// TODO czasem sypie, naprawić
+				sortCorners(points);
+			} catch (Exception e) {
+			}
+			for (Point p : points) {
+				// rysujemy
+				Core.circle(resultImage, p, 5, new Scalar(0, 255, 0), 5);
+				// przesuwamy do współrzędnych fragmentu
+				p.x -= fragmentTL.x;
+				p.y -= fragmentTL.y;
+			}
+			fragment = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
+			showFragment(resultImage, fragment, cameraView.getHeight() / 4);
+		}
+	}
+
+	/**
+	 * Przekształca każdy kontur w maksymalnie czworokąt, poprzez usuwanie
+	 * wierzchołków przy największych kątach
+	 * 
+	 * @param cnt
+	 * @return lista maksymalnie 4 punktów
+	 */
+	private List<Point> getRectanglePointsFromContour(MatOfPoint cnt) {
+		MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
+		MatOfPoint2f approxCurve = new MatOfPoint2f();
+		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
+		Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
+
+		List<Point> points = new LinkedList<Point>(approxCurve.toList());
+
+		while (points.size() > 4) {
+			int maxIndex = 1;
+			double maxAngle = 0;
+			for (int i = 1; i <= points.size(); i++) {
+				Point p0 = points.get(i - 1);
+				Point p1 = points.get(i % points.size());
+				Point p2 = points.get((i + 1) % points.size());
+				double angle = getAngle(p0, p1, p2);
+				if (angle > maxAngle) {
+					maxAngle = angle;
+					maxIndex = i % points.size();
+				}
+			}
+			points.remove(maxIndex);
+		}
+		return points;
 	}
 
 	private void findCornerHoughTransform(Mat fragment) {
@@ -401,7 +440,12 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	}
 
-	void sortCorners(List<Point> cornersArray) {
+	/**
+	 * Prosta wersja, nie działa dla każdego czworokątu
+	 * 
+	 * @param cornersArray
+	 */
+	private void sortCorners(List<Point> cornersArray) {
 		double x = 0, y = 0;
 		for (Point p : cornersArray) {
 			x += p.x;
@@ -436,17 +480,11 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	private void showFragment(Mat resultImage, Mat fragment, int height) {
-		{
-			int slotHeight = Math.min(height, resultImage.height());
-			int slotWidth = Math.min(slotHeight * fragment.width() / fragment.height(), resultImage.width());
-			Mat slot = resultImage.submat(0, slotHeight, 0, slotWidth); // (0,
-																		// fragment.height()-1,
-																		// 0,
-																		// fragment.width()-1);
-
-			Imgproc.resize(fragment, slot, slot.size());
-			Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 20);
-		}
+		int slotHeight = Math.min(height, resultImage.height());
+		int slotWidth = Math.min(slotHeight * fragment.width() / fragment.height(), resultImage.width());
+		Mat slot = resultImage.submat(0, slotHeight, 0, slotWidth);
+		Imgproc.resize(fragment, slot, slot.size());
+		Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 20);
 	}
 
 	private void findCornerHarris(Mat fragment) {
@@ -478,15 +516,9 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	private Mat cutFragment(Mat baseImgRgba, Mat resultImage, MatOfPoint cnt, boolean drawRect) {
-		Mat fragment;
-
 		Rect rect = Imgproc.boundingRect(cnt);
-		if (drawRect) {
-			Core.rectangle(resultImage, new Point(rect.x, rect.y),
-					new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 0, 0), 5);
-		}
-		fragment = baseImgRgba.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
-
+		CameraUtils.drawBounds(resultImage, cnt, new Scalar(255, 0, 0), 1);
+		Mat fragment = baseImgRgba.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
 		return fragment;
 	}
 
@@ -507,55 +539,13 @@ public class MyCamera implements CvCameraViewListener2 {
 		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
 		Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
 
-		List<Point> points = getPointsFromContour(cnt);
+		List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+		cntList.add(cnt);
+		Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 1);
 
-		if (points.size() == 3) {
-			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-			cntList.add(cnt);
-			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(255, 0, 0), 2);
-
-		} else if (points.size() == 4) {
-			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-			cntList.add(cnt);
-			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 255, 0), 2);
-		} else if (points.size() == 5) {
-			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-			cntList.add(cnt);
-			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 2);
-		} else {
-			List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-			cntList.add(cnt);
-
-			Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 255, 255), 2);
+		for (Point p : approxCurve.toList()) {
+			Core.circle(resultImage, p, 5, new Scalar(255, 255, 0), 5);
 		}
-
-	}
-
-	private List<Point> getPointsFromContour(MatOfPoint cnt) {
-		MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
-		MatOfPoint2f approxCurve = new MatOfPoint2f();
-		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
-		Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
-
-		List<Point> points = new LinkedList<Point>(approxCurve.toList());
-
-		while (points.size() > 4) {
-			int maxIndex = 1;
-			double maxAngle = 0;
-			for (int i = 1; i <= points.size(); i++) {
-				Point p0 = points.get(i - 1);
-				Point p1 = points.get(i % points.size());
-				Point p2 = points.get((i + 1) % points.size());
-				double angle = getAngle(p0, p1, p2);
-				if (angle > maxAngle) {
-					maxAngle = angle;
-					maxIndex = i % points.size();
-				}
-
-			}
-			points.remove(maxIndex);
-		}
-		return points;
 	}
 
 	public static Mat warp(Mat inputMat, Point p1, Point p2, Point p3, Point p4) {
