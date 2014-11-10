@@ -1,6 +1,8 @@
 package pl.poznan.put.ioiorobot.camera;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +25,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
 import pl.poznan.put.ioiorobot.R;
+import pl.poznan.put.ioiorobot.utils.DAO;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -50,6 +53,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	public MyCamera(final CameraBridgeViewBase cameraView, final Context context) {
 		super();
+		DAO.writeToExternal("test", "testSD.txt");
 		this.cameraView = cameraView;
 		this.context = context;
 
@@ -187,24 +191,26 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	private Mat findRegularShapes(CvCameraViewFrame inputFrame) {
-		Mat baseImgRgba = inputFrame.rgba();
-		Mat baseImgGray = inputFrame.gray();
+		Mat imgRgba = inputFrame.rgba();
+		Mat imgGray = inputFrame.gray();
+		Mat grayCopy = new Mat();
+		imgGray.copyTo(grayCopy);
 
 		// Log.d("robot", "seekBar1 = " + seekBar1.getProgress() +
 		// "      seekBar2 = " + seekBar2.getProgress()
 		// + "      seekBar3 = " + seekBar3.getProgress());
 
 		Mat mask = new Mat();
-		baseImgRgba.copyTo(mask);
+		imgRgba.copyTo(mask);
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
 		// getYellowMat(mask, mask);
 		getWhiteMat(mask, mask);
 
-		Mat image = new Mat();
-		baseImgRgba.copyTo(image, mask);
-
-		/* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
-		Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
+//		Mat image = new Mat();
+//		baseImgRgba.copyTo(image, mask);
+//
+//		/* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
+//		Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
 
 		// return image;
 
@@ -212,7 +218,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		int blockSize = 9; // seekBar1.getProgress()*2 + 3
 		int C = 7; // seekBar2.getProgress()
-		Imgproc.adaptiveThreshold(image, image, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV,
+		Imgproc.adaptiveThreshold(grayCopy, grayCopy, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV,
 				blockSize, C);
 
 		/*
@@ -239,52 +245,74 @@ public class MyCamera implements CvCameraViewListener2 {
 		// return image;
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-		Mat resultImage = baseImgRgba;
+		Mat resultImage = new Mat();
+		imgRgba.copyTo(resultImage);
 
 		MatOfPoint maxCnt = null;
+		int slotNr = 1;
+
+		List<MatOfPoint> contours2 = new ArrayList<MatOfPoint>();
+
 		for (MatOfPoint cnt : contours) {
 
 			// Pomijanie małych obiektów
 			int threshold = 200; // seekBar1.getProgress()*10;
-			if (Imgproc.contourArea(cnt) < threshold)
-				continue;
+			if (Imgproc.contourArea(cnt) > threshold)
+				contours2.add(cnt);
+		}
+
+		Collections.sort(contours2, new Comparator<MatOfPoint>() {
+
+			@Override
+			public int compare(MatOfPoint lhs, MatOfPoint rhs) {
+				return Imgproc.contourArea(lhs) > Imgproc.contourArea(rhs) ? -1 : 1;
+			}
+		});
+
+		for (MatOfPoint cnt : contours2) {
 			drawContour(resultImage, cnt);
-			Mat fragment = cutFragment(baseImgRgba, resultImage, cnt, true);
+			Mat fragment = cutFragment(imgGray, resultImage, cnt, true);
 
 			if (maxCnt == null || Imgproc.contourArea(cnt) > Imgproc.contourArea(maxCnt)) {
 				maxCnt = new MatOfPoint(cnt);
 			}
 
+			if (warpFragmentFromContour(resultImage, cnt, fragment, slotNr) && slotNr < 5) {
+				slotNr++;
+				int[][] data = ImageProcessing.getPattern(fragment);
+				//DAO.saveItemAsync(ImageProcessing.getPattern(fragment), "pattern"+slotNr);
+				//DAO.writeToExternalAsync(ImageProcessing.tabToString(data), "array"+slotNr);
+			}
 		}
 
 		// Rysowanie największego znalezionego obszaru
-		if (maxCnt != null) {
-			Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt, false);
-			CameraUtils.drawBounds(resultImage, maxCnt, new Scalar(255, 0, 0), 3);
-			// fragment = fragment.clone();
-			if (fragment.width() != 0 && fragment.height() != 0) {
-
-				// findCornerHarris(fragment);
-				// findCornerHoughTransform(fragment);
-
-				warpFragmentFromContour(resultImage, maxCnt, fragment);
-			}
-		}
+//		if (maxCnt != null) {
+//			Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt, false);
+//			CameraUtils.drawBounds(resultImage, maxCnt, new Scalar(255, 0, 0), 3);
+//			// fragment = fragment.clone();
+//			if (fragment.width() != 0 && fragment.height() != 0) {
+//
+//				// findCornerHarris(fragment);
+//				// findCornerHoughTransform(fragment);
+//
+//				// warpFragmentFromContour(resultImage, maxCnt, fragment);
+//			}
+//		}
 
 		return resultImage;
 	}
 
 	/**
 	 * Funkcja tworzy czworokąt z podanego konturu, przekształca do kwadratu i
-	 * wyświetla w rogu ekranu
+	 * wyświetla na górze ekranu
 	 * 
 	 * @param resultImage
 	 * @param maxCnt
 	 * @param fragment
 	 */
-	private void warpFragmentFromContour(Mat resultImage, MatOfPoint maxCnt, Mat fragment) {
+	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint maxCnt, Mat fragment, int slot) {
 		List<Point> points = getRectanglePointsFromContour(maxCnt);
 		if (points.size() == 4) {
 			Rect rect = Imgproc.boundingRect(maxCnt);
@@ -303,8 +331,12 @@ public class MyCamera implements CvCameraViewListener2 {
 				p.y -= fragmentTL.y;
 			}
 			fragment = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
-			showFragment(resultImage, fragment, cameraView.getHeight() / 4);
+//			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_RGB2GRAY);
+			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_GRAY2RGBA);
+			showFragment2(resultImage, fragment, slot, cameraView.getHeight() / 4);
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -441,7 +473,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	/**
-	 * Prosta wersja, nie działa dla każdego czworokątu
+	 * Prosta wersja, nie działa dla każdego czworokątu ale powinno wystarczyć
 	 * 
 	 * @param cornersArray
 	 */
@@ -477,6 +509,13 @@ public class MyCamera implements CvCameraViewListener2 {
 		cornersArray.add(tr);
 		cornersArray.add(br);
 		cornersArray.add(bl);
+	}
+
+	private void showFragment2(Mat resultImage, Mat fragment, int position, int size) {
+		Mat slot = resultImage.submat(0, size, position * size, position * size + size);
+		Imgproc.resize(fragment, fragment, slot.size());
+		fragment.copyTo(slot);
+		Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 5);
 	}
 
 	private void showFragment(Mat resultImage, Mat fragment, int height) {
@@ -515,10 +554,10 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	}
 
-	private Mat cutFragment(Mat baseImgRgba, Mat resultImage, MatOfPoint cnt, boolean drawRect) {
+	private Mat cutFragment(Mat baseImage, Mat resultImage, MatOfPoint cnt, boolean drawRect) {
 		Rect rect = Imgproc.boundingRect(cnt);
 		CameraUtils.drawBounds(resultImage, cnt, new Scalar(255, 0, 0), 1);
-		Mat fragment = baseImgRgba.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
+		Mat fragment = baseImage.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
 		return fragment;
 	}
 

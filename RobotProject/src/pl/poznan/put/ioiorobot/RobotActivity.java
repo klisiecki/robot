@@ -12,25 +12,27 @@ import org.opencv.android.CameraBridgeViewBase;
 import pl.poznan.put.ioiorobot.camera.MyCamera;
 import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
-import pl.poznan.put.ioiorobot.sensors.Accelerometer;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IAccelerometer;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
+import pl.poznan.put.ioiorobot.utils.DAO;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
-import android.app.Application;
+import android.graphics.Point;
 import android.hardware.Camera;
-import android.hardware.Camera.Parameters;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -45,6 +47,7 @@ public class RobotActivity extends IOIOActivity {
 	private ToggleButton cameraButton;
 	private ToggleButton sensorsButton;
 	private TextView batteryTextView;
+	private RelativeLayout layout;
 
 	// Controls
 	private IMotorsController motorsController;
@@ -52,8 +55,9 @@ public class RobotActivity extends IOIOActivity {
 	private IBatteryStatus batteryStatus;
 	private IAccelerometer accelerometer;
 	private MyCamera camera;
-	
+
 	private Camera cam;
+	private Point screenSize = new Point();
 
 	class Looper extends BaseIOIOLooper {
 
@@ -99,7 +103,7 @@ public class RobotActivity extends IOIOActivity {
 					batteryTextView.setText(batteryStatus.getStatus() + "%");
 				}
 			});
-			
+
 			Thread.sleep(100);
 		}
 
@@ -119,10 +123,12 @@ public class RobotActivity extends IOIOActivity {
 		super.onCreate(savedInstanceState);
 		initView();
 		initListeners();
-//		cam = Camera.open();
-//		Parameters params = cam.getParameters();
-//		params.setFlashMode(Parameters.FLASH_MODE_TORCH);
-//		cam.setParameters(params);
+		DAO.setContext(getApplicationContext());
+		getWindowManager().getDefaultDisplay().getSize(screenSize);
+		// cam = Camera.open();
+		// Parameters params = cam.getParameters();
+		// params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+		// cam.setParameters(params);
 		Log.d(TAG, "onCreate");
 	}
 
@@ -131,7 +137,6 @@ public class RobotActivity extends IOIOActivity {
 		super.onResume();
 		camera.resume();
 	}
-
 
 	private void initView() {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -145,8 +150,9 @@ public class RobotActivity extends IOIOActivity {
 		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);
 		sensorsButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
 		batteryTextView = (TextView) findViewById(R.id.batteryTextView);
-		
-		//accelerometer = new Accelerometer((SensorManager) (getSystemService(SENSOR_SERVICE)));
+		layout = (RelativeLayout) findViewById(R.id.relative2);
+		// accelerometer = new Accelerometer((SensorManager)
+		// (getSystemService(SENSOR_SERVICE)));
 	}
 
 	private void initListeners() {
@@ -165,7 +171,7 @@ public class RobotActivity extends IOIOActivity {
 			public void OnMoved(int xPos, int yPos) {
 				if (motorsController != null) {
 					motorsController.setDirection(xPos);
-					motorsController.setSpeed((int) (Math.sqrt(xPos*xPos+yPos*yPos)*(yPos > 0 ? 1 : -1)));
+					motorsController.setSpeed((int) (Math.sqrt(xPos * xPos + yPos * yPos) * (yPos > 0 ? 1 : -1)));
 				}
 
 			}
@@ -181,6 +187,33 @@ public class RobotActivity extends IOIOActivity {
 				}
 			}
 		});
+
+		layout.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+					break;
+
+				case MotionEvent.ACTION_MOVE:
+					// User is moving around on the screen
+					break;
+
+				case MotionEvent.ACTION_UP:
+					handleTouch((int) event.getX(), (int) event.getY());
+					break;
+				}
+				return false;
+			}
+		});
+	}
+	
+	private void handleTouch(int x, int y) {
+		int slotSize = screenSize.y/4;
+		if (y < slotSize) {
+			showToast("slot " +x/slotSize);
+		}
 	}
 
 	private void showToast(final String message) {
