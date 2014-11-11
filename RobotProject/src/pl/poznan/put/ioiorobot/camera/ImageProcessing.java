@@ -1,10 +1,9 @@
 package pl.poznan.put.ioiorobot.camera;
 
 import org.opencv.core.Core;
+import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 
 import android.util.Log;
 
@@ -13,15 +12,10 @@ public class ImageProcessing {
 
 	public static int[][] getPattern(Mat mat) {
 		int[][] result = new int[mat.height()][mat.width()];
-		Scalar meanColor = Core.mean(mat);
-		double meanValue = getBrigtness(meanColor);
-		Size size = new Size(0, 0);
-		Point tl = new Point(0, 0);
-		mat.locateROI(size, tl);
-
-		// for (int i = (int) tl.x; i < tl.x + mat.width(); i++) {
-		// for (int j = (int) tl.y; i < tl.y + mat.height(); j++) {
-
+		MinMaxLocResult minmax = Core.minMaxLoc(mat);
+		double min = minmax.minVal;
+		double max = minmax.maxVal;
+		double mean = (min + max) / 2;
 		for (int i = 0; i < mat.height(); i++) {
 			for (int j = 0; j < mat.width(); j++) {
 				// Mat subMat = mat.submat(j, j+1, i, i+1);
@@ -29,7 +23,7 @@ public class ImageProcessing {
 				double[] val = mat.get(i, j);
 				if (val != null) {
 					double brigtness = val[0];
-					if (brigtness > meanValue) {
+					if (brigtness > mean) {
 						result[i][j] = 1;
 					} else {
 						result[i][j] = 0;
@@ -63,7 +57,7 @@ public class ImageProcessing {
 	public static double getBrigtness(Scalar color) {
 		return color.val[0];
 	}
-	
+
 	public static String tabToString(int[][] tab) {
 		StringBuilder result = new StringBuilder("");
 		for (int i = 0; i < tab.length; i++) {
@@ -73,7 +67,7 @@ public class ImageProcessing {
 			}
 			result.append("\n");
 		}
-		
+
 		return result.toString();
 	}
 

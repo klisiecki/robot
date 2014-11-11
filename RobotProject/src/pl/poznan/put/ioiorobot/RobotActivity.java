@@ -128,6 +128,18 @@ public class RobotActivity extends IOIOActivity {
 		// Parameters params = cam.getParameters();
 		// params.setFlashMode(Parameters.FLASH_MODE_TORCH);
 		// cam.setParameters(params);
+
+		View decorView = getWindow().getDecorView();
+		// Hide both the navigation bar and the status bar.
+		// SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and
+		// higher, but as
+		// a general rule, you should design your app to hide the status bar
+		// whenever you
+		// hide the navigation bar.
+		int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN
+				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+		decorView.setSystemUiVisibility(uiOptions);
+
 		Log.d(TAG, "onCreate");
 	}
 
@@ -187,31 +199,31 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 
-//		layout.setOnTouchListener(new OnTouchListener() {
-//
-//			@Override
-//			public boolean onTouch(View v, MotionEvent event) {
-//				switch (event.getAction()) {
-//				case MotionEvent.ACTION_DOWN:
-//					break;
-//
-//				case MotionEvent.ACTION_MOVE:
-//					// User is moving around on the screen
-//					break;
-//
-//				case MotionEvent.ACTION_UP:
-//					handleTouch((int) event.getX(), (int) event.getY());
-//					break;
-//				}
-//				return false;
-//			}
-//		});
+		// layout.setOnTouchListener(new OnTouchListener() {
+		//
+		// @Override
+		// public boolean onTouch(View v, MotionEvent event) {
+		// switch (event.getAction()) {
+		// case MotionEvent.ACTION_DOWN:
+		// break;
+		//
+		// case MotionEvent.ACTION_MOVE:
+		// // User is moving around on the screen
+		// break;
+		//
+		// case MotionEvent.ACTION_UP:
+		// handleTouch((int) event.getX(), (int) event.getY());
+		// break;
+		// }
+		// return false;
+		// }
+		// });
 	}
-	
+
 	private void handleTouch(int x, int y) {
-		int slotSize = screenSize.y/4;
+		int slotSize = screenSize.y / 4;
 		if (y < slotSize) {
-			showToast("slot " +x/slotSize);
+			showToast("slot " + x / slotSize);
 		}
 	}
 

@@ -245,7 +245,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		// return image;
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		Mat resultImage = new Mat();
 		imgRgba.copyTo(resultImage);
@@ -258,7 +258,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		for (MatOfPoint cnt : contours) {
 
 			// Pomijanie małych obiektów
-			int threshold = 200; // seekBar1.getProgress()*10;
+			int threshold = 600; // seekBar1.getProgress()*10;
 			if (Imgproc.contourArea(cnt) > threshold)
 				contours2.add(cnt);
 		}
@@ -283,8 +283,9 @@ public class MyCamera implements CvCameraViewListener2 {
 				slotNr++;
 				int[][] data = ImageProcessing.getPattern(fragment);
 				//DAO.saveItemAsync(ImageProcessing.getPattern(fragment), "pattern"+slotNr);
+				Log.e("robot", "po2 " + fragment.width() + " x " + fragment.height());
 				String temp = ImageProcessing.tabToString(data);
-				DAO.writeToExternal(temp, "array4."+slotNr);
+				DAO.writeToExternal(temp, "array6."+slotNr);
 			}
 		}
 
@@ -331,9 +332,14 @@ public class MyCamera implements CvCameraViewListener2 {
 				p.x -= fragmentTL.x;
 				p.y -= fragmentTL.y;
 			}
-			fragment = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
+			Log.e("robot", "przed0 " + fragment.width() + " x " + fragment.height());
+			Mat fragment2 = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
+			fragment2.copyTo(fragment);
 			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_GRAY2RGBA);
+			Log.e("robot", "przed " + fragment.width() + " x " + fragment.height());
 			showFragment2(resultImage, fragment, slot, cameraView.getHeight() / 4);
+			Log.e("robot", "po " + fragment.width() + " x " + fragment.height());
+			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_RGB2GRAY);
 			return true;
 		}
 		return false;
