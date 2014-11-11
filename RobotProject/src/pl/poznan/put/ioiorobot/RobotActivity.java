@@ -56,7 +56,6 @@ public class RobotActivity extends IOIOActivity {
 	private IAccelerometer accelerometer;
 	private MyCamera camera;
 
-	private Camera cam;
 	private Point screenSize = new Point();
 
 	class Looper extends BaseIOIOLooper {
@@ -188,25 +187,25 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 
-		layout.setOnTouchListener(new OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				switch (event.getAction()) {
-				case MotionEvent.ACTION_DOWN:
-					break;
-
-				case MotionEvent.ACTION_MOVE:
-					// User is moving around on the screen
-					break;
-
-				case MotionEvent.ACTION_UP:
-					handleTouch((int) event.getX(), (int) event.getY());
-					break;
-				}
-				return false;
-			}
-		});
+//		layout.setOnTouchListener(new OnTouchListener() {
+//
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				switch (event.getAction()) {
+//				case MotionEvent.ACTION_DOWN:
+//					break;
+//
+//				case MotionEvent.ACTION_MOVE:
+//					// User is moving around on the screen
+//					break;
+//
+//				case MotionEvent.ACTION_UP:
+//					handleTouch((int) event.getX(), (int) event.getY());
+//					break;
+//				}
+//				return false;
+//			}
+//		});
 	}
 	
 	private void handleTouch(int x, int y) {

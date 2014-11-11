@@ -8,8 +8,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
-import android.view.View.MeasureSpec;
 
 public class SimpleBarGraph extends View {
 
@@ -19,7 +19,7 @@ public class SimpleBarGraph extends View {
 	private Paint backgroundPaint;
 	private Paint barPaint;
 
-	int graphWidth;
+//	int graphWidth;
 	int maxValue = 150;
 
 	private List<Integer> values = new ArrayList<Integer>();
@@ -77,7 +77,6 @@ public class SimpleBarGraph extends View {
 		if (mode == MeasureSpec.EXACTLY) {
 			result = size;
 		} else if (mode == MeasureSpec.AT_MOST) {
-			result = Math.min(desired, size);
 		} else {
 			result = desired;
 		}
@@ -87,18 +86,19 @@ public class SimpleBarGraph extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
+		Log.e("robot","onDraw");
 		List<Integer> valuesCopy = values;
 		int barsNumber = valuesCopy.size();
 
-		canvas.drawRect(0, 0, graphWidth, height, backgroundPaint);
+		canvas.drawRect(0, 0, width, height, backgroundPaint);
 
 		for (int i = 0; i < barsNumber; i++) {
 			int value = valuesCopy.get(i);
 			int scaledValue = value > maxValue ? maxValue : value;
 
-			int left = graphWidth * i / barsNumber + 5;
+			int left = width * i / barsNumber + 5;
 			int top = height - (int) (height * ((float) scaledValue / maxValue));
-			int right = graphWidth * (i + 1) / barsNumber;
+			int right = width * (i + 1) / barsNumber;
 			int bottom = height;
 			canvas.drawRect(left, top, right, bottom, barPaint);
 		}

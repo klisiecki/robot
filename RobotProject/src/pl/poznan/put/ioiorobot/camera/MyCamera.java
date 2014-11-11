@@ -245,13 +245,13 @@ public class MyCamera implements CvCameraViewListener2 {
 		// return image;
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		Mat resultImage = new Mat();
 		imgRgba.copyTo(resultImage);
 
 		MatOfPoint maxCnt = null;
-		int slotNr = 1;
+		int slotNr = 0;
 
 		List<MatOfPoint> contours2 = new ArrayList<MatOfPoint>();
 
@@ -279,11 +279,11 @@ public class MyCamera implements CvCameraViewListener2 {
 				maxCnt = new MatOfPoint(cnt);
 			}
 
-			if (warpFragmentFromContour(resultImage, cnt, fragment, slotNr) && slotNr < 5) {
+			if (warpFragmentFromContour(resultImage, cnt, fragment, slotNr) && slotNr < 3) {
 				slotNr++;
 				int[][] data = ImageProcessing.getPattern(fragment);
 				//DAO.saveItemAsync(ImageProcessing.getPattern(fragment), "pattern"+slotNr);
-				//DAO.writeToExternalAsync(ImageProcessing.tabToString(data), "array"+slotNr);
+				//DAO.writeToExternalAsync(ImageProcessing.tabToString(data), "array2."+slotNr);
 			}
 		}
 
@@ -331,7 +331,6 @@ public class MyCamera implements CvCameraViewListener2 {
 				p.y -= fragmentTL.y;
 			}
 			fragment = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
-//			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_RGB2GRAY);
 			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_GRAY2RGBA);
 			showFragment2(resultImage, fragment, slot, cameraView.getHeight() / 4);
 			return true;
