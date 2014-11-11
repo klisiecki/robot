@@ -65,16 +65,16 @@ public class ImageProcessing {
 	}
 	
 	public static String tabToString(int[][] tab) {
-		String result = "";
+		StringBuilder result = new StringBuilder("");
 		for (int i = 0; i < tab.length; i++) {
 			int[] subtab = tab[i];
 			for (int j = 0; j < subtab.length; j++) {
-				result += tab[i][j];
+				result.append(tab[i][j]);
 			}
-			result += "\n";
+			result.append("\n");
 		}
 		
-		return result;
+		return result.toString();
 	}
 
 	public static int getCoverage(int[][] p1, int[][] p2) {
