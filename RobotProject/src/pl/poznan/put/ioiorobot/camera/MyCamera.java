@@ -148,7 +148,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat hierarchy = new Mat();
 		src.copyTo(dst);
 
-		Imgproc.findContours(image, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(image, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		int k = getBiggestContourIndex(contours);
 		Rect bounds = setContourRect(contours, k);
@@ -258,7 +258,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		for (MatOfPoint cnt : contours) {
 
 			// Pomijanie małych obiektów
-			int threshold = 600; // seekBar1.getProgress()*10;
+			int threshold = 500; // seekBar1.getProgress()*10;
 			if (Imgproc.contourArea(cnt) > threshold)
 				contours2.add(cnt);
 		}
@@ -279,13 +279,12 @@ public class MyCamera implements CvCameraViewListener2 {
 				maxCnt = new MatOfPoint(cnt);
 			}
 
-			if (warpFragmentFromContour(resultImage, cnt, fragment, slotNr) && slotNr < 3) {
+			if (warpFragmentFromContour(resultImage, cnt, fragment, slotNr) && slotNr < 6) {
 				slotNr++;
 				int[][] data = ImageProcessing.getPattern(fragment);
 				//DAO.saveItemAsync(ImageProcessing.getPattern(fragment), "pattern"+slotNr);
-				Log.e("robot", "po2 " + fragment.width() + " x " + fragment.height());
 				String temp = ImageProcessing.tabToString(data);
-				DAO.writeToExternal(temp, "array6."+slotNr);
+				DAO.writeToExternal(temp, "array7."+slotNr);
 			}
 		}
 
@@ -316,7 +315,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	 */
 	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint maxCnt, Mat fragment, int slot) {
 		List<Point> points = getRectanglePointsFromContour(maxCnt);
-		if (points.size() == 4) {
+		if (couldBeRectangle(points)) {
 			Rect rect = Imgproc.boundingRect(maxCnt);
 
 			Point fragmentTL = rect.tl();
@@ -332,13 +331,10 @@ public class MyCamera implements CvCameraViewListener2 {
 				p.x -= fragmentTL.x;
 				p.y -= fragmentTL.y;
 			}
-			Log.e("robot", "przed0 " + fragment.width() + " x " + fragment.height());
 			Mat fragment2 = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
 			fragment2.copyTo(fragment);
 			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_GRAY2RGBA);
-			Log.e("robot", "przed " + fragment.width() + " x " + fragment.height());
 			showFragment2(resultImage, fragment, slot, cameraView.getHeight() / 4);
-			Log.e("robot", "po " + fragment.width() + " x " + fragment.height());
 			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_RGB2GRAY);
 			return true;
 		}
@@ -376,6 +372,35 @@ public class MyCamera implements CvCameraViewListener2 {
 			points.remove(maxIndex);
 		}
 		return points;
+	}
+	
+	private boolean couldBeRectangle(List<Point> points) {
+		if(points.size() != 4) {
+			return false;
+		}
+		
+		int top = getDistance(points.get(0), points.get(1));
+		int bottom = getDistance(points.get(2), points.get(3));
+		int left = getDistance(points.get(0), points.get(3));
+		int right = getDistance(points.get(1), points.get(2));
+		
+		Log.d("robot", top + " vs " + bottom + "     " + left + "  vs " + right);
+		
+		if(!areEqual(top, bottom) || !areEqual(left, right)) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	
+	private int getDistance(Point a, Point b){
+		return (int) Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+	}
+	
+	private boolean areEqual(int a, int b){
+		int acceptedError = 30;	
+		return Math.abs((double)(a-b) / a) < (double)acceptedError/100.0; 
 	}
 
 	private void findCornerHoughTransform(Mat fragment) {
