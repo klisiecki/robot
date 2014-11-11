@@ -283,7 +283,7 @@ public class MyCamera implements CvCameraViewListener2 {
 				slotNr++;
 				int[][] data = ImageProcessing.getPattern(fragment);
 				//DAO.saveItemAsync(ImageProcessing.getPattern(fragment), "pattern"+slotNr);
-				//DAO.writeToExternalAsync(ImageProcessing.tabToString(data), "array2."+slotNr);
+				DAO.writeToExternalAsync(ImageProcessing.tabToString(data), "array3."+slotNr);
 			}
 		}
 
