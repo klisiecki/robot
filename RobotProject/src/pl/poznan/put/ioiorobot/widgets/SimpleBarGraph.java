@@ -77,6 +77,7 @@ public class SimpleBarGraph extends View {
 		if (mode == MeasureSpec.EXACTLY) {
 			result = size;
 		} else if (mode == MeasureSpec.AT_MOST) {
+            result = Math.min(desired, size);
 		} else {
 			result = desired;
 		}
@@ -86,7 +87,7 @@ public class SimpleBarGraph extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		Log.e("robot","onDraw");
+		//Log.e("robot","onDraw");
 		List<Integer> valuesCopy = values;
 		int barsNumber = valuesCopy.size();
 

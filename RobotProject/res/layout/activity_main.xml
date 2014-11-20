@@ -21,8 +21,8 @@
         android:id="@+id/relative2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="true" 
-        android:focusable="true">
+        android:clickable="true"
+        android:focusable="true" >
 
         <LinearLayout
             android:id="@+id/linear1"
@@ -70,13 +70,12 @@
                 android:layout_height="2dp"
                 android:background="@color/black_overlay" />
 
-            <TextView
-                android:id="@+id/batteryTextView"
+            <pl.poznan.put.ioiorobot.widgets.BatteryStatusBar
+                android:id="@+id/batteryStatusBar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="--%"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:gravity="center" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -93,7 +92,7 @@
                 android:id="@+id/seekBar1"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:max="100"
+                android:max="200"
                 android:progress="1" />
 
             <SeekBar
@@ -107,7 +106,7 @@
                 android:id="@+id/seekBar3"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:max="100"
+                android:max="200"
                 android:progress="1" />
         </LinearLayout>
 
@@ -116,9 +115,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
-            android:layout_alignParentRight="true"
-         
-             />
+            android:layout_alignParentRight="true" />
 
         <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
             android:id="@+id/distanceBarGraph"

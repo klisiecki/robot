@@ -1,9 +1,13 @@
 package pl.poznan.put.ioiorobot.motors;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
+import android.text.format.Time;
 import android.util.Log;
 
 public class MotorsController implements IMotorsController {
@@ -11,7 +15,9 @@ public class MotorsController implements IMotorsController {
 
 	private int direction;
 	private int speed;
-	
+
+	private int regulacja=0;
+
 	private boolean enabled = true;
 
 	private IOIO ioio_;
@@ -21,6 +27,8 @@ public class MotorsController implements IMotorsController {
 	private DigitalOutput r1;
 	private DigitalOutput r2;
 	private PwmOutput rPwm;
+	
+	private static Timer timerPID;
 
 	public MotorsController(IOIO ioio_, int l1Pin, int l2Pin, int lPwmPin,
 			int r1Pin, int r2Pin, int rPwmPin) throws ConnectionLostException {
@@ -35,6 +43,18 @@ public class MotorsController implements IMotorsController {
 		rPwm = ioio_.openPwmOutput(rPwmPin, FREQUENCY);
 
 		MotorThread t = new MotorThread();
+
+		
+		if(null != timerPID)
+	    {
+	        timerPID.cancel();
+	        timerPID.purge();
+	        timerPID = null;
+	    }
+
+	    timerPID = new Timer();
+				
+		timerPID.scheduleAtFixedRate(new PID(), 0, 100);
 	}
 
 	public int getDirection() {
@@ -64,6 +84,10 @@ public class MotorsController implements IMotorsController {
 			this.speed = speed;
 		}
 	}
+	
+	public int getRegulacja() {
+		return regulacja;
+	}
 
 	class MotorThread extends Thread {
 		public MotorThread() {
@@ -74,6 +98,9 @@ public class MotorsController implements IMotorsController {
 		@Override
 		public void run() {
 			while (true) {
+//				speed = 100;
+//				direction = -100;
+				
 				try {
 					if (speed > 5) {
 						l1.write(true);
@@ -91,19 +118,26 @@ public class MotorsController implements IMotorsController {
 						r1.write(false);
 						r2.write(false);
 					}
-//					float left = Math.min( ((float) Math.abs(speed) + direction)/100f, 1f);
-//					float right = Math.min( ((float) Math.abs(speed) - direction)/100f, 1f);
-					
-					float left = ((float) Math.abs(speed) + (float)direction*speed/100f)/200f;
-					float right = ((float)Math.abs(speed) - (float)direction*speed/100f)/200f;
-					if(!enabled) {
+					// float left = Math.min( ((float) Math.abs(speed) +
+					// direction)/100f, 1f);
+					// float right = Math.min( ((float) Math.abs(speed) -
+					// direction)/100f, 1f);
+
+					float left = ((float) Math.abs(speed) + (float) direction
+							* speed / 100f) / 200f;
+					float right = ((float) Math.abs(speed) - (float) direction
+							* speed / 100f) / 200f;
+					if (!enabled) {
 						left = right = 0;
 					}
-					if (left < 0.2f) left = 0;
-					if (right< 0.2f) right = 0;
-					lPwm.setDutyCycle(Math.min(left,1f));
+					if (left < 0.2f)
+						left = 0;
+					if (right < 0.2f)
+						right = 0;
+					lPwm.setDutyCycle(Math.min(left, 1f));
 					rPwm.setDutyCycle(Math.min(right, 1f));
-//					Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed + "     L = " + left + "   R = " + right);
+					 Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed
+					 + "     L = " + left + "   R = " + right);
 					Thread.sleep(1);
 				} catch (Exception e) {
 				}
@@ -114,11 +148,56 @@ public class MotorsController implements IMotorsController {
 	@Override
 	public void stop() {
 		enabled = false;
-		
+
 	}
 
 	@Override
 	public void start() {
 		enabled = true;
+	}
+
+	private class PID extends TimerTask {
+		private int calka = 0;
+		private int popBlad = 0;
+		private int iteracja = 0;
+		
+		private int dlugoscRegulacjiPd = 10;
+		private int granicaCalki = 100;
+		
+		private int Kp = 5;
+		private int Ki = 0;
+		private int Kd = 5;
+		
+		public void run() {
+//			Log.d("robot", "PID begin");
+			
+			int blad = direction;
+
+			
+			calka += blad;
+			calka = Math.min(Math.max(calka, -granicaCalki), granicaCalki);
+//			if (calka > granicaCalki) {
+//				calka = granicaCalki;
+//			} else if (calka < -granicaCalki) {
+//				calka = -granicaCalki;
+//			}
+			
+			
+			int rozniczka = blad - popBlad;
+			
+			if (iteracja == dlugoscRegulacjiPd) {
+				popBlad = blad;
+				iteracja = 0;
+			} else {
+				iteracja++;
+			}
+
+			
+			/* Obliczenie właściwej wartości regulacji. */
+			regulacja = Math.round( (Kp * blad + Kd * rozniczka + Ki * calka) / (Kp+Kd+Ki));
+
+			
+			Log.d("robot", "Regulacja = " + regulacja);
+		}
 	}
 }

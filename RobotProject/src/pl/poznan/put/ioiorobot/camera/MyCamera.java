@@ -48,12 +48,14 @@ public class MyCamera implements CvCameraViewListener2 {
 	private int xTargetPosition;
 
 	public int getxTargetPosition() {
-		return xTargetPosition;
+		// <-100 ; 100>
+		return seekBar1.getProgress() - 100;
+		//return xTargetPosition;
 	}
 
 	public MyCamera(final CameraBridgeViewBase cameraView, final Context context) {
 		super();
-		DAO.writeToExternal("test", "testSD.txt");
+		//DAO.writeToExternal("test", "testSD.txt");
 		this.cameraView = cameraView;
 		this.context = context;
 
@@ -106,9 +108,10 @@ public class MyCamera implements CvCameraViewListener2 {
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		// return finColorShapes(inputFrame);
-		return findRegularShapes(inputFrame);
-		// return inputFrame.rgba();
-		// return inputFrame.rgba();
+		
+		//return findRegularShapes(inputFrame);
+		
+		return inputFrame.rgba();
 		// Zwrócenie obrazu w innym rozmiarze niż wejściowy powoduje brak obrazu
 	}
 
@@ -203,8 +206,8 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat mask = new Mat();
 		imgRgba.copyTo(mask);
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
-		// getYellowMat(mask, mask);
-		getWhiteMat(mask, mask);
+		getYellowMat(mask, mask);
+		//getWhiteMat(mask, mask);
 
 //		Mat image = new Mat();
 //		baseImgRgba.copyTo(image, mask);
@@ -284,7 +287,7 @@ public class MyCamera implements CvCameraViewListener2 {
 				int[][] data = ImageProcessing.getPattern(fragment);
 				//DAO.saveItemAsync(ImageProcessing.getPattern(fragment), "pattern"+slotNr);
 				String temp = ImageProcessing.tabToString(data);
-				DAO.writeToExternal(temp, "array7."+slotNr);
+				//DAO.writeToExternal(temp, "array7."+slotNr);
 			}
 		}
 

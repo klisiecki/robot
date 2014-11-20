@@ -1,5 +1,6 @@
 package pl.poznan.put.ioiorobot;
 
+import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
@@ -10,6 +11,7 @@ import java.util.List;
 import org.opencv.android.CameraBridgeViewBase;
 
 import pl.poznan.put.ioiorobot.camera.MyCamera;
+import pl.poznan.put.ioiorobot.motors.EncodersData;
 import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
@@ -18,22 +20,20 @@ import pl.poznan.put.ioiorobot.sensors.IAccelerometer;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
 import pl.poznan.put.ioiorobot.utils.DAO;
+import pl.poznan.put.ioiorobot.widgets.BatteryStatusBar;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
 import android.graphics.Point;
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -46,14 +46,18 @@ public class RobotActivity extends IOIOActivity {
 	private SimpleBarGraph barGraph;
 	private ToggleButton cameraButton;
 	private ToggleButton sensorsButton;
-	private TextView batteryTextView;
 	private RelativeLayout layout;
+	private SeekBar seekBar1;
+	private SeekBar seekBar2;
+	private SeekBar seekBar3;
+	private BatteryStatusBar batteryStatusBar;
 
 	// Controls
 	private IMotorsController motorsController;
 	private IDistanceSensor distanceSensor;
 	private IBatteryStatus batteryStatus;
 	private IAccelerometer accelerometer;
+	private EncodersData encodersData;
 	private MyCamera camera;
 
 	private Point screenSize = new Point();
@@ -65,9 +69,10 @@ public class RobotActivity extends IOIOActivity {
 			showToast("Connected");
 
 			try {
-				motorsController = new MotorsController(ioio_, 1, 2, 3, 16, 17, 14);
+				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3);
 				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
 				batteryStatus = new BatteryStatus(ioio_, 46);
+				//encodersData = new EncodersData(ioio_, 27, 28, 9600, Uart.Parity.NONE, Uart.StopBits.ONE);
 			} catch (ConnectionLostException e) {
 				Log.e(TAG, e.toString());
 				e.printStackTrace();
@@ -88,6 +93,9 @@ public class RobotActivity extends IOIOActivity {
 
 			if (cameraButton.isChecked()) {
 				motorsController.setDirection(camera.getxTargetPosition());
+				
+//				Log.d("robot", "camera.getxTargetPosition(): " + camera.getxTargetPosition());
+				
 				if (distanceSensor.getResults() != null && sensorsButton.isChecked()) {
 					List<Integer> distances = distanceSensor.getResultsOnly();
 					int val = distances.get(distances.size() / 2);
@@ -99,7 +107,9 @@ public class RobotActivity extends IOIOActivity {
 
 			runOnUiThread(new Runnable() {
 				public void run() {
-					batteryTextView.setText(batteryStatus.getStatus() + "%");
+					batteryStatusBar.setValue(batteryStatus.getStatus());
+					
+					seekBar3.setProgress(100 + motorsController.getRegulacja());
 				}
 			});
 
@@ -160,10 +170,13 @@ public class RobotActivity extends IOIOActivity {
 		barGraph = (SimpleBarGraph) findViewById(R.id.distanceBarGraph);
 		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);
 		sensorsButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
-		batteryTextView = (TextView) findViewById(R.id.batteryTextView);
 		layout = (RelativeLayout) findViewById(R.id.relative2);
 		// accelerometer = new Accelerometer((SensorManager)
 		// (getSystemService(SENSOR_SERVICE)));
+		seekBar1 = (SeekBar) findViewById(R.id.seekBar1);
+		seekBar2 = (SeekBar) findViewById(R.id.seekBar2);
+		seekBar3 = (SeekBar) findViewById(R.id.seekBar3);
+		batteryStatusBar = (BatteryStatusBar) findViewById(R.id.batteryStatusBar);
 	}
 
 	private void initListeners() {
