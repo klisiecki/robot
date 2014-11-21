@@ -19,6 +19,7 @@ import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IAccelerometer;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
+import pl.poznan.put.ioiorobot.utils.MyConfig;
 import pl.poznan.put.ioiorobot.utils.DAO;
 import pl.poznan.put.ioiorobot.widgets.BatteryStatusBar;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
@@ -93,9 +94,10 @@ public class RobotActivity extends IOIOActivity {
 
 			if (cameraButton.isChecked()) {
 				motorsController.setDirection(camera.getxTargetPosition());
-				
-//				Log.d("robot", "camera.getxTargetPosition(): " + camera.getxTargetPosition());
-				
+
+				// Log.d("robot", "camera.getxTargetPosition(): " +
+				// camera.getxTargetPosition());
+
 				if (distanceSensor.getResults() != null && sensorsButton.isChecked()) {
 					List<Integer> distances = distanceSensor.getResultsOnly();
 					int val = distances.get(distances.size() / 2);
@@ -108,7 +110,7 @@ public class RobotActivity extends IOIOActivity {
 			runOnUiThread(new Runnable() {
 				public void run() {
 					batteryStatusBar.setValue(batteryStatus.getStatus());
-					
+
 					seekBar3.setProgress(100 + motorsController.getRegulacja());
 				}
 			});
@@ -134,6 +136,7 @@ public class RobotActivity extends IOIOActivity {
 		initListeners();
 		DAO.setContext(getApplicationContext());
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
+		MyConfig.patternSize = screenSize.y / 4;
 		// cam = Camera.open();
 		// Parameters params = cam.getParameters();
 		// params.setFlashMode(Parameters.FLASH_MODE_TORCH);
@@ -153,6 +156,7 @@ public class RobotActivity extends IOIOActivity {
 		Log.d(TAG, "onCreate");
 	}
 
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -205,32 +209,30 @@ public class RobotActivity extends IOIOActivity {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (!isChecked) {
-					motorsController.setSpeed(0);
-					motorsController.setDirection(0);
+				if (isChecked) {
+					// motorsController.setSpeed(0);
+					// motorsController.setDirection(0);
+					camera.setMode(MyCamera.Mode.PROCESSING);
+				} else {
+					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
 				}
 			}
 		});
 
-		// layout.setOnTouchListener(new OnTouchListener() {
-		//
-		// @Override
-		// public boolean onTouch(View v, MotionEvent event) {
-		// switch (event.getAction()) {
-		// case MotionEvent.ACTION_DOWN:
-		// break;
-		//
-		// case MotionEvent.ACTION_MOVE:
-		// // User is moving around on the screen
-		// break;
-		//
-		// case MotionEvent.ACTION_UP:
-		// handleTouch((int) event.getX(), (int) event.getY());
-		// break;
-		// }
-		// return false;
-		// }
-		// });
+		sensorsButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (distanceSensor != null) {
+					if (isChecked) {
+						distanceSensor.startSensor();
+					} else {
+						distanceSensor.stopSensor();
+					}
+				}
+
+			}
+		});
 	}
 
 	private void handleTouch(int x, int y) {

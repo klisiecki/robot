@@ -16,8 +16,9 @@ import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import android.util.Log;
 
 public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
-	private static final int SERVO_MIN = 600; //600
-	private static final int SERVO_MAX = 2300; //2300
+
+	private static final int SERVO_MIN = 600; // 600
+	private static final int SERVO_MAX = 2300; // 2300
 
 	private static final int ANGLE_MIN = -90;
 	private static final int ANGLE_MAX = 90;
@@ -31,8 +32,9 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 	private DigitalOutput trigger;
 	private PulseInput echo;
 
+	private boolean isRunning = false;
 	private List<Pair> results;
-	
+
 	public HCSR04DistanceSensor(IOIO ioio_, int servoPin, int triggerPin, int echoPin) throws ConnectionLostException {
 		servo = ioio_.openPwmOutput(servoPin, 100);
 		trigger = ioio_.openDigitalOutput(triggerPin, false);
@@ -43,6 +45,16 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 		}
 		Log.d("robot", "hcsr");
 		start();
+	}
+
+	@Override
+	public void stopSensor() {
+		isRunning = false;
+	}
+
+	@Override
+	public void startSensor() {
+		isRunning = true;
 	}
 
 	@Override
@@ -67,24 +79,30 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 			servo.setPulseWidth(map(position));
 			Thread.sleep(1000);
 			while (true) {
-				for (int i = 0; i < RESULTS_SIZE; i++) {
-					servo.setPulseWidth(map(position));
-					Thread.sleep(STEP_DELAY);
-					results.set(i, new Pair(position, getDistance()));
-					//Log.d("robot", i + "+, " + position + ", map: " + map(position) + " | "+results.get(i).distance);
-					if (i != RESULTS_SIZE - 1)
-						position += ANGLE_STEP;
-				}
+				if (isRunning) {
+					for (int i = 0; i < RESULTS_SIZE; i++) {
+						servo.setPulseWidth(map(position));
+						Thread.sleep(STEP_DELAY);
+						results.set(i, new Pair(position, getDistance()));
+						// Log.d("robot", i + "+, " + position + ", map: " +
+						// map(position) + " | "+results.get(i).distance);
+						if (i != RESULTS_SIZE - 1)
+							position += ANGLE_STEP;
+					}
 
-				for (int i = RESULTS_SIZE - 2; i > 0; i--) {
+					for (int i = RESULTS_SIZE - 2; i > 0; i--) {
+						position -= ANGLE_STEP;
+						servo.setPulseWidth(map(position));
+						Thread.sleep(STEP_DELAY);
+						results.set(i, new Pair(position, getDistance()));
+						Log.d(" ", i + "-, " + position + ", map: " + map(position) + " | " + results.get(i).distance);
+					}
 					position -= ANGLE_STEP;
-					servo.setPulseWidth(map(position));
-					Thread.sleep(STEP_DELAY);
-					results.set(i, new Pair(position, getDistance()));
-					Log.d(" ", i + "-, " + position + ", map: " + map(position) + " | "+results.get(i).distance);
+				} else {
+					servo.setPulseWidth(0);
+					Thread.sleep(200);
 				}
-				position -= ANGLE_STEP;
-			}			
+			}
 		} catch (Exception e) {
 			Log.e("robot", e.toString());
 		}

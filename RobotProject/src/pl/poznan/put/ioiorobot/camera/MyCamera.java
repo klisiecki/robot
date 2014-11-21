@@ -37,6 +37,19 @@ import android.widget.SeekBar;
  */
 public class MyCamera implements CvCameraViewListener2 {
 
+	public enum Mode {
+		PROCESSING, CAMERA_ONLY
+	}
+
+	private Mode mode;
+	public Mode getMode() {
+		return mode;
+	}
+
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
+
 	private CameraBridgeViewBase cameraView;
 	private BaseLoaderCallback loaderCallback;
 	private Context context;
@@ -50,12 +63,12 @@ public class MyCamera implements CvCameraViewListener2 {
 	public int getxTargetPosition() {
 		// <-100 ; 100>
 		return seekBar1.getProgress() - 100;
-		//return xTargetPosition;
+		// return xTargetPosition;
 	}
 
 	public MyCamera(final CameraBridgeViewBase cameraView, final Context context) {
 		super();
-		//DAO.writeToExternal("test", "testSD.txt");
+		this.mode = Mode.CAMERA_ONLY;
 		this.cameraView = cameraView;
 		this.context = context;
 
@@ -107,12 +120,11 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		// return finColorShapes(inputFrame);
-		
-		return findRegularShapes(inputFrame);
-		
-		//return inputFrame.rgba();
-		// Zwrócenie obrazu w innym rozmiarze niż wejściowy powoduje brak obrazu
+		if (mode == Mode.CAMERA_ONLY) {
+			return inputFrame.rgba();
+		} else {
+			return findRegularShapes(inputFrame);
+		}
 	}
 
 	private Mat findColorShapes(CvCameraViewFrame inputFrame) {
@@ -207,13 +219,13 @@ public class MyCamera implements CvCameraViewListener2 {
 		imgRgba.copyTo(mask);
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
 		getYellowMat(mask, mask);
-		//getWhiteMat(mask, mask);
+		// getWhiteMat(mask, mask);
 
-//		Mat image = new Mat();
-//		baseImgRgba.copyTo(image, mask);
-//
-//		/* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
-//		Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
+		// Mat image = new Mat();
+		// baseImgRgba.copyTo(image, mask);
+		//
+		// /* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
+		// Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
 
 		// return image;
 
@@ -284,26 +296,24 @@ public class MyCamera implements CvCameraViewListener2 {
 
 			if (warpFragmentFromContour(resultImage, cnt, fragment, slotNr) && slotNr < 6) {
 				slotNr++;
-				int[][] data = ImageProcessing.getPattern(fragment);
-				//DAO.saveItemAsync(ImageProcessing.getPattern(fragment), "pattern"+slotNr);
-				String temp = ImageProcessing.tabToString(data);
-				DAO.writeToExternal(temp, "array7."+slotNr);
+				DAO.writeToExternal(new Pattern(fragment).toString(), "array7." + slotNr);
 			}
 		}
 
 		// Rysowanie największego znalezionego obszaru
-//		if (maxCnt != null) {
-//			Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt, false);
-//			CameraUtils.drawBounds(resultImage, maxCnt, new Scalar(255, 0, 0), 3);
-//			// fragment = fragment.clone();
-//			if (fragment.width() != 0 && fragment.height() != 0) {
-//
-//				// findCornerHarris(fragment);
-//				// findCornerHoughTransform(fragment);
-//
-//				// warpFragmentFromContour(resultImage, maxCnt, fragment);
-//			}
-//		}
+		// if (maxCnt != null) {
+		// Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt, false);
+		// CameraUtils.drawBounds(resultImage, maxCnt, new Scalar(255, 0, 0),
+		// 3);
+		// // fragment = fragment.clone();
+		// if (fragment.width() != 0 && fragment.height() != 0) {
+		//
+		// // findCornerHarris(fragment);
+		// // findCornerHoughTransform(fragment);
+		//
+		// // warpFragmentFromContour(resultImage, maxCnt, fragment);
+		// }
+		// }
 
 		return resultImage;
 	}
@@ -376,34 +386,33 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 		return points;
 	}
-	
+
 	private boolean couldBeRectangle(List<Point> points) {
-		if(points.size() != 4) {
+		if (points.size() != 4) {
 			return false;
 		}
-		
+
 		int top = getDistance(points.get(0), points.get(1));
 		int bottom = getDistance(points.get(2), points.get(3));
 		int left = getDistance(points.get(0), points.get(3));
 		int right = getDistance(points.get(1), points.get(2));
-		
+
 		Log.d("robot", top + " vs " + bottom + "     " + left + "  vs " + right);
-		
-		if(!areEqual(top, bottom) || !areEqual(left, right)) {
+
+		if (!areEqual(top, bottom) || !areEqual(left, right)) {
 			return false;
-		}
-		else {
+		} else {
 			return true;
 		}
 	}
-	
-	private int getDistance(Point a, Point b){
-		return (int) Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+
+	private int getDistance(Point a, Point b) {
+		return (int) Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 	}
-	
-	private boolean areEqual(int a, int b){
-		int acceptedError = 30;	
-		return Math.abs((double)(a-b) / a) < (double)acceptedError/100.0; 
+
+	private boolean areEqual(int a, int b) {
+		int acceptedError = 30;
+		return Math.abs((double) (a - b) / a) < (double) acceptedError / 100.0;
 	}
 
 	private void findCornerHoughTransform(Mat fragment) {

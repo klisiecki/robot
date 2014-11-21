@@ -8,6 +8,10 @@ public interface IDistanceSensor {
 	
 	List<Integer> getResultsOnly();
 	
+	void stopSensor();
+	
+	void startSensor();
+	
 	public class Pair {
 		public Pair(int angle, int distance) {
 			this.angle = angle;
