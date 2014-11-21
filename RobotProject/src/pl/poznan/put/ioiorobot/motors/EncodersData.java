@@ -1,5 +1,10 @@
 package pl.poznan.put.ioiorobot.motors;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -17,14 +22,21 @@ public class EncodersData {
 	private IOIO ioio_;
 	private Uart uart;
 	
+	private InputStream in;
+    private OutputStream out;
+    private byte receivedData[] = new byte[255];
+    private int offset = 0;
+    private Byte b;
+	
 	
 	private static Timer timer;
 
 	public EncodersData(IOIO ioio_, int rxPin, int txPin, int baud, Uart.Parity  parity, Uart.StopBits stopBits) throws ConnectionLostException {
 		this.ioio_ = ioio_;
-		uart = ioio_	.openUart(rxPin, txPin, baud, parity, stopBits);
+		uart = ioio_.openUart(rxPin, txPin, baud, parity, stopBits);
 
-		
+		in = uart.getInputStream();
+        out = uart.getOutputStream();
 		
 		if(null != timer)
 	    {
@@ -35,25 +47,51 @@ public class EncodersData {
 
 	    timer = new Timer();
 				
-		timer.scheduleAtFixedRate(new PID(), 0, 100);
+		timer.scheduleAtFixedRate(new MyTask(), 0, 200);
 	}
 
 	
 
-	private class PID extends TimerTask {
-		private int calka = 0;
-		private int popBlad = 0;
-		private int iteracja = 0;
-		
-		private int dlugoscRegulacjiPd = 10;
-		private int granicaCalki = 100;
-		
-		private int Kp = 5;
-		private int Ki = 0;
-		private int Kd = 5;
+	private class MyTask extends TimerTask {
 		
 		public void run() {
 
+//			try {
+//                out.write(65);
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    // Ignore
+//                }
+//            } catch (IOException e) {
+//                // TODO ???
+//            }
+			
+			int i = 0;
+			StringBuilder s = new StringBuilder();
+			
+			while(i!=10) {
+	            try {
+	//                in.read(receivedData, 0, 255);
+	            	i = in.read();
+	                try {
+	                    Thread.sleep(100);
+	                } catch (InterruptedException e) {
+	                    // Ignore
+	                }
+	            } catch (IOException e) {
+	                // TODO ???
+	            }
+	            
+	            if(i>=48 && i<=57) s.append( Integer.toString(i-48) );
+			}
+
+            //Log.d("robot", "\t\t\tUART RECEIVED: " + Byte.toString(receivedData[0]) + "  |  " + Arrays.toString(receivedData));
+            Log.d("robot", "\t\t\tUART RECEIVED: " + s.toString());
+			
 		}
+	
 	}
+	
+	
 }

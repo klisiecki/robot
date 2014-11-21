@@ -72,7 +72,7 @@ public class RobotActivity extends IOIOActivity {
 				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3);
 				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
 				batteryStatus = new BatteryStatus(ioio_, 46);
-				//encodersData = new EncodersData(ioio_, 27, 28, 9600, Uart.Parity.NONE, Uart.StopBits.ONE);
+				encodersData = new EncodersData(ioio_, 27, 28, 9600, Uart.Parity.NONE, Uart.StopBits.ONE);
 			} catch (ConnectionLostException e) {
 				Log.e(TAG, e.toString());
 				e.printStackTrace();

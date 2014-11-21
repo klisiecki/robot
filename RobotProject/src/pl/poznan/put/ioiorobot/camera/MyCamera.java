@@ -109,9 +109,9 @@ public class MyCamera implements CvCameraViewListener2 {
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		// return finColorShapes(inputFrame);
 		
-		//return findRegularShapes(inputFrame);
+		return findRegularShapes(inputFrame);
 		
-		return inputFrame.rgba();
+		//return inputFrame.rgba();
 		// Zwrócenie obrazu w innym rozmiarze niż wejściowy powoduje brak obrazu
 	}
 
@@ -287,7 +287,7 @@ public class MyCamera implements CvCameraViewListener2 {
 				int[][] data = ImageProcessing.getPattern(fragment);
 				//DAO.saveItemAsync(ImageProcessing.getPattern(fragment), "pattern"+slotNr);
 				String temp = ImageProcessing.tabToString(data);
-				//DAO.writeToExternal(temp, "array7."+slotNr);
+				DAO.writeToExternal(temp, "array7."+slotNr);
 			}
 		}
 
