@@ -25,29 +25,36 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
 import pl.poznan.put.ioiorobot.R;
-import pl.poznan.put.ioiorobot.utils.DAO;
+import pl.poznan.put.ioiorobot.utils.C;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.widget.SeekBar;
 
-/**
- * @author karol
- *
- */
 public class MyCamera implements CvCameraViewListener2 {
+
+	public interface PatternFoundListener {
+		void onPatternFound(Pattern pattern);
+	}
 
 	public enum Mode {
 		PROCESSING, CAMERA_ONLY
 	}
 
 	private Mode mode;
+
 	public Mode getMode() {
 		return mode;
 	}
 
 	public void setMode(Mode mode) {
 		this.mode = mode;
+	}
+
+	private PatternFoundListener patternFoundListener;
+
+	public void setPatternFoundListener(PatternFoundListener patternFoundListener) {
+		this.patternFoundListener = patternFoundListener;
 	}
 
 	private CameraBridgeViewBase cameraView;
@@ -232,9 +239,9 @@ public class MyCamera implements CvCameraViewListener2 {
 		/* Imgproc.threshold(image, image, 127.0, 255.0, Imgproc.THRESH_BINARY); */
 
 		int blockSize = 9; // seekBar1.getProgress()*2 + 3
-		int C = 7; // seekBar2.getProgress()
+		int mC = 7; // seekBar2.getProgress()q
 		Imgproc.adaptiveThreshold(grayCopy, grayCopy, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV,
-				blockSize, C);
+				blockSize, mC);
 
 		/*
 		 * int size = seekBar3.getProgress()+1;
@@ -260,7 +267,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		// return image;
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		Mat resultImage = new Mat();
 		imgRgba.copyTo(resultImage);
@@ -273,7 +280,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		for (MatOfPoint cnt : contours) {
 
 			// Pomijanie małych obiektów
-			int threshold = 500; // seekBar1.getProgress()*10;
+			int threshold = (int) (C.screenSize.y * C.thresholdFactor); // seekBar1.getProgress()*10;
 			if (Imgproc.contourArea(cnt) > threshold)
 				contours2.add(cnt);
 		}
@@ -296,7 +303,11 @@ public class MyCamera implements CvCameraViewListener2 {
 
 			if (warpFragmentFromContour(resultImage, cnt, fragment, slotNr) && slotNr < 6) {
 				slotNr++;
-				DAO.writeToExternal(new Pattern(fragment).toString(), "array7." + slotNr);
+				Pattern pattern = new Pattern(fragment);
+				// DAO.writeToExternal(pattern.toString(), "array7." + slotNr);
+				if (patternFoundListener != null) {
+					patternFoundListener.onPatternFound(pattern);
+				}
 			}
 		}
 
@@ -347,7 +358,7 @@ public class MyCamera implements CvCameraViewListener2 {
 			Mat fragment2 = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
 			fragment2.copyTo(fragment);
 			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_GRAY2RGBA);
-			showFragment2(resultImage, fragment, slot, cameraView.getHeight() / 4);
+			//showFragment2(resultImage, fragment, slot, MyConfig.patternSize);
 			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_RGB2GRAY);
 			return true;
 		}
@@ -397,8 +408,6 @@ public class MyCamera implements CvCameraViewListener2 {
 		int left = getDistance(points.get(0), points.get(3));
 		int right = getDistance(points.get(1), points.get(2));
 
-		Log.d("robot", top + " vs " + bottom + "     " + left + "  vs " + right);
-
 		if (!areEqual(top, bottom) || !areEqual(left, right)) {
 			return false;
 		} else {
@@ -411,8 +420,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	private boolean areEqual(int a, int b) {
-		int acceptedError = 30;
-		return Math.abs((double) (a - b) / a) < (double) acceptedError / 100.0;
+		return Math.abs((double) (a - b) / a) < (double) C.rectangleFactor / 100.0;
 	}
 
 	private void findCornerHoughTransform(Mat fragment) {

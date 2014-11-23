@@ -1,26 +1,69 @@
 package pl.poznan.put.ioiorobot.camera;
 
 import org.opencv.core.Core;
-import org.opencv.core.Mat;
 import org.opencv.core.Core.MinMaxLocResult;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
-import pl.poznan.put.ioiorobot.utils.MyConfig;
+import pl.poznan.put.ioiorobot.utils.C;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Bitmap.Config;
+import android.util.Log;
 
 public class Pattern {
-	private boolean[][] array;
+	private static int nextId = 0;
 
-	public boolean[][] getMat() {
+	private int id;
+	private int size;
+	private boolean[][] array;
+	private Bitmap bitmap;
+	private int count = 1;
+	private int ttl = C.patternTTL;
+
+	public int incrementCount() {
+		ttl = C.patternTTL * 2;
+		return ++count;
+	}
+	
+	public boolean check() {
+		if ((--ttl) < 0) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean[][] getArray() {
 		return array;
 	}
 
-	private int size;
+	public int getId() {
+		return id;
+	}
+
+	public Bitmap getBitmap() {
+		return bitmap;
+	}
+	
+	public int getCount() {
+		return count;
+	}
 
 	public Pattern(Mat mat) {
 		this();
+		Imgproc.resize(mat, mat, new Size(size, size));
+		// int blockSize = size+1; // seekBar1.getProgress()*2 + 3
+		// int C = 7; // seekBar2.getProgress()
+		// Imgproc.adaptiveThreshold(mat, mat, 255,
+		// Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV,
+		// blockSize, C);
+
 		MinMaxLocResult minmax = Core.minMaxLoc(mat);
 		double min = minmax.minVal;
 		double max = minmax.maxVal;
 		double mean = (min + max) / 2;
+		bitmap = Bitmap.createBitmap(size, size, Config.ARGB_4444);
 		for (int i = 0; i < mat.height(); i++) {
 			for (int j = 0; j < mat.width(); j++) {
 				double[] val = mat.get(i, j);
@@ -28,17 +71,21 @@ public class Pattern {
 					double brigtness = val[0];
 					if (brigtness > mean) {
 						array[i][j] = true;
+						bitmap.setPixel(j, i, Color.WHITE);
 					} else {
 						array[i][j] = false;
+						bitmap.setPixel(j, i, Color.BLACK);
 					}
 				} else {
 				}
 			}
 		}
+
 	}
 
 	public Pattern() {
-		size = MyConfig.patternSize;
+		id = nextId++;
+		size = C.patternSize;
 		array = new boolean[size][size];
 	}
 
@@ -47,7 +94,7 @@ public class Pattern {
 	}
 
 	public int compareTo(Pattern otherPattern) {
-		boolean[][] otherMat = otherPattern.getMat();
+		boolean[][] otherMat = otherPattern.getArray();
 		int result = 0;
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
@@ -63,6 +110,7 @@ public class Pattern {
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder("");
+		result.append("Pattern id = " + id + ", size = " + size + "\n");
 		for (int i = 0; i < array.length; i++) {
 			boolean[] subtab = array[i];
 			for (int j = 0; j < subtab.length; j++) {

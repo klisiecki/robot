@@ -11,19 +11,25 @@ import java.util.List;
 import org.opencv.android.CameraBridgeViewBase;
 
 import pl.poznan.put.ioiorobot.camera.MyCamera;
+import pl.poznan.put.ioiorobot.camera.MyCamera.PatternFoundListener;
+import pl.poznan.put.ioiorobot.camera.Pattern;
+import pl.poznan.put.ioiorobot.camera.PatternsQueue;
+import pl.poznan.put.ioiorobot.camera.PatternsQueue.PatternAcceptedListener;
 import pl.poznan.put.ioiorobot.motors.EncodersData;
 import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
+import pl.poznan.put.ioiorobot.motors.PositionController;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IAccelerometer;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
-import pl.poznan.put.ioiorobot.utils.MyConfig;
 import pl.poznan.put.ioiorobot.utils.DAO;
+import pl.poznan.put.ioiorobot.utils.C;
 import pl.poznan.put.ioiorobot.widgets.BatteryStatusBar;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
+import pl.poznan.put.ioiorobot.widgets.PatternsWidget;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -47,20 +53,21 @@ public class RobotActivity extends IOIOActivity {
 	private SimpleBarGraph barGraph;
 	private ToggleButton cameraButton;
 	private ToggleButton sensorsButton;
-	private RelativeLayout layout;
 	private SeekBar seekBar1;
 	private SeekBar seekBar2;
 	private SeekBar seekBar3;
 	private BatteryStatusBar batteryStatusBar;
+	private PatternsWidget patternsWidget;
 
 	// Controls
+	private MyCamera camera;
 	private IMotorsController motorsController;
 	private IDistanceSensor distanceSensor;
 	private IBatteryStatus batteryStatus;
 	private IAccelerometer accelerometer;
 	private EncodersData encodersData;
-	private MyCamera camera;
-
+	private PositionController positionController;
+	private PatternsQueue patternsQueue;
 	private Point screenSize = new Point();
 
 	class Looper extends BaseIOIOLooper {
@@ -73,7 +80,7 @@ public class RobotActivity extends IOIOActivity {
 				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3);
 				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
 				batteryStatus = new BatteryStatus(ioio_, 46);
-				encodersData = new EncodersData(ioio_, 27, 28, 9600, Uart.Parity.NONE, Uart.StopBits.ONE);
+				encodersData = new EncodersData(ioio_, 27, 28, 9600, Uart.Parity.NONE, Uart.StopBits.ONE, positionController);
 			} catch (ConnectionLostException e) {
 				Log.e(TAG, e.toString());
 				e.printStackTrace();
@@ -94,9 +101,6 @@ public class RobotActivity extends IOIOActivity {
 
 			if (cameraButton.isChecked()) {
 				motorsController.setDirection(camera.getxTargetPosition());
-
-				// Log.d("robot", "camera.getxTargetPosition(): " +
-				// camera.getxTargetPosition());
 
 				if (distanceSensor.getResults() != null && sensorsButton.isChecked()) {
 					List<Integer> distances = distanceSensor.getResultsOnly();
@@ -132,31 +136,19 @@ public class RobotActivity extends IOIOActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		patternsQueue = new PatternsQueue();
+		positionController = new PositionController();
 		initView();
 		initListeners();
 		DAO.setContext(getApplicationContext());
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
-		MyConfig.patternSize = screenSize.y / 4;
-		// cam = Camera.open();
-		// Parameters params = cam.getParameters();
-		// params.setFlashMode(Parameters.FLASH_MODE_TORCH);
-		// cam.setParameters(params);
-
-		View decorView = getWindow().getDecorView();
-		// Hide both the navigation bar and the status bar.
-		// SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and
-		// higher, but as
-		// a general rule, you should design your app to hide the status bar
-		// whenever you
-		// hide the navigation bar.
-		int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN
-				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-		decorView.setSystemUiVisibility(uiOptions);
+		C.patternSize = screenSize.y / 4;
+		C.screenSize = screenSize;
 
 		Log.d(TAG, "onCreate");
+		
 	}
 
-	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -167,6 +159,10 @@ public class RobotActivity extends IOIOActivity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN
+				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+		getWindow().getDecorView().setSystemUiVisibility(uiOptions);
+		
 		setContentView(R.layout.activity_main);
 
 		camera = new MyCamera((CameraBridgeViewBase) findViewById(R.id.camera_view), this);
@@ -174,13 +170,11 @@ public class RobotActivity extends IOIOActivity {
 		barGraph = (SimpleBarGraph) findViewById(R.id.distanceBarGraph);
 		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);
 		sensorsButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
-		layout = (RelativeLayout) findViewById(R.id.relative2);
-		// accelerometer = new Accelerometer((SensorManager)
-		// (getSystemService(SENSOR_SERVICE)));
 		seekBar1 = (SeekBar) findViewById(R.id.seekBar1);
 		seekBar2 = (SeekBar) findViewById(R.id.seekBar2);
 		seekBar3 = (SeekBar) findViewById(R.id.seekBar3);
 		batteryStatusBar = (BatteryStatusBar) findViewById(R.id.batteryStatusBar);
+		patternsWidget = (PatternsWidget) findViewById(R.id.patternsWidget1);
 	}
 
 	private void initListeners() {
@@ -230,18 +224,33 @@ public class RobotActivity extends IOIOActivity {
 						distanceSensor.stopSensor();
 					}
 				}
+			}
+		});
 
+		camera.setPatternFoundListener(new PatternFoundListener() {
+
+			@Override
+			public void onPatternFound(final Pattern pattern) {
+				Log.d("robot", "pattern found actity");
+				patternsQueue.add(pattern);
+			}
+		});
+		
+		patternsQueue.setPatternAcceptedListener(new PatternAcceptedListener() {
+			
+			@Override
+			public void onPatternAccepted(final Pattern pattern) {
+				runOnUiThread(new Runnable() {
+					
+					@Override
+					public void run() {
+						patternsWidget.addPattern(pattern);
+					}
+				});
 			}
 		});
 	}
-
-	private void handleTouch(int x, int y) {
-		int slotSize = screenSize.y / 4;
-		if (y < slotSize) {
-			showToast("slot " + x / slotSize);
-		}
-	}
-
+	
 	private void showToast(final String message) {
 		runOnUiThread(new Runnable() {
 			public void run() {

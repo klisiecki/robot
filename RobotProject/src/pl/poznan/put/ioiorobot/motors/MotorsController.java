@@ -3,6 +3,8 @@ package pl.poznan.put.ioiorobot.motors;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import pl.poznan.put.ioiorobot.utils.C;
+
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
@@ -16,7 +18,7 @@ public class MotorsController implements IMotorsController {
 	private int direction;
 	private int speed;
 
-	private int regulacja=0;
+	private int regulacja = 0;
 
 	private boolean enabled = true;
 
@@ -27,11 +29,11 @@ public class MotorsController implements IMotorsController {
 	private DigitalOutput r1;
 	private DigitalOutput r2;
 	private PwmOutput rPwm;
-	
+
 	private static Timer timerPID;
 
-	public MotorsController(IOIO ioio_, int l1Pin, int l2Pin, int lPwmPin,
-			int r1Pin, int r2Pin, int rPwmPin) throws ConnectionLostException {
+	public MotorsController(IOIO ioio_, int l1Pin, int l2Pin, int lPwmPin, int r1Pin, int r2Pin, int rPwmPin)
+			throws ConnectionLostException {
 		direction = 0;
 		speed = 0;
 		this.ioio_ = ioio_;
@@ -44,16 +46,14 @@ public class MotorsController implements IMotorsController {
 
 		MotorThread t = new MotorThread();
 
-		
-		if(null != timerPID)
-	    {
-	        timerPID.cancel();
-	        timerPID.purge();
-	        timerPID = null;
-	    }
+		if (null != timerPID) {
+			timerPID.cancel();
+			timerPID.purge();
+			timerPID = null;
+		}
 
-	    timerPID = new Timer();
-				
+		timerPID = new Timer();
+
 		timerPID.scheduleAtFixedRate(new PID(), 0, 100);
 	}
 
@@ -62,10 +62,10 @@ public class MotorsController implements IMotorsController {
 	}
 
 	public void setDirection(int direction) {
-		if (direction > MAX_VALUE) {
-			this.direction = MAX_VALUE;
-		} else if (direction < -MAX_VALUE) {
-			this.direction = -MAX_VALUE;
+		if (direction > C.maxSpeed) {
+			this.direction = C.maxSpeed;
+		} else if (direction < -C.maxSpeed) {
+			this.direction = -C.maxSpeed;
 		} else {
 			this.direction = direction;
 		}
@@ -76,15 +76,15 @@ public class MotorsController implements IMotorsController {
 	}
 
 	public void setSpeed(int speed) {
-		if (speed > MAX_VALUE) {
-			this.speed = MAX_VALUE;
-		} else if (speed < -MAX_VALUE) {
-			this.speed = -MAX_VALUE;
+		if (speed > C.maxSpeed) {
+			this.speed = C.maxSpeed;
+		} else if (speed < -C.maxSpeed) {
+			this.speed = -C.maxSpeed;
 		} else {
 			this.speed = speed;
 		}
 	}
-	
+
 	public int getRegulacja() {
 		return regulacja;
 	}
@@ -98,9 +98,7 @@ public class MotorsController implements IMotorsController {
 		@Override
 		public void run() {
 			while (true) {
-//				speed = 100;
-//				direction = -100;
-				
+
 				try {
 					if (speed > 5) {
 						l1.write(true);
@@ -123,10 +121,8 @@ public class MotorsController implements IMotorsController {
 					// float right = Math.min( ((float) Math.abs(speed) -
 					// direction)/100f, 1f);
 
-					float left = ((float) Math.abs(speed) + (float) direction
-							* speed / 100f) / 200f;
-					float right = ((float) Math.abs(speed) - (float) direction
-							* speed / 100f) / 200f;
+					float left = ((float) Math.abs(speed) + (float) direction * speed / 100f) / 200f;
+					float right = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
 					if (!enabled) {
 						left = right = 0;
 					}
@@ -136,7 +132,8 @@ public class MotorsController implements IMotorsController {
 						right = 0;
 					lPwm.setDutyCycle(Math.min(left, 1f));
 					rPwm.setDutyCycle(Math.min(right, 1f));
-					//Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed + "     L = " + left + "   R = " + right);
+					// Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed
+					// + "     L = " + left + "   R = " + right);
 					Thread.sleep(1);
 				} catch (Exception e) {
 				}
@@ -159,31 +156,29 @@ public class MotorsController implements IMotorsController {
 		private int calka = 0;
 		private int popBlad = 0;
 		private int iteracja = 0;
-		
+
 		private int dlugoscRegulacjiPd = 10;
 		private int granicaCalki = 100;
-		
+
 		private int Kp = 5;
 		private int Ki = 0;
 		private int Kd = 5;
-		
+
 		public void run() {
-//			Log.d("robot", "PID begin");
-			
+			// Log.d("robot", "PID begin");
+
 			int blad = direction;
 
-			
 			calka += blad;
 			calka = Math.min(Math.max(calka, -granicaCalki), granicaCalki);
-//			if (calka > granicaCalki) {
-//				calka = granicaCalki;
-//			} else if (calka < -granicaCalki) {
-//				calka = -granicaCalki;
-//			}
-			
-			
+			// if (calka > granicaCalki) {
+			// calka = granicaCalki;
+			// } else if (calka < -granicaCalki) {
+			// calka = -granicaCalki;
+			// }
+
 			int rozniczka = blad - popBlad;
-			
+
 			if (iteracja == dlugoscRegulacjiPd) {
 				popBlad = blad;
 				iteracja = 0;
@@ -191,12 +186,10 @@ public class MotorsController implements IMotorsController {
 				iteracja++;
 			}
 
-			
 			/* Obliczenie właściwej wartości regulacji. */
-			regulacja = Math.round( (Kp * blad + Kd * rozniczka + Ki * calka) / (Kp+Kd+Ki));
+			regulacja = Math.round((Kp * blad + Kd * rozniczka + Ki * calka) / (Kp + Kd + Ki));
 
-			
-			//Log.d("robot", "Regulacja = " + regulacja);
+			// Log.d("robot", "Regulacja = " + regulacja);
 		}
 	}
 }
