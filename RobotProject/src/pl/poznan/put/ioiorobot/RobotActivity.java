@@ -29,6 +29,7 @@ import pl.poznan.put.ioiorobot.utils.C;
 import pl.poznan.put.ioiorobot.widgets.BatteryStatusBar;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
+import pl.poznan.put.ioiorobot.widgets.Map;
 import pl.poznan.put.ioiorobot.widgets.PatternsWidget;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
 import android.graphics.Point;
@@ -58,6 +59,7 @@ public class RobotActivity extends IOIOActivity {
 	private SeekBar seekBar3;
 	private BatteryStatusBar batteryStatusBar;
 	private PatternsWidget patternsWidget;
+	private Map map;
 
 	// Controls
 	private MyCamera camera;
@@ -80,7 +82,7 @@ public class RobotActivity extends IOIOActivity {
 				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3);
 				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
 				batteryStatus = new BatteryStatus(ioio_, 46);
-				encodersData = new EncodersData(ioio_, 27, 28, 9600, Uart.Parity.NONE, Uart.StopBits.ONE, positionController);
+				encodersData = new EncodersData(ioio_, 27, 28, 26, 9600, Uart.Parity.NONE, Uart.StopBits.ONE, positionController);
 			} catch (ConnectionLostException e) {
 				Log.e(TAG, e.toString());
 				e.printStackTrace();
@@ -116,6 +118,12 @@ public class RobotActivity extends IOIOActivity {
 					batteryStatusBar.setValue(batteryStatus.getStatus());
 
 					seekBar3.setProgress(100 + motorsController.getRegulacja());
+					
+					int angle360 = (int) (positionController.getPosition().angle()/(2*Math.PI)*360);
+					seekBar2.setProgress(angle360+180);
+					map.addPosition(positionController.getPosition().x(),
+									positionController.getPosition().y(),
+									positionController.getPosition().angle() );
 				}
 			});
 
@@ -175,6 +183,7 @@ public class RobotActivity extends IOIOActivity {
 		seekBar3 = (SeekBar) findViewById(R.id.seekBar3);
 		batteryStatusBar = (BatteryStatusBar) findViewById(R.id.batteryStatusBar);
 		patternsWidget = (PatternsWidget) findViewById(R.id.patternsWidget1);
+		map = (Map) findViewById(R.id.map);
 	}
 
 	private void initListeners() {

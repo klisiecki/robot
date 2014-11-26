@@ -134,6 +134,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 	}
 
+	/*
 	private Mat findColorShapes(CvCameraViewFrame inputFrame) {
 		Mat mat = inputFrame.rgba();
 		Mat dst = new Mat();
@@ -146,7 +147,8 @@ public class MyCamera implements CvCameraViewListener2 {
 		xTargetPosition = (int) (((double) center.x / (double) mat.width()) * 200.0 - 100.0);
 		return result;
 	}
-
+	*/
+	
 	public static void getBlueMat(Mat src, Mat dst) {
 		Core.inRange(src, new Scalar(100, 100, 100), new Scalar(120, 255, 255), dst);
 	}
@@ -165,6 +167,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		Core.inRange(src, new Scalar(20, 80, 64), new Scalar(30, 255, 255), dst);
 	}
 
+	/*
 	public static Point detectObject(Mat src, Mat image, String text, Mat dst) {
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Mat hierarchy = new Mat();
@@ -180,7 +183,9 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		return center;
 	}
+	*/
 
+	/*
 	public static int getBiggestContourIndex(List<MatOfPoint> contours) {
 		double maxArea = 0;
 		Iterator<MatOfPoint> each = contours.iterator();
@@ -197,7 +202,9 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 		return k;
 	}
-
+	*/
+	
+	/*
 	public static Rect setContourRect(List<MatOfPoint> contours, int k) {
 		Rect boundRect = new Rect();
 		Iterator<MatOfPoint> each = contours.iterator();
@@ -211,7 +218,8 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 		return boundRect;
 	}
-
+	*/
+	
 	private Mat findRegularShapes(CvCameraViewFrame inputFrame) {
 		Mat imgRgba = inputFrame.rgba();
 		Mat imgGray = inputFrame.gray();
@@ -267,7 +275,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		// return image;
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		Mat resultImage = new Mat();
 		imgRgba.copyTo(resultImage);

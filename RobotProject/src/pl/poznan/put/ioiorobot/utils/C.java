@@ -16,8 +16,8 @@ public class C {
 
 	public static final int maxSpeed = 100;
 
-	public static final int wheelsDistance = 150;
-	public static final int wheelDiameter = 60;
-	public static final int gearRatio = 27;
-	public static final int encoderResolution = 128;
+	public static final double wheelsDistance = 205.0;
+	public static final double wheelDiameter = 60.0;
+	public static final double gearRatio = 27.0;
+	public static final double encoderResolution = 128.0;
 }
