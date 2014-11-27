@@ -26,26 +26,29 @@ public class EncodersData {
 	private IOIO ioio_;
 	private Uart uart;
 	private DigitalOutput request;
-	private PositionController positionController;
+	private Position position;
 
-	private InputStream in;
-	private OutputStream out;
-	private byte receivedData[] = new byte[255];
-	private int offset = 0;
-	private Byte b;
+	private InputStream uartInput;
+	private OutputStream uartOutput;
 
 	private static Timer timer;
 
 	public EncodersData(IOIO ioio_, int rxPin, int txPin, int requestPin, int baud, Uart.Parity parity, Uart.StopBits stopBits,
-			PositionController positionController) throws ConnectionLostException {
+			Position position) throws ConnectionLostException {
 		this.ioio_ = ioio_;
-		this.positionController = positionController;
+		this.position = position;
 		uart = ioio_.openUart(rxPin, txPin, baud, parity, stopBits);
 		request = ioio_.openDigitalOutput(requestPin);
 		request.write(false);
 
-		in = uart.getInputStream();
-		out = uart.getOutputStream();
+		uartInput = uart.getInputStream();
+		uartOutput = uart.getOutputStream();
+		
+		try {
+			uartOutput.write(1); // wysyła cokolwiek do Arduino, aby zresetowało liczniki
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		if (null != timer) {
 			timer.cancel();
@@ -55,28 +58,16 @@ public class EncodersData {
 
 		timer = new Timer();
 
-		timer.scheduleAtFixedRate(new MyTask(), 0, 100);
+		timer.scheduleAtFixedRate(new MyTask(), 0, 50);
 	}
 
 	private class MyTask extends TimerTask {
 
 		public void run() {
-
-			// try {
-			// out.write(65);
-			// try {
-			// Thread.sleep(100);
-			// } catch (InterruptedException e) {
-			// // Ignore
-			// }
-			// } catch (IOException e) {
-			// // TODO ???
-			// }
-			
 			
 			try {
 				request.write(true);
-				Thread.sleep(10);
+				Thread.sleep(2);
 				request.write(false);
 				Thread.sleep(10);
 			} catch (ConnectionLostException e1) {
@@ -85,111 +76,42 @@ public class EncodersData {
 				e.printStackTrace();
 			}
 			
-			/*
-			int i = 0;
-			StringBuilder s = new StringBuilder();
 
-			while (i != 10) {
-				try {
-					// in.read(receivedData, 0, 255);
-					i = in.read();
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// Ignore
-					}
-				} catch (IOException e) {
-					// TODO ???
-				}
-
-				if (i >= 48 && i <= 57)
-					s.append(Integer.toString(i - 48));
-			}
-
-
-
-			// Log.d("robot", "\t\t\tUART RECEIVED: " +
-			// Byte.toString(receivedData[0]) + "  |  " +
-			// Arrays.toString(receivedData));
 			
-			Log.d("robot", "\t\t\tUART RECEIVED: " + s.toString());
-*/
-
-			BufferedReader br = new BufferedReader( new InputStreamReader(uart.getInputStream()) );
+			BufferedReader br = new BufferedReader( new InputStreamReader(uartInput) );
 			String line = null;
 			try {
 				line = br.readLine();
 				br.close();
-
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
 			
 			if(line != null) {
-				Log.d("robot", "\t\t\tUART RECEIVED: " + line);
+				//Log.d("robot", "\t\t\tUART RECEIVED: " + line);
 				
-				String pattern= "^ *-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+$";
+				String pattern= "^> *-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+<$";
 				
 		        if(line.matches(pattern)){
-		        	Log.d("robot", "\t\t\t\t\tOK");
+		        	Log.d("robot", "\t\t\tUART RECEIVED OK: " + line);
 		        	
+		        	line = line.substring(1, line.length()-1);
 		        	line = line.trim();
 		        	
 		        	String [] parts = line.split(" +");  
 		        	
-		        	for(String s : parts){
-		        		Log.d("robot", "\t\t\t\t\t\t\t\t\t"+s);
-		        	}
-		        	
-		        	positionController.set(StrToDouble(parts[0]), StrToDouble(parts[1]), StrToDouble(parts[2]));
-		        	
+		        	position.set(StrToDouble(parts[0]), StrToDouble(parts[1]), StrToDouble(parts[2]));
 		        }
 		        else {
-		        	Log.d("robot", "\t\t\t\t\t--");
+		        	//Log.d("robot", "\t\t\t\t\tNO MATCH");
 		        }
 			}
 			else {
 				Log.d(C.TAG, "\t\t\tUART DATA PROBLEM");
 			}
-			
-
 
 			
-			
-			
-			
-//			int num = 0;
-//			
-//			if(line != null) {
-//				num =  StrToInt(line);
-//				Log.d("robot", "\t\t\tUART RECEIVED: " + num);
-//			}
-//			else {
-//				Log.d(C.TAG, "\t\t\tUART DATA PROBLEM");
-//			}
-//			
-//			if(positionController != null) {
-//				positionController.set();
-//			}
-//			else {
-//				Log.d("robot", "\t\t\tpositionController == null");
-//			}
-//
-//			double left = num;
-//			double right = 0;
-//			//if(left!=0 || right != 0) {
-//				double leftMM = (left / (C.encoderResolution * C.gearRatio)) * Math.PI * C.wheelDiameter;
-//				double rightMM = (right / (C.encoderResolution * C.gearRatio)) * Math.PI * C.wheelDiameter;
-//				if(positionController != null) {
-//					positionController.move(leftMM, rightMM);
-//				}
-//				else {
-//					Log.d("robot", "\t\t\tpositionController == null");
-//				}
-//			//}
-			
-
 		}
 
 	}

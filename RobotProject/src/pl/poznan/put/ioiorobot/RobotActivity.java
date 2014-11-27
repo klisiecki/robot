@@ -18,14 +18,14 @@ import pl.poznan.put.ioiorobot.camera.PatternsQueue.PatternAcceptedListener;
 import pl.poznan.put.ioiorobot.motors.EncodersData;
 import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
-import pl.poznan.put.ioiorobot.motors.PositionController;
+import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IAccelerometer;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
-import pl.poznan.put.ioiorobot.utils.DAO;
 import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.DAO;
 import pl.poznan.put.ioiorobot.widgets.BatteryStatusBar;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
@@ -40,14 +40,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class RobotActivity extends IOIOActivity {
-
-	private static final String TAG = "robot";
 
 	// Views
 	private Joystick joystick;
@@ -68,7 +65,7 @@ public class RobotActivity extends IOIOActivity {
 	private IBatteryStatus batteryStatus;
 	private IAccelerometer accelerometer;
 	private EncodersData encodersData;
-	private PositionController positionController;
+	private Position position;
 	private PatternsQueue patternsQueue;
 	private Point screenSize = new Point();
 
@@ -82,9 +79,9 @@ public class RobotActivity extends IOIOActivity {
 				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3);
 				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
 				batteryStatus = new BatteryStatus(ioio_, 46);
-				encodersData = new EncodersData(ioio_, 27, 28, 26, 9600, Uart.Parity.NONE, Uart.StopBits.ONE, positionController);
+				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE, position);
 			} catch (ConnectionLostException e) {
-				Log.e(TAG, e.toString());
+				Log.e(C.TAG, e.toString());
 				e.printStackTrace();
 			}
 		}
@@ -101,17 +98,16 @@ public class RobotActivity extends IOIOActivity {
 				});
 			}
 
-			if (cameraButton.isChecked()) {
-				motorsController.setDirection(camera.getxTargetPosition());
-
-				if (distanceSensor.getResults() != null && sensorsButton.isChecked()) {
-					List<Integer> distances = distanceSensor.getResultsOnly();
-					int val = distances.get(distances.size() / 2);
-					motorsController.setSpeed(val > 10 ? 50 : 0);
-				} else {
-					motorsController.setSpeed(50);
-				}
-			}
+//			if (cameraButton.isChecked()) {
+//				
+//				if (distanceSensor.getResults() != null && sensorsButton.isChecked()) {
+//					List<Integer> distances = distanceSensor.getResultsOnly();
+//					int val = distances.get(distances.size() / 2);
+//					motorsController.setSpeed(val > 10 ? 50 : 0);
+//				} else {
+//					motorsController.setSpeed(50);
+//				}
+//			}
 
 			runOnUiThread(new Runnable() {
 				public void run() {
@@ -119,11 +115,9 @@ public class RobotActivity extends IOIOActivity {
 
 					seekBar3.setProgress(100 + motorsController.getRegulacja());
 					
-					int angle360 = (int) (positionController.getPosition().angle()/(2*Math.PI)*360);
-					seekBar2.setProgress(angle360+180);
-					map.addPosition(positionController.getPosition().x(),
-									positionController.getPosition().y(),
-									positionController.getPosition().angle() );
+					map.addPosition(position.x(),
+									position.y(),
+									position.angle() );
 				}
 			});
 
@@ -145,7 +139,7 @@ public class RobotActivity extends IOIOActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		patternsQueue = new PatternsQueue();
-		positionController = new PositionController();
+		position = new Position();
 		initView();
 		initListeners();
 		DAO.setContext(getApplicationContext());
@@ -153,7 +147,7 @@ public class RobotActivity extends IOIOActivity {
 		C.patternSize = screenSize.y / 4;
 		C.screenSize = screenSize;
 
-		Log.d(TAG, "onCreate");
+		Log.d(C.TAG, "onCreate");
 		
 	}
 

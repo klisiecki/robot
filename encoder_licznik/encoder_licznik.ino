@@ -25,7 +25,7 @@ void setup()
   attachInterrupt(0, blinkR, RISING);      // przerwanie int.0  - pin 2
   attachInterrupt(1, blinkL, RISING);      // przerwanie int.1  - pin 3
                                           
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop()
@@ -35,6 +35,7 @@ void loop()
     
     while(digitalRead(requestPin) == LOW);
     while(digitalRead(requestPin) == HIGH);
+    
     noInterrupts();
     counterLbuff = counterL;
     counterL = 0;
@@ -46,7 +47,7 @@ void loop()
     calculate(counterLbuff, counterRbuff);
     
     char str[21];
-    String buffer = "";
+    String buffer = ">";
     
     dtostrf(positionX, 20, 5, str);
     buffer = buffer + str;
@@ -58,6 +59,7 @@ void loop()
     
     dtostrf(positionAngle, 20, 5, str);
     buffer = buffer + str;
+    buffer = buffer + "<";
     
     Serial.println(buffer);
   //}
@@ -69,6 +71,14 @@ void loop()
 //  //Serial.println("321");
 //  
  // delay(500);
+}
+
+
+void serialEvent() {
+  Serial.read();
+  positionX = 0;
+  positionY = 0;
+  positionAngle = 0;
 }
 
 void blinkL()                                            
