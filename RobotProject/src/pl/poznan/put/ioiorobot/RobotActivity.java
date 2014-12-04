@@ -6,8 +6,6 @@ import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 
-import java.util.List;
-
 import org.opencv.android.CameraBridgeViewBase;
 
 import pl.poznan.put.ioiorobot.camera.MyCamera;
@@ -21,7 +19,6 @@ import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
-import pl.poznan.put.ioiorobot.sensors.IAccelerometer;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
 import pl.poznan.put.ioiorobot.utils.C;
@@ -29,7 +26,7 @@ import pl.poznan.put.ioiorobot.utils.DAO;
 import pl.poznan.put.ioiorobot.widgets.BatteryStatusBar;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
-import pl.poznan.put.ioiorobot.widgets.Map;
+import pl.poznan.put.ioiorobot.widgets.MapWidget;
 import pl.poznan.put.ioiorobot.widgets.PatternsWidget;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
 import android.graphics.Point;
@@ -56,18 +53,17 @@ public class RobotActivity extends IOIOActivity {
 	private SeekBar seekBar3;
 	private BatteryStatusBar batteryStatusBar;
 	private PatternsWidget patternsWidget;
-	private Map map;
+	private MapWidget mapWidget;
 
 	// Controls
 	private MyCamera camera;
 	private IMotorsController motorsController;
 	private IDistanceSensor distanceSensor;
 	private IBatteryStatus batteryStatus;
-	private IAccelerometer accelerometer;
 	private EncodersData encodersData;
 	private Position position;
 	private PatternsQueue patternsQueue;
-	private Point screenSize = new Point();
+	private Point screenSize;
 
 	class Looper extends BaseIOIOLooper {
 
@@ -79,7 +75,8 @@ public class RobotActivity extends IOIOActivity {
 				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3);
 				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
 				batteryStatus = new BatteryStatus(ioio_, 46);
-				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE, position);
+				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
+						position);
 			} catch (ConnectionLostException e) {
 				Log.e(C.TAG, e.toString());
 				e.printStackTrace();
@@ -90,7 +87,6 @@ public class RobotActivity extends IOIOActivity {
 		public void loop() throws ConnectionLostException, InterruptedException {
 
 			if (distanceSensor.getResults() != null) {
-				List<Integer> distances = distanceSensor.getResultsOnly();
 				runOnUiThread(new Runnable() {
 					public void run() {
 						barGraph.setValues(distanceSensor.getResultsOnly());
@@ -98,30 +94,15 @@ public class RobotActivity extends IOIOActivity {
 				});
 			}
 
-//			if (cameraButton.isChecked()) {
-//				
-//				if (distanceSensor.getResults() != null && sensorsButton.isChecked()) {
-//					List<Integer> distances = distanceSensor.getResultsOnly();
-//					int val = distances.get(distances.size() / 2);
-//					motorsController.setSpeed(val > 10 ? 50 : 0);
-//				} else {
-//					motorsController.setSpeed(50);
-//				}
-//			}
-
 			runOnUiThread(new Runnable() {
 				public void run() {
 					batteryStatusBar.setValue(batteryStatus.getStatus());
-
 					seekBar3.setProgress(100 + motorsController.getRegulacja());
-					
-					map.addPosition(position.x(),
-									position.y(),
-									position.angle() );
+					mapWidget.addPosition(position.x(), position.y(), position.angle());
 				}
 			});
 
-			Thread.sleep(100);
+			Thread.sleep(C.loopSleep);
 		}
 
 		@Override
@@ -138,23 +119,27 @@ public class RobotActivity extends IOIOActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		patternsQueue = new PatternsQueue();
-		position = new Position();
+		initObjects();
 		initView();
 		initListeners();
-		DAO.setContext(getApplicationContext());
-		getWindowManager().getDefaultDisplay().getSize(screenSize);
-		C.patternSize = screenSize.y / 4;
-		C.screenSize = screenSize;
-
 		Log.d(C.TAG, "onCreate");
-		
+
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		camera.resume();
+	}
+
+	private void initObjects() {
+		patternsQueue = new PatternsQueue();
+		position = new Position();
+		DAO.setContext(getApplicationContext());
+		screenSize = new Point();
+		getWindowManager().getDefaultDisplay().getSize(screenSize);
+		C.patternSize = screenSize.y / 4;
+		C.screenSize = screenSize;
 	}
 
 	private void initView() {
@@ -164,7 +149,7 @@ public class RobotActivity extends IOIOActivity {
 		int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN
 				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 		getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-		
+
 		setContentView(R.layout.activity_main);
 
 		camera = new MyCamera((CameraBridgeViewBase) findViewById(R.id.camera_view), this);
@@ -176,8 +161,8 @@ public class RobotActivity extends IOIOActivity {
 		seekBar2 = (SeekBar) findViewById(R.id.seekBar2);
 		seekBar3 = (SeekBar) findViewById(R.id.seekBar3);
 		batteryStatusBar = (BatteryStatusBar) findViewById(R.id.batteryStatusBar);
-		patternsWidget = (PatternsWidget) findViewById(R.id.patternsWidget1);
-		map = (Map) findViewById(R.id.map);
+		patternsWidget = (PatternsWidget) findViewById(R.id.patternsWidget);
+		mapWidget = (MapWidget) findViewById(R.id.mapWidget);
 	}
 
 	private void initListeners() {
@@ -210,7 +195,9 @@ public class RobotActivity extends IOIOActivity {
 					// motorsController.setSpeed(0);
 					// motorsController.setDirection(0);
 					camera.setMode(MyCamera.Mode.PROCESSING);
+//					joystick.setVisibility(View.GONE);
 				} else {
+//					joystick.setVisibility(View.VISIBLE);
 					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
 				}
 			}
@@ -238,13 +225,13 @@ public class RobotActivity extends IOIOActivity {
 				patternsQueue.add(pattern);
 			}
 		});
-		
+
 		patternsQueue.setPatternAcceptedListener(new PatternAcceptedListener() {
-			
+
 			@Override
 			public void onPatternAccepted(final Pattern pattern) {
 				runOnUiThread(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						patternsWidget.addPattern(pattern);
@@ -253,7 +240,7 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 	}
-	
+
 	private void showToast(final String message) {
 		runOnUiThread(new Runnable() {
 			public void run() {

@@ -54,7 +54,7 @@ public class MotorsController implements IMotorsController {
 
 		timerPID = new Timer();
 
-		timerPID.scheduleAtFixedRate(new PID(), 0, 100);
+		timerPID.scheduleAtFixedRate(new PID(), 0, C.PIDPeriod);
 	}
 
 	public int getDirection() {
@@ -155,7 +155,7 @@ public class MotorsController implements IMotorsController {
 	private class PID extends TimerTask {
 		private int calka = 0;
 		private int popBlad = 0;
-		private int iteracja = 0;
+		private int iteration = 0;
 
 		private int dlugoscRegulacjiPd = 10;
 		private int granicaCalki = 100;
@@ -167,9 +167,9 @@ public class MotorsController implements IMotorsController {
 		public void run() {
 			// Log.d("robot", "PID begin");
 
-			int blad = direction;
+			int error = direction;
 
-			calka += blad;
+			calka += error;
 			calka = Math.min(Math.max(calka, -granicaCalki), granicaCalki);
 			// if (calka > granicaCalki) {
 			// calka = granicaCalki;
@@ -177,17 +177,17 @@ public class MotorsController implements IMotorsController {
 			// calka = -granicaCalki;
 			// }
 
-			int rozniczka = blad - popBlad;
+			int rozniczka = error - popBlad;
 
-			if (iteracja == dlugoscRegulacjiPd) {
-				popBlad = blad;
-				iteracja = 0;
+			if (iteration == dlugoscRegulacjiPd) {
+				popBlad = error;
+				iteration = 0;
 			} else {
-				iteracja++;
+				iteration++;
 			}
 
 			/* Obliczenie właściwej wartości regulacji. */
-			regulacja = Math.round((Kp * blad + Kd * rozniczka + Ki * calka) / (Kp + Kd + Ki));
+			regulacja = Math.round((Kp * error + Kd * rozniczka + Ki * calka) / (Kp + Kd + Ki));
 
 			// Log.d("robot", "Regulacja = " + regulacja);
 		}

@@ -6,7 +6,7 @@
     tools:context="pl.poznan.put.ioiorobot.RobotActivity" >
 
     <RelativeLayout
-        android:id="@+id/relative1"
+        android:id="@+id/relative_camera"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="false" >
@@ -18,7 +18,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/relative2"
+        android:id="@+id/relative_controls"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
@@ -82,7 +82,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
-            android:layout_toLeftOf="@+id/joystick"
+            android:layout_toLeftOf="@+id/mapWidget"
             android:layout_toRightOf="@+id/linear1"
             android:gravity="center"
             android:orientation="vertical" >
@@ -114,14 +114,14 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
-            android:layout_toLeftOf="@+id/map" />
+            android:layout_alignParentRight="true" />
 
-        <pl.poznan.put.ioiorobot.widgets.Map
-            android:id="@+id/map"
-            android:layout_width="200dp"
+        <pl.poznan.put.ioiorobot.widgets.MapWidget
+            android:id="@+id/mapWidget"
+            android:layout_width="20px"
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
-            android:layout_alignParentRight="true" />
+            android:layout_toLeftOf="@+id/joystick" />
 
         <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
             android:id="@+id/distanceBarGraph"
@@ -130,7 +130,7 @@
             android:layout_alignParentBottom="true" />
 
         <pl.poznan.put.ioiorobot.widgets.PatternsWidget
-            android:id="@+id/patternsWidget1"
+            android:id="@+id/patternsWidget"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"

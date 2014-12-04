@@ -9,6 +9,7 @@ public class C {
 
 	public static final double thresholdFactor = 0.5;
 	public static final int rectangleFactor = 20;
+	public static final int maxContoursProcessed = 10;
 
 	public static final int minPatternCoverage = 90;
 	public static final int minPatternCount = 4;
@@ -20,4 +21,10 @@ public class C {
 	public static final double wheelDiameter = 60.0;
 	public static final double gearRatio = 27.0;
 	public static final double encoderResolution = 128.0;
+	
+	public static final int loopSleep = 100;
+	
+	public static final int PIDPeriod = 100;
+	
+	//TODO kąt kamery
 }

@@ -135,20 +135,16 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	/*
-	private Mat findColorShapes(CvCameraViewFrame inputFrame) {
-		Mat mat = inputFrame.rgba();
-		Mat dst = new Mat();
-		Mat result = new Mat();
-		Imgproc.cvtColor(mat, dst, Imgproc.COLOR_RGB2HSV, 3);
+	 * private Mat findColorShapes(CvCameraViewFrame inputFrame) { Mat mat =
+	 * inputFrame.rgba(); Mat dst = new Mat(); Mat result = new Mat();
+	 * Imgproc.cvtColor(mat, dst, Imgproc.COLOR_RGB2HSV, 3);
+	 * 
+	 * Log.d("robot", CameraUtils.getPixelColor(dst, 100, 100) + "");
+	 * getYellowMat(dst, dst); Point center = detectObject(mat, dst, "C",
+	 * result); xTargetPosition = (int) (((double) center.x / (double)
+	 * mat.width()) * 200.0 - 100.0); return result; }
+	 */
 
-		Log.d("robot", CameraUtils.getPixelColor(dst, 100, 100) + "");
-		getYellowMat(dst, dst);
-		Point center = detectObject(mat, dst, "C", result);
-		xTargetPosition = (int) (((double) center.x / (double) mat.width()) * 200.0 - 100.0);
-		return result;
-	}
-	*/
-	
 	public static void getBlueMat(Mat src, Mat dst) {
 		Core.inRange(src, new Scalar(100, 100, 100), new Scalar(120, 255, 255), dst);
 	}
@@ -168,67 +164,43 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	/*
-	public static Point detectObject(Mat src, Mat image, String text, Mat dst) {
-		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Mat hierarchy = new Mat();
-		src.copyTo(dst);
-
-		Imgproc.findContours(image, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-
-		int k = getBiggestContourIndex(contours);
-		Rect bounds = setContourRect(contours, k);
-
-		Point center = CameraUtils.getCenter(bounds.tl(), bounds.br());
-		Core.rectangle(dst, bounds.tl(), bounds.br(), new Scalar(255, 255, 0), 2, 8, 0);
-
-		return center;
-	}
-	*/
+	 * public static Point detectObject(Mat src, Mat image, String text, Mat
+	 * dst) { List<MatOfPoint> contours = new ArrayList<MatOfPoint>(); Mat
+	 * hierarchy = new Mat(); src.copyTo(dst);
+	 * 
+	 * Imgproc.findContours(image, contours, hierarchy, Imgproc.RETR_LIST,
+	 * Imgproc.CHAIN_APPROX_SIMPLE);
+	 * 
+	 * int k = getBiggestContourIndex(contours); Rect bounds =
+	 * setContourRect(contours, k);
+	 * 
+	 * Point center = CameraUtils.getCenter(bounds.tl(), bounds.br());
+	 * Core.rectangle(dst, bounds.tl(), bounds.br(), new Scalar(255, 255, 0), 2,
+	 * 8, 0);
+	 * 
+	 * return center; }
+	 */
 
 	/*
-	public static int getBiggestContourIndex(List<MatOfPoint> contours) {
-		double maxArea = 0;
-		Iterator<MatOfPoint> each = contours.iterator();
-		int j = 0;
-		int k = -1;
-		while (each.hasNext()) {
-			MatOfPoint wrapper = each.next();
-			double area = Imgproc.contourArea(wrapper);
-			if (area > maxArea) {
-				maxArea = area;
-				k = j;
-			}
-			j++;
-		}
-		return k;
-	}
-	*/
-	
+	 * public static int getBiggestContourIndex(List<MatOfPoint> contours) {
+	 * double maxArea = 0; Iterator<MatOfPoint> each = contours.iterator(); int
+	 * j = 0; int k = -1; while (each.hasNext()) { MatOfPoint wrapper =
+	 * each.next(); double area = Imgproc.contourArea(wrapper); if (area >
+	 * maxArea) { maxArea = area; k = j; } j++; } return k; }
+	 */
+
 	/*
-	public static Rect setContourRect(List<MatOfPoint> contours, int k) {
-		Rect boundRect = new Rect();
-		Iterator<MatOfPoint> each = contours.iterator();
-		int j = 0;
-		while (each.hasNext()) {
-			MatOfPoint wrapper = each.next();
-			if (j == k) {
-				return Imgproc.boundingRect(wrapper);
-			}
-			j++;
-		}
-		return boundRect;
-	}
-	*/
-	
+	 * public static Rect setContourRect(List<MatOfPoint> contours, int k) {
+	 * Rect boundRect = new Rect(); Iterator<MatOfPoint> each =
+	 * contours.iterator(); int j = 0; while (each.hasNext()) { MatOfPoint
+	 * wrapper = each.next(); if (j == k) { return
+	 * Imgproc.boundingRect(wrapper); } j++; } return boundRect; }
+	 */
+
 	private Mat findRegularShapes(CvCameraViewFrame inputFrame) {
 		Mat imgRgba = inputFrame.rgba();
 		Mat imgGray = inputFrame.gray();
 		Mat grayCopy = new Mat();
-		imgGray.copyTo(grayCopy);
-
-		// Log.d("robot", "seekBar1 = " + seekBar1.getProgress() +
-		// "      seekBar2 = " + seekBar2.getProgress()
-		// + "      seekBar3 = " + seekBar3.getProgress());
 
 		Mat mask = new Mat();
 		imgRgba.copyTo(mask);
@@ -236,13 +208,14 @@ public class MyCamera implements CvCameraViewListener2 {
 		getYellowMat(mask, mask);
 		// getWhiteMat(mask, mask);
 
-		// Mat image = new Mat();
-		// baseImgRgba.copyTo(image, mask);
+		Mat image = new Mat();
+		imgRgba.copyTo(image, mask);
+		Mat resultX = new Mat();
+		image.copyTo(resultX);
 		//
 		// /* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
-		// Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
-
-		// return image;
+		Imgproc.cvtColor(image, grayCopy, Imgproc.COLOR_RGB2GRAY);
+		imgGray.copyTo(grayCopy);
 
 		/* Imgproc.threshold(image, image, 127.0, 255.0, Imgproc.THRESH_BINARY); */
 
@@ -280,9 +253,6 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat resultImage = new Mat();
 		imgRgba.copyTo(resultImage);
 
-		MatOfPoint maxCnt = null;
-		int slotNr = 0;
-
 		List<MatOfPoint> contours2 = new ArrayList<MatOfPoint>();
 
 		for (MatOfPoint cnt : contours) {
@@ -301,22 +271,25 @@ public class MyCamera implements CvCameraViewListener2 {
 			}
 		});
 
+		int contoursProcessed = 0;
+
 		for (MatOfPoint cnt : contours2) {
 			drawContour(resultImage, cnt);
 			Mat fragment = cutFragment(imgGray, resultImage, cnt, true);
 
-			if (maxCnt == null || Imgproc.contourArea(cnt) > Imgproc.contourArea(maxCnt)) {
-				maxCnt = new MatOfPoint(cnt);
-			}
-
-			if (warpFragmentFromContour(resultImage, cnt, fragment, slotNr) && slotNr < 6) {
-				slotNr++;
+			if (warpFragmentFromContour(resultImage, cnt, fragment)) {
+				contoursProcessed++;
+				// slotNr++;
 				Pattern pattern = new Pattern(fragment);
 				// DAO.writeToExternal(pattern.toString(), "array7." + slotNr);
 				if (patternFoundListener != null) {
 					patternFoundListener.onPatternFound(pattern);
 				}
 			}
+			if (contoursProcessed == C.maxContoursProcessed) {
+				break;
+			}
+
 		}
 
 		// Rysowanie największego znalezionego obszaru
@@ -335,6 +308,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		// }
 
 		return resultImage;
+		// return resultX;
 	}
 
 	/**
@@ -345,7 +319,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	 * @param maxCnt
 	 * @param fragment
 	 */
-	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint maxCnt, Mat fragment, int slot) {
+	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint maxCnt, Mat fragment) {
 		List<Point> points = getRectanglePointsFromContour(maxCnt);
 		if (couldBeRectangle(points)) {
 			Rect rect = Imgproc.boundingRect(maxCnt);
@@ -366,7 +340,7 @@ public class MyCamera implements CvCameraViewListener2 {
 			Mat fragment2 = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
 			fragment2.copyTo(fragment);
 			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_GRAY2RGBA);
-			//showFragment2(resultImage, fragment, slot, MyConfig.patternSize);
+			// showFragment2(resultImage, fragment, slot, MyConfig.patternSize);
 			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_RGB2GRAY);
 			return true;
 		}
