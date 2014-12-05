@@ -35,13 +35,13 @@ public class PatternsQueue {
 
 		while (iterator.hasNext()) {
 			Pattern p = iterator.next();
-			Log.d("robot", p.getId() + "|"+newPattern.getId()+ " Pokrycie = " + p.compareTo(newPattern));
+			Log.d(C.TAG, p.getId() + "|"+newPattern.getId()+ " Pokrycie = " + p.compareTo(newPattern));
 			if (p.compareTo(newPattern) > C.minPatternCoverage) {
-				Log.d("robot", "\t" + p.getId() + " count = " + p.getCount());
+				Log.d(C.TAG, "\t" + p.getId() + " count = " + p.getCount());
 				inserted = true;
 				if (p.incrementCount() == C.minPatternCount) {
 					accept(p);
-					Log.d("robot", "\t\t" + newPattern.getId() + " -> " + p.getId());
+					Log.d(C.TAG, "\t\t" + newPattern.getId() + " -> " + p.getId());
 				}
 			}
 			if (!p.check()) {

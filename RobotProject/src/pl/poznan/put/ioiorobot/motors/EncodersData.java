@@ -89,12 +89,12 @@ public class EncodersData {
 			
 			
 			if(line != null) {
-				//Log.d("robot", "\t\t\tUART RECEIVED: " + line);
+				//Log.d(C.TAG, "\t\t\tUART RECEIVED: " + line);
 				
 				String pattern= "^> *-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+<$";
 				
 		        if(line.matches(pattern)){
-		        	Log.d("robot", "\t\t\tUART RECEIVED OK: " + line);
+		        	Log.d(C.TAG, "\t\t\tUART RECEIVED OK: " + line);
 		        	
 		        	line = line.substring(1, line.length()-1);
 		        	line = line.trim();
@@ -104,7 +104,7 @@ public class EncodersData {
 		        	position.set(StrToDouble(parts[0]), StrToDouble(parts[1]), StrToDouble(parts[2]));
 		        }
 		        else {
-		        	//Log.d("robot", "\t\t\t\t\tNO MATCH");
+		        	//Log.d(C.TAG, "\t\t\t\t\tNO MATCH");
 		        }
 			}
 			else {

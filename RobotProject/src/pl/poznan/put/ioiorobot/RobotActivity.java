@@ -138,7 +138,7 @@ public class RobotActivity extends IOIOActivity {
 		DAO.setContext(getApplicationContext());
 		screenSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
-		C.patternSize = screenSize.y / 4;
+		C.patternSize = Math.min(screenSize.y, screenSize.x) / 4;
 		C.screenSize = screenSize;
 	}
 
@@ -221,7 +221,7 @@ public class RobotActivity extends IOIOActivity {
 
 			@Override
 			public void onPatternFound(final Pattern pattern) {
-				Log.d("robot", "pattern found actity");
+				Log.d(C.TAG, "pattern found actity");
 				patternsQueue.add(pattern);
 			}
 		});
@@ -239,7 +239,7 @@ public class RobotActivity extends IOIOActivity {
 				});
 			}
 		});
-	}
+	} 
 
 	private void showToast(final String message) {
 		runOnUiThread(new Runnable() {

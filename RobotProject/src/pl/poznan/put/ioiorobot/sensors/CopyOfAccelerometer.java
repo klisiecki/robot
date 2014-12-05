@@ -1,5 +1,6 @@
 package pl.poznan.put.ioiorobot.sensors;
 
+import pl.poznan.put.ioiorobot.utils.C;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,7 +12,6 @@ public class CopyOfAccelerometer implements IAccelerometer {
 
 	public CopyOfAccelerometer(SensorManager sensorManager) {
 		this.sensorManager = sensorManager;
-		Listener listener = new Listener();
 	}
 
 	class Listener implements SensorEventListener {
@@ -90,7 +90,7 @@ public class CopyOfAccelerometer implements IAccelerometer {
 			mAccelX = ax;
 			mAccelY = ay;
 			
-			Log.d("robot","("+mPosX+", "+mPosY+")");
+			Log.d(C.TAG,"("+mPosX+", "+mPosY+")");
 		}
 
 		@Override

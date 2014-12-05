@@ -95,7 +95,7 @@ public class MyCamera implements CvCameraViewListener2 {
 				 * display = wm.getDefaultDisplay(); DisplayMetrics metrics =
 				 * new DisplayMetrics(); display.getMetrics(metrics); int width
 				 * = metrics.widthPixels; int height = metrics.heightPixels;
-				 * Log.d("robot", "camera size= " + width + " x " + height);
+				 * Log.d(C.TAG, "camera size= " + width + " x " + height);
 				 * 
 				 * cameraView.setMaxFrameSize(800, 600);
 				 */
@@ -114,7 +114,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		// Log.d("robot", "onCameraViewStarted " + width + " x " + height);
+		// Log.d(C.TAG, "onCameraViewStarted " + width + " x " + height);
 		// TODO Auto-generated method stub
 
 	}
@@ -139,7 +139,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	 * inputFrame.rgba(); Mat dst = new Mat(); Mat result = new Mat();
 	 * Imgproc.cvtColor(mat, dst, Imgproc.COLOR_RGB2HSV, 3);
 	 * 
-	 * Log.d("robot", CameraUtils.getPixelColor(dst, 100, 100) + "");
+	 * Log.d(C.TAG, CameraUtils.getPixelColor(dst, 100, 100) + "");
 	 * getYellowMat(dst, dst); Point center = detectObject(mat, dst, "C",
 	 * result); xTargetPosition = (int) (((double) center.x / (double)
 	 * mat.width()) * 200.0 - 100.0); return result; }
@@ -596,12 +596,6 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	private double getAngle(Point p0, Point p1, Point p2) {
 		return Math.toDegrees(Math.atan2(p0.x - p1.x, p0.y - p1.y) - Math.atan2(p2.x - p1.x, p2.y - p1.y));
-	}
-
-	private double angleBetween(Point center, Point current, Point previous) {
-
-		return Math.toDegrees(Math.atan2(current.x - center.x, current.y - center.y)
-				- Math.atan2(previous.x - center.x, previous.y - center.y));
 	}
 
 	private void drawContour(Mat resultImage, MatOfPoint cnt) {

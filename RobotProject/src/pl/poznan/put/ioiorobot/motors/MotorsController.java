@@ -92,7 +92,7 @@ public class MotorsController implements IMotorsController {
 	class MotorThread extends Thread {
 		public MotorThread() {
 			start();
-			Log.e("robot", "MotorThread constructor");
+			Log.e(C.TAG, "MotorThread constructor");
 		}
 
 		@Override
@@ -132,7 +132,7 @@ public class MotorsController implements IMotorsController {
 						right = 0;
 					lPwm.setDutyCycle(Math.min(left, 1f));
 					rPwm.setDutyCycle(Math.min(right, 1f));
-					// Log.d("robot", "\t\t\tx= " + direction + " , y= " + speed
+					// Log.d(C.TAG, "\t\t\tx= " + direction + " , y= " + speed
 					// + "     L = " + left + "   R = " + right);
 					Thread.sleep(1);
 				} catch (Exception e) {
@@ -165,7 +165,7 @@ public class MotorsController implements IMotorsController {
 		private int Kd = 5;
 
 		public void run() {
-			// Log.d("robot", "PID begin");
+			// Log.d(C.TAG, "PID begin");
 
 			int error = direction;
 
@@ -189,7 +189,7 @@ public class MotorsController implements IMotorsController {
 			/* Obliczenie właściwej wartości regulacji. */
 			regulacja = Math.round((Kp * error + Kd * rozniczka + Ki * calka) / (Kp + Kd + Ki));
 
-			// Log.d("robot", "Regulacja = " + regulacja);
+			// Log.d(C.TAG, "Regulacja = " + regulacja);
 		}
 	}
 }

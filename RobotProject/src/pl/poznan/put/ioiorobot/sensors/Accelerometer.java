@@ -4,7 +4,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 
 public class Accelerometer implements IAccelerometer {
 	private SensorManager sensorManager;
@@ -45,17 +44,17 @@ public class Accelerometer implements IAccelerometer {
 			sensorX = event.values[0];
 			sensorY = event.values[1];
 			timestamp = event.timestamp;
-			// Log.d("robot", "ACC X= " + sensorX + "\n    Y= " + sensorY);
+			// Log.d(C.TAG, "ACC X= " + sensorX + "\n    Y= " + sensorY);
 
 			if (lastTimestamp != 0) {
 				final float dT = (float) (timestamp - lastTimestamp) / 1000000000.0f;
 				if (Math.abs(sensorX) > 0.05) {
 					velocityX += sensorX * dT;
-					//Log.d("robot", "\t\tvelocityX += " + sensorX);
+					//Log.d(C.TAG, "\t\tvelocityX += " + sensorX);
 				}
 				positionX += velocityX * dT;
 				
-				//Log.d("robot", "positionX = " + positionX + "     velocityX = " + velocityX);
+				//Log.d(C.TAG, "positionX = " + positionX + "     velocityX = " + velocityX);
 			}
 
 			lastTimestamp = timestamp;
@@ -110,7 +109,7 @@ public class Accelerometer implements IAccelerometer {
 			mAccelX = ax;
 			mAccelY = ay;
 
-			// Log.d("robot","("+mPosX+", "+mPosY+")");
+			// Log.d(C.TAG,"("+mPosX+", "+mPosY+")");
 		}
 
 		@Override

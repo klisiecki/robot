@@ -84,9 +84,9 @@ public class DAO {
 			OutputStreamWriter oss = new OutputStreamWriter(fOut);
 			oss.append(data);
 			oss.close();
-			Log.e("robot", "SAVED");
+			Log.e(C.TAG, "SAVED");
 		} catch (Exception e) {
-			Log.e("robot", e.getMessage());
+			Log.e(C.TAG, e.getMessage());
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 

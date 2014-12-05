@@ -8,11 +8,9 @@ import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import pl.poznan.put.ioiorobot.motors.IMotorsController;
+import pl.poznan.put.ioiorobot.utils.C;
 import android.util.Log;
 
 public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
@@ -43,7 +41,7 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 		for (int i = 0; i < RESULTS_SIZE; i++) {
 			results.add(new Pair(0, 0));
 		}
-		Log.d("robot", "hcsr");
+		Log.d(C.TAG, "hcsr");
 		start();
 	}
 
@@ -73,7 +71,7 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 
 	@Override
 	public void run() {
-		Log.d("robot", "run");
+		Log.d(C.TAG, "run");
 		try {
 			int position = ANGLE_MIN;
 			servo.setPulseWidth(map(position));
@@ -84,7 +82,7 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 						servo.setPulseWidth(map(position));
 						Thread.sleep(STEP_DELAY);
 						results.set(i, new Pair(position, getDistance()));
-						// Log.d("robot", i + "+, " + position + ", map: " +
+						// Log.d(C.TAG, i + "+, " + position + ", map: " +
 						// map(position) + " | "+results.get(i).distance);
 						if (i != RESULTS_SIZE - 1)
 							position += ANGLE_STEP;
@@ -104,7 +102,7 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 				}
 			}
 		} catch (Exception e) {
-			Log.e("robot", e.toString());
+			Log.e(C.TAG, e.toString());
 		}
 	}
 

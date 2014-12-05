@@ -3,7 +3,6 @@ package pl.poznan.put.ioiorobot.sensors;
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
-import android.util.Log;
 
 public class BatteryStatus implements IBatteryStatus {
 	private final static double MIN = 5.5;
@@ -30,7 +29,7 @@ public class BatteryStatus implements IBatteryStatus {
 		} catch (Exception e) {
 		}
 		
-//		Log.d("robot", val + " volt");
+//		Log.d(C.TAG, val + " volt");
 		int result = (int) ((val - MIN) / (MAX - MIN) * 100);
 		return Math.max(Math.min(result, 100), 0);
 	}
