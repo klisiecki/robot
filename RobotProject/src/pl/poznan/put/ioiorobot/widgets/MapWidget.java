@@ -15,7 +15,7 @@ public class MapWidget extends View {
 	private int width;
 	private int height;
 
-//	private int bmpSize = 500;
+	// private int bmpSize = 500;
 	private int scale = 3;
 
 	private Paint backgroundPaint;
@@ -69,10 +69,10 @@ public class MapWidget extends View {
 		width = measureSize(widthMeasureSpec, desiredWidth);
 		height = measureSize(heightMeasureSpec, desiredHeight);
 		width = height = Math.min(width, height);
-		
+
 		bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 		canvasX = new Canvas(bmp);
-		
+
 		setMeasuredDimension(width, height);
 	}
 
@@ -92,11 +92,11 @@ public class MapWidget extends View {
 		return result;
 	}
 
-	public void addPosition(double xParam, double yParam, double angleParam) {
-		yParam = -yParam + 200;
-		xParam = -xParam;
+	public void addPosition(Position pos) {
+		double yParam = -pos.y() + 200;
+		double xParam = -pos.x();
 
-		position.set(xParam, yParam, angleParam);
+		position.set(xParam, yParam, pos.angle());
 
 		int x = (int) (xParam / scale + width / 2);
 		int y = (int) (yParam / scale + height / 2);
@@ -107,7 +107,7 @@ public class MapWidget extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		canvas.drawRect(0, 0, width, height, backgroundPaint);
+		// canvas.drawRect(0, 0, width, height, backgroundPaint);
 		canvas.drawBitmap(bmp, 0, 0, trackPaint);
 
 		int x = (int) (position.x() / scale + width / 2);
@@ -120,7 +120,8 @@ public class MapWidget extends View {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		canvasX.drawPaint(backgroundPaint);
+//		canvasX.drawPaint(backgroundPaint);
+		bmp.eraseColor(Color.TRANSPARENT);
 		return super.onTouchEvent(event);
 	}
 

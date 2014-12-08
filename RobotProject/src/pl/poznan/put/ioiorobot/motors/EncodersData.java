@@ -23,6 +23,16 @@ import android.util.Log;
 
 public class EncodersData {
 
+	public interface PositionChangedListener {
+		public void onPositionChanged(Position position);
+	}
+	
+	private PositionChangedListener listener;
+	
+	public void setPositionChangedListener(PositionChangedListener listener) {
+		this.listener = listener;
+	}
+
 	private IOIO ioio_;
 	private Uart uart;
 	private DigitalOutput request;
@@ -52,30 +62,30 @@ public class EncodersData {
 		}
 
 		EncodersDataThread t = new EncodersDataThread();
-		
-//		if (null != timer) { timer.cancel(); timer.purge(); timer = null; }
-//		
-//		timer = new Timer();
-//		
-//		timer.scheduleAtFixedRate(new MyTask(), 0, 50);
-		 
+
+		// if (null != timer) { timer.cancel(); timer.purge(); timer = null; }
+		//
+		// timer = new Timer();
+		//
+		// timer.scheduleAtFixedRate(new MyTask(), 0, 50);
+
 	}
 
-//	private class MyTask extends TimerTask {
-//
-//		public void run() {
-//			getData();
-//		}
-//	}
-	
+	// private class MyTask extends TimerTask {
+	//
+	// public void run() {
+	// getData();
+	// }
+	// }
+
 	private class EncodersDataThread extends Thread {
-		public EncodersDataThread(){
+		public EncodersDataThread() {
 			start();
 		}
-		
+
 		@Override
 		public void run() {
-			while(true) {
+			while (true) {
 				getData();
 			}
 		}
@@ -108,7 +118,7 @@ public class EncodersData {
 			String pattern = "^> *-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+<$";
 
 			if (line.matches(pattern)) {
-//				Log.d(C.TAG, "\t\t\tUART RECEIVED OK: " + line);
+				// Log.d(C.TAG, "\t\t\tUART RECEIVED OK: " + line);
 
 				line = line.substring(1, line.length() - 1);
 				line = line.trim();
@@ -116,11 +126,14 @@ public class EncodersData {
 				String[] parts = line.split(" +");
 
 				position.set(StrToDouble(parts[0]), StrToDouble(parts[1]), StrToDouble(parts[2]));
+				if (listener != null) {
+					listener.onPositionChanged(position);
+				}
 			} else {
-//				 Log.d(C.TAG, "\t\t\t\t\tNO MATCH");
+				// Log.d(C.TAG, "\t\t\t\t\tNO MATCH");
 			}
 		} else {
-//			Log.d(C.TAG, "\t\t\tUART DATA PROBLEM");
+			// Log.d(C.TAG, "\t\t\tUART DATA PROBLEM");
 		}
 	}
 

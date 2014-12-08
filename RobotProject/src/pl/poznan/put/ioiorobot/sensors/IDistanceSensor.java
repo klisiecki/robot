@@ -4,6 +4,12 @@ import java.util.List;
 
 public interface IDistanceSensor {
 	
+	public interface DistanceResultListener {
+		void onResult(List<Integer> results);
+	}
+	
+	void setDistanceResultListener(DistanceResultListener listener);
+	
 	List<Pair> getResults();
 	
 	List<Integer> getResultsOnly();

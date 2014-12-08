@@ -8,167 +8,175 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-
-
 public class Joystick extends View {
 
 	private int width;
 	private int height;
-    private int joystickRadius;
-    private int maxValue;
-	
-    private Paint backgroundPaint;
-    private Paint joystickPaint;
-    private int touchX, touchY;
+	private int joystickRadius;
+	private int maxValue;
 
-    private JoystickMovedListener listener;
+	private Paint backgroundPaint;
+	private Paint joystickPaint;
+	private int touchX, touchY;
 
+	private JoystickMovedListener listener;
 
-    public Joystick(Context context) {
-        super (context);
-        initJoystick();
-        
-    }
+	public interface JoystickMovedListener {
+		public void onMoved(int xPos, int yPos);
 
-    public Joystick(Context context, AttributeSet attrs) {
-        super (context, attrs);
-        initJoystick();
-    }
+		public void onReleased();
+	}
 
-    public Joystick(Context context, AttributeSet attrs, int defStyle) {
-        super (context, attrs, defStyle);
-        initJoystick();
-    }
-    
-    private void initJoystick() {
-        setFocusable(true);
+	public Joystick(Context context) {
+		super(context);
+		initJoystick();
 
-        backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        backgroundPaint.setColor(Color.rgb(0xbb, 0xe0, 0xf0));
-        backgroundPaint.setStrokeWidth(1);
-        backgroundPaint.setStyle(Paint.Style.STROKE);
-//        backgroundPaint.setAlpha(200);
+	}
 
-        joystickPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        joystickPaint.setColor(Color.rgb(0x00, 0x77, 0xaa));
-        joystickPaint.setStrokeWidth(1);
-        joystickPaint.setStyle(Paint.Style.STROKE);
-//        joystickPaint.setAlpha(100);
+	public Joystick(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		initJoystick();
+	}
 
-        maxValue = 100;
-    }
+	public Joystick(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		initJoystick();
+	}
 
-    
-    public void setJostickMovedListener(JoystickMovedListener listener) {
-        this .listener = listener;
-    }
+	private void initJoystick() {
+		setFocusable(true);
 
-    
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    	int desiredWidth = 1000;
-    	int desiredHeight = 1000;
-        width = measureSize(widthMeasureSpec, desiredWidth);
-        height = measureSize(heightMeasureSpec, desiredHeight);
-        width = height = Math.min(width, height);
-        joystickRadius = (int) (Math.min(width, height) * 0.15);
+		backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		backgroundPaint.setColor(Color.rgb(0xbb, 0xe0, 0xf0));
+		backgroundPaint.setStrokeWidth(1);
+		backgroundPaint.setStyle(Paint.Style.STROKE);
+		// backgroundPaint.setAlpha(200);
 
-        setMeasuredDimension(width, height);
-    }
+		joystickPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		joystickPaint.setColor(Color.rgb(0x00, 0x77, 0xaa));
+		joystickPaint.setStrokeWidth(1);
+		joystickPaint.setStyle(Paint.Style.STROKE);
+		// joystickPaint.setAlpha(100);
 
-    private int measureSize(int measureSpec, int desired) {
-        int result = 0;
-        int mode = MeasureSpec.getMode(measureSpec);
-        int size = MeasureSpec.getSize(measureSpec);
-        
-        if (mode == MeasureSpec.EXACTLY) {
-            result = size;
-        } else if (mode == MeasureSpec.AT_MOST) {
-            result = Math.min(desired, size);
-        } else {
-            result = desired;
-        }
+		maxValue = 100;
+	}
 
-        return result;
-    }
+	public void setJostickMovedListener(JoystickMovedListener listener) {
+		this.listener = listener;
+	}
 
-    
-    @Override
-    protected void onDraw(Canvas canvas) {
-        canvas.drawCircle(width/2, height/2, Math.min(width/2, height/2), backgroundPaint);
-        //canvas.drawOval(new RectF(0, 0, width, height), backgroundPaint);
-        
-        canvas.drawCircle(width/2 + touchX, height/2 + touchY, joystickRadius, joystickPaint);
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		int desiredWidth = 1000;
+		int desiredHeight = 1000;
+		width = measureSize(widthMeasureSpec, desiredWidth);
+		height = measureSize(heightMeasureSpec, desiredHeight);
+		width = height = Math.min(width, height);
+		joystickRadius = (int) (Math.min(width, height) * 0.15);
 
-        canvas.save();
-    }
+		setMeasuredDimension(width, height);
+	}
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        int actionType = event.getAction();
-        if (actionType == MotionEvent.ACTION_MOVE) {
+	private int measureSize(int measureSpec, int desired) {
+		int result = 0;
+		int mode = MeasureSpec.getMode(measureSpec);
+		int size = MeasureSpec.getSize(measureSpec);
 
-        	//Log.d("robot", "\t\t" + event.getX() + " | " + event.getY());
-        	
-            touchX = (int) event.getX();
-            touchX = Math.max(Math.min(touchX, width), 0) - width/2;
+		if (mode == MeasureSpec.EXACTLY) {
+			result = size;
+		} else if (mode == MeasureSpec.AT_MOST) {
+			result = Math.min(desired, size);
+		} else {
+			result = desired;
+		}
 
-            touchY = (int) event.getY();
-            touchY = Math.max(Math.min(touchY, height), 0) - height/2;
+		return result;
+	}
 
-            int size = Math.min(width/2,height/2) - joystickRadius;
-            if(touchX>size) { touchX = size; }
-            if(touchX<-size) { touchX = -size; }
-            if(touchY>size) { touchY = size; }
-            if(touchY<-size) { touchY = -size; }
-            
-//            if(Math.sqrt(touchX*touchX+touchY*touchY) > Math.sqrt(2 * Math.min(width/2,height/2) * Math.min(width/2,height/2))-joystickRadius) {
-//            	touchX = 0;
-//            	touchY = 0;
-//            }
+	@Override
+	protected void onDraw(Canvas canvas) {
+		canvas.drawCircle(width / 2, height / 2, Math.min(width / 2, height / 2), backgroundPaint);
+		// canvas.drawOval(new RectF(0, 0, width, height), backgroundPaint);
 
-            if(listener != null) {
-            	int posX = touchX != 0 ? (int)( (double)touchX / size * maxValue) : 0;
-            	int posY = touchY != 0 ? (int)( (double)touchY / size * maxValue) : 0;
-            	//Log.d("robot", "posX = " + posX + "   posY = " + posY);
-            	listener.OnMoved(posX, -posY);
-            }
+		canvas.drawCircle(width / 2 + touchX, height / 2 + touchY, joystickRadius, joystickPaint);
 
-            
-            invalidate();
-        } else if (actionType == MotionEvent.ACTION_UP) {
-        	touchX = 0;
-        	touchY = 0;
-            if(listener != null) {
-            	listener.OnReleased();
-            }
-            invalidate();
-        }
-        return true;
-    }
+		canvas.save();
+	}
 
-//    private void returnHandleToCenter() {
-//
-//        Handler handler = new Handler();
-//        int numberOfFrames = 5;
-//        final double intervalsX = (0 - touchX) / numberOfFrames;
-//        final double intervalsY = (0 - touchY) / numberOfFrames;
-//
-//        for (int i = 0; i < numberOfFrames; i++) {
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    touchX += intervalsX;
-//                    touchY += intervalsY;
-//                    invalidate();
-//                }
-//            }, i * 40);
-//        }
-//
-//        if (listener != null) {
-//            listener.OnReleased();
-//        }
-//    }
-	
-	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		int actionType = event.getAction();
+		if (actionType == MotionEvent.ACTION_MOVE) {
+
+			// Log.d("robot", "\t\t" + event.getX() + " | " + event.getY());
+
+			touchX = (int) event.getX();
+			touchX = Math.max(Math.min(touchX, width), 0) - width / 2;
+
+			touchY = (int) event.getY();
+			touchY = Math.max(Math.min(touchY, height), 0) - height / 2;
+
+			int size = Math.min(width / 2, height / 2) - joystickRadius;
+			if (touchX > size) {
+				touchX = size;
+			}
+			if (touchX < -size) {
+				touchX = -size;
+			}
+			if (touchY > size) {
+				touchY = size;
+			}
+			if (touchY < -size) {
+				touchY = -size;
+			}
+
+			// if(Math.sqrt(touchX*touchX+touchY*touchY) > Math.sqrt(2 *
+			// Math.min(width/2,height/2) *
+			// Math.min(width/2,height/2))-joystickRadius) {
+			// touchX = 0;
+			// touchY = 0;
+			// }
+
+			if (listener != null) {
+				int posX = touchX != 0 ? (int) ((double) touchX / size * maxValue) : 0;
+				int posY = touchY != 0 ? (int) ((double) touchY / size * maxValue) : 0;
+				// Log.d("robot", "posX = " + posX + "   posY = " + posY);
+				listener.onMoved(posX, -posY);
+			}
+
+			invalidate();
+		} else if (actionType == MotionEvent.ACTION_UP) {
+			touchX = 0;
+			touchY = 0;
+			if (listener != null) {
+				listener.onReleased();
+			}
+			invalidate();
+		}
+		return true;
+	}
+
+	// private void returnHandleToCenter() {
+	//
+	// Handler handler = new Handler();
+	// int numberOfFrames = 5;
+	// final double intervalsX = (0 - touchX) / numberOfFrames;
+	// final double intervalsY = (0 - touchY) / numberOfFrames;
+	//
+	// for (int i = 0; i < numberOfFrames; i++) {
+	// handler.postDelayed(new Runnable() {
+	// @Override
+	// public void run() {
+	// touchX += intervalsX;
+	// touchY += intervalsY;
+	// invalidate();
+	// }
+	// }, i * 40);
+	// }
+	//
+	// if (listener != null) {
+	// listener.OnReleased();
+	// }
+	// }
+
 }

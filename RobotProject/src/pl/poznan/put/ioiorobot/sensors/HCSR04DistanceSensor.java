@@ -33,6 +33,12 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 	private boolean isRunning = false;
 	private List<Pair> results;
 
+	private DistanceResultListener listener;
+
+	public void setDistanceResultListener(DistanceResultListener listener) {
+		this.listener = listener;
+	}
+
 	public HCSR04DistanceSensor(IOIO ioio_, int servoPin, int triggerPin, int echoPin) throws ConnectionLostException {
 		servo = ioio_.openPwmOutput(servoPin, 100);
 		trigger = ioio_.openDigitalOutput(triggerPin, false);
@@ -84,8 +90,12 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 						results.set(i, new Pair(position, getDistance()));
 						// Log.d(C.TAG, i + "+, " + position + ", map: " +
 						// map(position) + " | "+results.get(i).distance);
-						if (i != RESULTS_SIZE - 1)
+						if (i != RESULTS_SIZE - 1) {
 							position += ANGLE_STEP;
+						}
+						if (listener != null) {
+							listener.onResult(getResultsOnly());
+						}
 					}
 
 					for (int i = RESULTS_SIZE - 2; i > 0; i--) {
@@ -93,9 +103,13 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 						servo.setPulseWidth(map(position));
 						Thread.sleep(STEP_DELAY);
 						results.set(i, new Pair(position, getDistance()));
-						Log.d(" ", i + "-, " + position + ", map: " + map(position) + " | " + results.get(i).distance);
+//						Log.d(" ", i + "-, " + position + ", map: " + map(position) + " | " + results.get(i).distance);
+						if (listener != null) {
+							listener.onResult(getResultsOnly());
+						}
 					}
 					position -= ANGLE_STEP;
+
 				} else {
 					servo.setPulseWidth(0);
 					Thread.sleep(200);

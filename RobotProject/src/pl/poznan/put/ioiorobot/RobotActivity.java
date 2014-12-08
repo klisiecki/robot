@@ -6,6 +6,8 @@ import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 
+import java.util.List;
+
 import org.opencv.android.CameraBridgeViewBase;
 
 import pl.poznan.put.ioiorobot.camera.MyCamera;
@@ -14,18 +16,21 @@ import pl.poznan.put.ioiorobot.camera.Pattern;
 import pl.poznan.put.ioiorobot.camera.PatternsQueue;
 import pl.poznan.put.ioiorobot.camera.PatternsQueue.PatternAcceptedListener;
 import pl.poznan.put.ioiorobot.motors.EncodersData;
+import pl.poznan.put.ioiorobot.motors.EncodersData.PositionChangedListener;
 import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
+import pl.poznan.put.ioiorobot.sensors.IBatteryStatus.BatteryStatusChangedListener;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
+import pl.poznan.put.ioiorobot.sensors.IDistanceSensor.DistanceResultListener;
 import pl.poznan.put.ioiorobot.utils.C;
 import pl.poznan.put.ioiorobot.utils.DAO;
 import pl.poznan.put.ioiorobot.widgets.BatteryStatusBar;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
-import pl.poznan.put.ioiorobot.widgets.JoystickMovedListener;
+import pl.poznan.put.ioiorobot.widgets.Joystick.JoystickMovedListener;
 import pl.poznan.put.ioiorobot.widgets.MapWidget;
 import pl.poznan.put.ioiorobot.widgets.PatternsWidget;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
@@ -77,6 +82,7 @@ public class RobotActivity extends IOIOActivity {
 				batteryStatus = new BatteryStatus(ioio_, 46);
 				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
 						position);
+				initIOIOListeners();
 			} catch (ConnectionLostException e) {
 				Log.e(C.TAG, e.toString());
 				e.printStackTrace();
@@ -85,20 +91,9 @@ public class RobotActivity extends IOIOActivity {
 
 		@Override
 		public void loop() throws ConnectionLostException, InterruptedException {
-
-			if (distanceSensor.getResults() != null) {
-				runOnUiThread(new Runnable() {
-					public void run() {
-						barGraph.setValues(distanceSensor.getResultsOnly());
-					}
-				});
-			}
-
 			runOnUiThread(new Runnable() {
 				public void run() {
-					batteryStatusBar.setValue(batteryStatus.getStatus());
 					seekBar3.setProgress(100 + motorsController.getRegulacja());
-					mapWidget.addPosition(position.x(), position.y(), position.angle());
 				}
 			});
 
@@ -170,7 +165,7 @@ public class RobotActivity extends IOIOActivity {
 		joystick.setJostickMovedListener(new JoystickMovedListener() {
 
 			@Override
-			public void OnReleased() {
+			public void onReleased() {
 				if (motorsController != null) {
 					motorsController.setDirection(0);
 					motorsController.setSpeed(0);
@@ -178,7 +173,7 @@ public class RobotActivity extends IOIOActivity {
 			}
 
 			@Override
-			public void OnMoved(int xPos, int yPos) {
+			public void onMoved(int xPos, int yPos) {
 				if (motorsController != null) {
 					motorsController.setDirection(xPos);
 					motorsController.setSpeed((int) (Math.sqrt(xPos * xPos + yPos * yPos) * (yPos > 0 ? 1 : -1)));
@@ -195,9 +190,9 @@ public class RobotActivity extends IOIOActivity {
 					// motorsController.setSpeed(0);
 					// motorsController.setDirection(0);
 					camera.setMode(MyCamera.Mode.PROCESSING);
-//					joystick.setVisibility(View.GONE);
+					// joystick.setVisibility(View.GONE);
 				} else {
-//					joystick.setVisibility(View.VISIBLE);
+					// joystick.setVisibility(View.VISIBLE);
 					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
 				}
 			}
@@ -239,7 +234,54 @@ public class RobotActivity extends IOIOActivity {
 				});
 			}
 		});
-	} 
+
+	}
+
+	private void initIOIOListeners() {
+		batteryStatus.setBatteryStatusChangedListener(new BatteryStatusChangedListener() {
+
+			@Override
+			public void onBatteryStatusChanged(final int status) {
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						batteryStatusBar.setValue(status);
+					}
+				});
+
+			}
+		});
+
+		distanceSensor.setDistanceResultListener(new DistanceResultListener() {
+
+			@Override
+			public void onResult(final List<Integer> results) {
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						barGraph.setValues(results);
+					}
+				});
+
+			}
+		});
+
+		encodersData.setPositionChangedListener(new PositionChangedListener() {
+
+			@Override
+			public void onPositionChanged(final Position position) {
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						mapWidget.addPosition(position);
+					}
+				});
+			}
+		});
+	}
 
 	private void showToast(final String message) {
 		runOnUiThread(new Runnable() {

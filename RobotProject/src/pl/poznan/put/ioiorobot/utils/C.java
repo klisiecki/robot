@@ -28,6 +28,7 @@ public class C {
 	public static final double encoderResolution = 128.0;
 	
 	public static final int loopSleep = 100;
+	public static final int batterySleep = 1000;
 	
 	public static final int PIDPeriod = 100;
 	
