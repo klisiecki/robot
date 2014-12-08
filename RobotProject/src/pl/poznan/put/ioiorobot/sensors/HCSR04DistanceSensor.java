@@ -71,7 +71,7 @@ public class HCSR04DistanceSensor extends Thread implements IDistanceSensor {
 
 	@Override
 	public void run() {
-		Log.d(C.TAG, "run");
+		Log.d(C.TAG, "distance sensor run");
 		try {
 			int position = ANGLE_MIN;
 			servo.setPulseWidth(map(position));
