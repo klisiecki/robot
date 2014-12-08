@@ -82,7 +82,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
-            android:layout_toLeftOf="@+id/mapWidget"
+            android:layout_toLeftOf="@+id/startToggleButton"
             android:layout_toRightOf="@+id/linear1"
             android:gravity="center"
             android:orientation="vertical" >
@@ -109,12 +109,16 @@
                 android:progress="1" />
         </LinearLayout>
 
-        <pl.poznan.put.ioiorobot.widgets.Joystick
-            android:id="@+id/joystick"
-            android:layout_width="200dp"
+        <ToggleButton
+            android:id="@+id/startToggleButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/mapWidget"
             android:layout_above="@+id/distanceBarGraph"
-            android:layout_alignParentRight="true" />
+            android:gravity="center_vertical|center_horizontal|top"
+            android:minHeight="100dip"
+            android:textOff="START"
+            android:textOn="STOP" />
 
         <pl.poznan.put.ioiorobot.widgets.MapWidget
             android:id="@+id/mapWidget"
@@ -122,6 +126,13 @@
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
             android:layout_toLeftOf="@+id/joystick" />
+
+        <pl.poznan.put.ioiorobot.widgets.Joystick
+            android:id="@+id/joystick"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/distanceBarGraph"
+            android:layout_alignParentRight="true" />
 
         <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
             android:id="@+id/distanceBarGraph"
