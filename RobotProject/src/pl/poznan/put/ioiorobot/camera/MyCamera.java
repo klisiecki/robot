@@ -31,6 +31,18 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.SeekBar;
 
+/**
+ * @author karol
+ *
+ */
+/**
+ * @author karol
+ *
+ */
+/**
+ * @author karol
+ *
+ */
 public class MyCamera implements CvCameraViewListener2 {
 
 	public interface PatternFoundListener {
@@ -115,14 +127,12 @@ public class MyCamera implements CvCameraViewListener2 {
 	@Override
 	public void onCameraViewStarted(int width, int height) {
 		// Log.d(C.TAG, "onCameraViewStarted " + width + " x " + height);
-		// TODO Auto-generated method stub
+		// TODO rozmiar można brać stąd
 
 	}
 
 	@Override
 	public void onCameraViewStopped() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -154,13 +164,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	public void getYellowMat(Mat src, Mat dst) {
-		// Core.inRange(src, new Scalar(seekBar2.getProgress(),
-		// seekBar1.getProgress(), 60),
-		// new Scalar(seekBar3.getProgress(), 255, 255), dst);
-
-		// Core.inRange(src, new Scalar(20, 10, 10), new Scalar(45, 255, 255),
-		// dst);
-		Core.inRange(src, new Scalar(20, 80, 64), new Scalar(30, 255, 255), dst);
+		Core.inRange(src, new Scalar(20, 40, 64), new Scalar(70, 255, 255), dst);
 	}
 
 	/*
@@ -197,10 +201,16 @@ public class MyCamera implements CvCameraViewListener2 {
 	 * Imgproc.boundingRect(wrapper); } j++; } return boundRect; }
 	 */
 
+	/**
+	 * Główna funkcja prztwarzająca obraz
+	 * TODO nazwa
+	 * @param inputFrame
+	 * @return
+	 */
 	private Mat findRegularShapes(CvCameraViewFrame inputFrame) {
 		Mat imgRgba = inputFrame.rgba();
 		Mat imgGray = inputFrame.gray();
-		Mat grayCopy = new Mat();
+		
 
 		Mat mask = new Mat();
 		imgRgba.copyTo(mask);
@@ -210,55 +220,50 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		Mat image = new Mat();
 		imgRgba.copyTo(image, mask);
-		Mat resultX = new Mat();
-		image.copyTo(resultX);
 		//
 		// /* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
-		Imgproc.cvtColor(image, grayCopy, Imgproc.COLOR_RGB2GRAY);
-		imgGray.copyTo(grayCopy);
+		Mat grayFiltered = new Mat();
+		Imgproc.cvtColor(image, grayFiltered, Imgproc.COLOR_RGB2GRAY);
+		// imgGray.copyTo(grayCopy);
 
-		/* Imgproc.threshold(image, image, 127.0, 255.0, Imgproc.THRESH_BINARY); */
-
-		int blockSize = 9; // seekBar1.getProgress()*2 + 3
-		int mC = 7; // seekBar2.getProgress()q
-		Imgproc.adaptiveThreshold(grayCopy, grayCopy, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV,
+		int blockSize = 9;
+		int mC = 7;
+		Imgproc.adaptiveThreshold(grayFiltered, grayFiltered, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV,
 				blockSize, mC);
+		
+		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		Imgproc.findContours(grayFiltered, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		
+		for (MatOfPoint cnt : contours) {
+			Mat rgb = new Mat();
+			Mat gray = new Mat();
+			
+		}
+		
+		processMats(imgRgba, imgGray, grayFiltered);
+		return imgRgba;
+	}
 
-		/*
-		 * int size = seekBar3.getProgress()+1;
-		 * 
-		 * if(seekBar1.getProgress() > 50) { Imgproc.erode(image, image,
-		 * Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new
-		 * Size(size,size))); } if(seekBar2.getProgress() > 50) {
-		 * Imgproc.dilate(image, image,
-		 * Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new
-		 * Size(size,size))); }
-		 * 
-		 * 
-		 * if(seekBar1.getProgress() > 50) { Mat kernel =
-		 * Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new
-		 * Size(size,size)); Imgproc.morphologyEx(image, image,
-		 * Imgproc.MORPH_CLOSE, kernel); }
-		 * 
-		 * 
-		 * Imgproc.Canny(image, image, seekBar1.getProgress(),
-		 * 3*seekBar1.getProgress());
-		 */
-
-		// return image;
+	
+	/**
+	 * 
+	 * TODO nazwa
+	 * @param imgRgba
+	 * @param imgGray
+	 * @param grayFiltered
+	 * @return
+	 */
+	private void processMats(Mat imgRgba, Mat imgGray, Mat grayFiltered) {
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayCopy, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-
-		Mat resultImage = new Mat();
-		imgRgba.copyTo(resultImage);
+		Imgproc.findContours(grayFiltered, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		List<MatOfPoint> contours2 = new ArrayList<MatOfPoint>();
 
 		for (MatOfPoint cnt : contours) {
 
 			// Pomijanie małych obiektów
-			int threshold = (int) (C.screenSize.y * C.thresholdFactor); // seekBar1.getProgress()*10;
+			int threshold = (int) (C.screenSize.y * C.thresholdFactor);
 			if (Imgproc.contourArea(cnt) > threshold)
 				contours2.add(cnt);
 		}
@@ -274,12 +279,11 @@ public class MyCamera implements CvCameraViewListener2 {
 		int contoursProcessed = 0;
 
 		for (MatOfPoint cnt : contours2) {
-			drawContour(resultImage, cnt);
-			Mat fragment = cutFragment(imgGray, resultImage, cnt, true);
+			drawContour(imgRgba, cnt);
+			Mat fragment = cutContour(imgGray, imgRgba, cnt);
 
-			if (warpFragmentFromContour(resultImage, cnt, fragment)) {
+			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
-				// slotNr++;
 				Pattern pattern = new Pattern(fragment);
 				// DAO.writeToExternal(pattern.toString(), "array7." + slotNr);
 				if (patternFoundListener != null) {
@@ -289,26 +293,7 @@ public class MyCamera implements CvCameraViewListener2 {
 			if (contoursProcessed == C.maxContoursProcessed) {
 				break;
 			}
-
 		}
-
-		// Rysowanie największego znalezionego obszaru
-		// if (maxCnt != null) {
-		// Mat fragment = cutFragment(baseImgRgba, resultImage, maxCnt, false);
-		// CameraUtils.drawBounds(resultImage, maxCnt, new Scalar(255, 0, 0),
-		// 3);
-		// // fragment = fragment.clone();
-		// if (fragment.width() != 0 && fragment.height() != 0) {
-		//
-		// // findCornerHarris(fragment);
-		// // findCornerHoughTransform(fragment);
-		//
-		// // warpFragmentFromContour(resultImage, maxCnt, fragment);
-		// }
-		// }
-
-		return resultImage;
-		// return resultX;
 	}
 
 	/**
@@ -587,7 +572,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	}
 
-	private Mat cutFragment(Mat baseImage, Mat resultImage, MatOfPoint cnt, boolean drawRect) {
+	private Mat cutContour(Mat baseImage, Mat resultImage, MatOfPoint cnt) {
 		Rect rect = Imgproc.boundingRect(cnt);
 		CameraUtils.drawBounds(resultImage, cnt, new Scalar(255, 0, 0), 1);
 		Mat fragment = baseImage.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
