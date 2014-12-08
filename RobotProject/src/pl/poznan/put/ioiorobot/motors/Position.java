@@ -20,6 +20,12 @@ public class Position {
 	public Position() {
 		x = y = angle = 0.0;
 	}
+	
+	public Position(double x, double y, double angle) {
+		this.x = x;
+		this.y = y;
+		this.angle = angle;
+	}
 
 	public void set(double x, double y, double angle) {
 		this.x = x;

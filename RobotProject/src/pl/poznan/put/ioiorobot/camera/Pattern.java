@@ -1,16 +1,19 @@
 package pl.poznan.put.ioiorobot.camera;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.utils.C;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Bitmap.Config;
-import android.util.Log;
+import android.graphics.Color;
 
 public class Pattern {
 	private static int nextId = 0;
@@ -21,6 +24,7 @@ public class Pattern {
 	private Bitmap bitmap;
 	private int count = 1;
 	private int ttl = C.patternTTL;
+	private List<Position> viewPositions = new ArrayList<Position>();
 
 	public int incrementCount() {
 		ttl = C.patternTTL * 2;

@@ -31,5 +31,5 @@ public class C {
 	
 	public static final int PIDPeriod = 100;
 	
-	//TODO kąt kamery
+	public static final int cameraViewAngle = 55;
 }
