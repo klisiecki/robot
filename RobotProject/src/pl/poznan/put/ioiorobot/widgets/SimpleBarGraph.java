@@ -20,7 +20,7 @@ public class SimpleBarGraph extends View {
 	private Paint barPaint;
 
 //	int graphWidth;
-	int maxValue = 150;
+	int maxValue = 1500;
 
 	private List<Integer> values = new ArrayList<Integer>();
 

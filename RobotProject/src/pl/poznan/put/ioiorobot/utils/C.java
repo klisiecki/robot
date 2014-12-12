@@ -27,10 +27,17 @@ public class C {
 	public static final double gearRatio = 27.0;
 	public static final double encoderResolution = 128.0;
 	
+	public static final double sensorDistance = 150.0;
+	public static final double cameraDistance = 50.0;
+	
+	public static final double robotLenght = 200.0;
+	public static final double robotWidth = 200.0;
+	
 	public static final int loopSleep = 100;
 	public static final int batterySleep = 1000;
 	
 	public static final int PIDPeriod = 100;
 	
-	public static final int cameraViewAngle = 55;
+	public static double cameraViewAngle = 0.96;  //55 stopni
+	public static int maxObstacleDistance = 500;
 }

@@ -12,9 +12,11 @@ import org.opencv.android.CameraBridgeViewBase;
 
 import pl.poznan.put.ioiorobot.camera.MyCamera;
 import pl.poznan.put.ioiorobot.camera.MyCamera.PatternFoundListener;
-import pl.poznan.put.ioiorobot.camera.Pattern;
-import pl.poznan.put.ioiorobot.camera.PatternsQueue;
-import pl.poznan.put.ioiorobot.camera.PatternsQueue.PatternAcceptedListener;
+import pl.poznan.put.ioiorobot.mapobjects.AreaMap;
+import pl.poznan.put.ioiorobot.mapobjects.Obstacle;
+import pl.poznan.put.ioiorobot.mapobjects.Pattern;
+import pl.poznan.put.ioiorobot.mapobjects.PatternsQueue;
+import pl.poznan.put.ioiorobot.mapobjects.PatternsQueue.PatternAcceptedListener;
 import pl.poznan.put.ioiorobot.motors.EncodersData;
 import pl.poznan.put.ioiorobot.motors.EncodersData.PositionChangedListener;
 import pl.poznan.put.ioiorobot.motors.IMotorsController;
@@ -23,11 +25,13 @@ import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
+import pl.poznan.put.ioiorobot.sensors.SharpDistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus.BatteryStatusChangedListener;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor.DistanceResultListener;
 import pl.poznan.put.ioiorobot.utils.C;
 import pl.poznan.put.ioiorobot.utils.DAO;
+import pl.poznan.put.ioiorobot.widgets.AreaMapWidget;
 import pl.poznan.put.ioiorobot.widgets.BatteryStatusBar;
 import pl.poznan.put.ioiorobot.widgets.Joystick;
 import pl.poznan.put.ioiorobot.widgets.Joystick.JoystickMovedListener;
@@ -59,6 +63,7 @@ public class RobotActivity extends IOIOActivity {
 	private BatteryStatusBar batteryStatusBar;
 	private PatternsWidget patternsWidget;
 	private MapWidget mapWidget;
+	private AreaMapWidget areaMapWidget;
 
 	// Controls
 	private MyCamera camera;
@@ -66,8 +71,9 @@ public class RobotActivity extends IOIOActivity {
 	private IDistanceSensor distanceSensor;
 	private IBatteryStatus batteryStatus;
 	private EncodersData encodersData;
-	private Position position;
+	private Position robotPosition;
 	private PatternsQueue patternsQueue;
+	private AreaMap areaMap;
 	private Point screenSize;
 
 	class Looper extends BaseIOIOLooper {
@@ -78,10 +84,11 @@ public class RobotActivity extends IOIOActivity {
 
 			try {
 				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3);
-				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
+//				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
+				distanceSensor = new SharpDistanceSensor(ioio_, 13, 33);
 				batteryStatus = new BatteryStatus(ioio_, 46);
 				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
-						position);
+						robotPosition);
 				initIOIOListeners();
 			} catch (ConnectionLostException e) {
 				Log.e(C.TAG, e.toString());
@@ -94,9 +101,10 @@ public class RobotActivity extends IOIOActivity {
 			runOnUiThread(new Runnable() {
 				public void run() {
 					seekBar3.setProgress(100 + motorsController.getRegulacja());
+					areaMapWidget.invalidate();
 				}
 			});
-
+			
 			Thread.sleep(C.loopSleep);
 		}
 
@@ -129,7 +137,8 @@ public class RobotActivity extends IOIOActivity {
 
 	private void initObjects() {
 		patternsQueue = new PatternsQueue();
-		position = new Position();
+		robotPosition = new Position();
+		areaMap = new AreaMap(robotPosition);
 		DAO.setContext(getApplicationContext());
 		screenSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
@@ -158,6 +167,8 @@ public class RobotActivity extends IOIOActivity {
 		batteryStatusBar = (BatteryStatusBar) findViewById(R.id.batteryStatusBar);
 		patternsWidget = (PatternsWidget) findViewById(R.id.patternsWidget);
 		mapWidget = (MapWidget) findViewById(R.id.mapWidget);
+		areaMapWidget = (AreaMapWidget) findViewById(R.id.areaMapWidget);
+		areaMapWidget.setAreaMap(areaMap);
 	}
 
 	private void initListeners() {
@@ -216,7 +227,7 @@ public class RobotActivity extends IOIOActivity {
 
 			@Override
 			public void onPatternFound(final Pattern pattern) {
-				Log.d(C.TAG, "pattern found actity");
+				pattern.addViewPosition(new Position(robotPosition));
 				patternsQueue.add(pattern);
 			}
 		});
@@ -230,6 +241,7 @@ public class RobotActivity extends IOIOActivity {
 					@Override
 					public void run() {
 						patternsWidget.addPattern(pattern);
+						areaMap.addPattern(pattern);
 					}
 				});
 			}
@@ -256,12 +268,17 @@ public class RobotActivity extends IOIOActivity {
 		distanceSensor.setDistanceResultListener(new DistanceResultListener() {
 
 			@Override
-			public void onResult(final List<Integer> results) {
+			public void onResult(final List<Integer> results, final IDistanceSensor.Pair last) {
 				runOnUiThread(new Runnable() {
 
 					@Override
 					public void run() {
 						barGraph.setValues(results);
+						Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
+						if(last.distance < C.maxObstacleDistance ) {
+							areaMap.addObstacle(new Obstacle(robotPosition, last));
+
+						}
 					}
 				});
 

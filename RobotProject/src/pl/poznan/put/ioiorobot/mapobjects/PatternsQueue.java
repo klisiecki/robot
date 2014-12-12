@@ -1,4 +1,4 @@
-package pl.poznan.put.ioiorobot.camera;
+package pl.poznan.put.ioiorobot.mapobjects;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,25 +23,23 @@ public class PatternsQueue {
 
 	private LinkedList<Pattern> patterns;
 	private List<Pattern> toRemove = new ArrayList<Pattern>();
-	private PatternsWidget patternsWidget;
 
 	public PatternsQueue() {
 		patterns = new LinkedList<Pattern>();
 	}
 
 	public void add(Pattern newPattern) {
-		Iterator<Pattern> iterator = patterns.iterator();
 		boolean inserted = false;
 
-		while (iterator.hasNext()) {
-			Pattern p = iterator.next();
-			Log.d(C.TAG, p.getId() + "|"+newPattern.getId()+ " Pokrycie = " + p.compareTo(newPattern));
+		for (Pattern p: patterns) {
+//			Log.d(C.TAG, p.getId() + "|"+newPattern.getId()+ " Pokrycie = " + p.compareTo(newPattern));
 			if (p.compareTo(newPattern) > C.minPatternCoverage) {
-				Log.d(C.TAG, "\t" + p.getId() + " count = " + p.getCount());
+				p.merge(newPattern);
+//				Log.d(C.TAG, "\t" + p.getId() + " count = " + p.getCount());
 				inserted = true;
 				if (p.incrementCount() == C.minPatternCount) {
 					accept(p);
-					Log.d(C.TAG, "\t\t" + newPattern.getId() + " -> " + p.getId());
+//					Log.d(C.TAG, "\t\t" + newPattern.getId() + " -> " + p.getId());
 				}
 			}
 			if (!p.check()) {
@@ -58,7 +56,6 @@ public class PatternsQueue {
 	}
 
 	private void accept(Pattern pattern) {
-		//toRemove.add(pattern);
 		patternAcceptedListener.onPatternAccepted(pattern);
 	}
 }

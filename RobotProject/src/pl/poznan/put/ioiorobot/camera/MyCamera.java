@@ -25,6 +25,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
 import pl.poznan.put.ioiorobot.R;
+import pl.poznan.put.ioiorobot.mapobjects.Pattern;
 import pl.poznan.put.ioiorobot.utils.C;
 import android.app.Activity;
 import android.content.Context;
@@ -202,15 +203,14 @@ public class MyCamera implements CvCameraViewListener2 {
 	 */
 
 	/**
-	 * Główna funkcja prztwarzająca obraz
-	 * TODO nazwa
+	 * Główna funkcja prztwarzająca obraz TODO nazwa
+	 * 
 	 * @param inputFrame
 	 * @return
 	 */
 	private Mat findRegularShapes(CvCameraViewFrame inputFrame) {
 		Mat imgRgba = inputFrame.rgba();
 		Mat imgGray = inputFrame.gray();
-		
 
 		Mat mask = new Mat();
 		imgRgba.copyTo(mask);
@@ -224,30 +224,30 @@ public class MyCamera implements CvCameraViewListener2 {
 		// /* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
 		Mat grayFiltered = new Mat();
 		Imgproc.cvtColor(image, grayFiltered, Imgproc.COLOR_RGB2GRAY);
-		// imgGray.copyTo(grayCopy);
+		 imgGray.copyTo(grayFiltered);
 
 		int blockSize = 9;
 		int mC = 7;
-		Imgproc.adaptiveThreshold(grayFiltered, grayFiltered, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV,
-				blockSize, mC);
-		
+		Imgproc.adaptiveThreshold(grayFiltered, grayFiltered, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
+				Imgproc.THRESH_BINARY_INV, blockSize, mC);
+
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(grayFiltered, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-		
+
 		for (MatOfPoint cnt : contours) {
 			Mat rgb = new Mat();
 			Mat gray = new Mat();
-			
+			//TODO przetwarzanie dla zółtych obszarów
 		}
-		
+
 		processMats(imgRgba, imgGray, grayFiltered);
 		return imgRgba;
 	}
 
-	
 	/**
 	 * 
 	 * TODO nazwa
+	 * 
 	 * @param imgRgba
 	 * @param imgGray
 	 * @param grayFiltered
@@ -284,7 +284,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
-				Pattern pattern = new Pattern(fragment);
+				Pattern pattern = new Pattern(fragment, calculateAngle(imgRgba, cnt)); //TODO fragment zamiast cnt?
 				// DAO.writeToExternal(pattern.toString(), "array7." + slotNr);
 				if (patternFoundListener != null) {
 					patternFoundListener.onPatternFound(pattern);
@@ -294,6 +294,14 @@ public class MyCamera implements CvCameraViewListener2 {
 				break;
 			}
 		}
+	}
+
+	private double calculateAngle(Mat image, MatOfPoint cnt) {
+		Rect r = Imgproc.boundingRect(cnt);
+		int center = r.x + r.width / 2;
+		double result = center / image.width() * C.cameraViewAngle - C.cameraViewAngle / 2;
+		return result;
+
 	}
 
 	/**
@@ -572,6 +580,13 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	}
 
+	/**
+	 * @param baseImage
+	 * @param resultImage
+	 *            //TODO usunąc
+	 * @param cnt
+	 * @return
+	 */
 	private Mat cutContour(Mat baseImage, Mat resultImage, MatOfPoint cnt) {
 		Rect rect = Imgproc.boundingRect(cnt);
 		CameraUtils.drawBounds(resultImage, cnt, new Scalar(255, 0, 0), 1);
