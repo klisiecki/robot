@@ -17,6 +17,9 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.util.Log;
 
+/**
+ *	Wzorzec (marker) wraz z dodatkowymi informacjami o jego położeniu itp.
+ */
 public class Pattern {
 	private static int nextId = 0;
 

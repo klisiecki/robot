@@ -21,14 +21,19 @@ import ioio.lib.api.exception.ConnectionLostException;
 import android.text.format.Time;
 import android.util.Log;
 
+/**
+ * Klasa komunikująca się z Arduino, służy do przechowywania aktualnej pozycji
+ * robnota i informowania o jej zmianach
+ *
+ */
 public class EncodersData {
 
 	public interface PositionChangedListener {
 		public void onPositionChanged(Position position);
 	}
-	
+
 	private PositionChangedListener listener;
-	
+
 	public void setPositionChangedListener(PositionChangedListener listener) {
 		this.listener = listener;
 	}
@@ -146,7 +151,7 @@ public class EncodersData {
 		}
 
 	}
-	
+
 	private float StrToFloat(String s) {
 		try {
 			float i = Float.parseFloat(s);
