@@ -125,7 +125,7 @@ public class EncodersData {
 
 				String[] parts = line.split(" +");
 
-				position.set(StrToDouble(parts[0]), StrToDouble(parts[1]), StrToDouble(parts[2]));
+				position.set(StrToFloat(parts[0]), StrToFloat(parts[1]), StrToFloat(parts[2]));
 				if (listener != null) {
 					listener.onPositionChanged(position);
 				}
@@ -146,6 +146,15 @@ public class EncodersData {
 		}
 
 	}
+	
+	private float StrToFloat(String s) {
+		try {
+			float i = Float.parseFloat(s);
+			return i;
+		} catch (NumberFormatException e) {
+			return 0.0f;
+		}
+	}
 
 	private double StrToDouble(String s) {
 		try {
@@ -154,6 +163,5 @@ public class EncodersData {
 		} catch (NumberFormatException e) {
 			return 0.0;
 		}
-
 	}
 }

@@ -5,6 +5,9 @@ import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
 import android.util.Log;
 
+/**
+ * Implementacja czujnika odległości Sharp 2Y0A21
+ */
 public class SharpDistanceSensor extends AbstractDistanceSensor {
 	private AnalogInput input;
 	

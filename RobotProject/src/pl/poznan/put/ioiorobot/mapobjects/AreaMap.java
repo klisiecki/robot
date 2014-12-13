@@ -12,6 +12,9 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.Log;
 
+/**
+ * Klasa reprezentująca mapę przestrzeni tworzoną przez robota
+ */
 public class AreaMap {
 	private List<Pattern> patterns = new ArrayList<Pattern>();
 	private List<Obstacle> obstacles = new ArrayList<Obstacle>();
@@ -25,7 +28,7 @@ public class AreaMap {
 	private Paint obstaclePaint;
 	private Paint robotPaint;
 
-	private double scale = 10;
+	private float scale = 1;
 	private int width = 500;
 	private int height = 500;
 
@@ -63,36 +66,35 @@ public class AreaMap {
 
 			canvasX.drawCircle(x, y, 6, paint);
 		}
-		// Log.d(C.TAG, "point: " + p);
 	}
 
 	public Bitmap drawMap() {
 		Log.d(C.TAG, "drawMap");
 		bmp.eraseColor(Color.WHITE);
 		// canvasX.drawRect(0, 0, width, height, patternPaint);
+		
+		//rysowanie markerów
 		for (Pattern p : patterns) {
 			addPoint(p.getPoint(), patternPaint);
 		}
 
+		//rysowanie przeszkód
 		for (Obstacle o : obstacles) {
 			addPoint(o, obstaclePaint);
 		}
 
-		Log.d(C.TAG, "\t\t\t\t\t\t\trobot position: " + robotPosition.getPoint());
+		//rysowanie robota
 		canvasX.save();
-		
 		int x = (int) (-robotPosition.x() / scale + width / 2);
 		int y = (int) (-robotPosition.y() / scale + height / 2);
-		canvasX.rotate((float) (-180.0*robotPosition.angle()/Math.PI), (float) x, (float) y);
+		canvasX.rotate((float) (-180.0 * robotPosition.angle() / Math.PI), x, y);
 
+		canvasX.drawRect(x - C.robotWidth / 2 / scale, y - C.robotWidth / scale, x + C.robotWidth / 2 / scale, y,
+				robotPaint);
 		
-		
-		canvasX.drawRect((float) (x - C.robotWidth / 2 / scale),
-				(float) (y - C.robotWidth / scale), (float) (x + C.robotWidth / 2
-						/ scale), (float) (y), robotPaint);
-		canvasX.drawCircle(x, y, 6, patternPaint);
+		canvasX.drawCircle(x, y, C.robotWidth / 8 / scale, patternPaint);
 		canvasX.restore();
-		
+
 		return bmp;
 	}
 

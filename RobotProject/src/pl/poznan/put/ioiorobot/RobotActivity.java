@@ -50,6 +50,10 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+/**
+ * Główna klasa aplikacji. Zawiera wszystkie widoki oraz główną pętlę programu.
+ *
+ */
 public class RobotActivity extends IOIOActivity {
 
 	// Views
@@ -84,7 +88,7 @@ public class RobotActivity extends IOIOActivity {
 
 			try {
 				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3);
-//				distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
+				// distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
 				distanceSensor = new SharpDistanceSensor(ioio_, 13, 33);
 				batteryStatus = new BatteryStatus(ioio_, 46);
 				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
@@ -104,7 +108,7 @@ public class RobotActivity extends IOIOActivity {
 					areaMapWidget.invalidate();
 				}
 			});
-			
+
 			Thread.sleep(C.loopSleep);
 		}
 
@@ -201,9 +205,7 @@ public class RobotActivity extends IOIOActivity {
 					// motorsController.setSpeed(0);
 					// motorsController.setDirection(0);
 					camera.setMode(MyCamera.Mode.PROCESSING);
-					// joystick.setVisibility(View.GONE);
 				} else {
-					// joystick.setVisibility(View.VISIBLE);
 					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
 				}
 			}
@@ -275,7 +277,7 @@ public class RobotActivity extends IOIOActivity {
 					public void run() {
 						barGraph.setValues(results);
 						Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
-						if(last.distance < C.maxObstacleDistance ) {
+						if (last.distance < C.maxObstacleDistance) {
 							areaMap.addObstacle(new Obstacle(robotPosition, last));
 
 						}

@@ -87,7 +87,6 @@ public class DAO {
 			Log.e(C.TAG, "SAVED");
 		} catch (Exception e) {
 			Log.e(C.TAG, e.getMessage());
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 	}

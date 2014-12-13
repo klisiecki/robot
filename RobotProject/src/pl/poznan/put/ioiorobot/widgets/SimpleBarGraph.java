@@ -19,7 +19,6 @@ public class SimpleBarGraph extends View {
 	private Paint backgroundPaint;
 	private Paint barPaint;
 
-//	int graphWidth;
 	int maxValue = 1500;
 
 	private List<Integer> values = new ArrayList<Integer>();
@@ -87,7 +86,6 @@ public class SimpleBarGraph extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		//Log.e("robot","onDraw");
 		List<Integer> valuesCopy = values;
 		int barsNumber = valuesCopy.size();
 

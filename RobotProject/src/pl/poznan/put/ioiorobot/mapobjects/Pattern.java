@@ -26,7 +26,7 @@ public class Pattern {
 	private Bitmap bitmap;
 	private int count = 1;
 	private int ttl = C.patternTTL;
-	private double cameraAngle;
+	private float cameraAngle;
 	private Point position;
 	private List<Position> viewPositions = new ArrayList<Position>();
 
@@ -133,7 +133,7 @@ public class Pattern {
 		return count;
 	}
 
-	public Pattern(Mat mat, double cameraAngle) {
+	public Pattern(Mat mat, float cameraAngle) {
 		this(mat);
 		this.cameraAngle = cameraAngle;
 	}

@@ -5,6 +5,9 @@ import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
 import pl.poznan.put.ioiorobot.utils.C;
 
+/**
+ * Klasa obsługująca stan naładowania baterii
+ */
 public class BatteryStatus implements IBatteryStatus {
 	private final static double MIN = 5.5;
 	private final static double MAX = 6.2;

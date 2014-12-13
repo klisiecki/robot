@@ -13,6 +13,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+/**
+ *	Wskaźnik naładowania baterii
+ */
 public class BatteryStatusBar extends View {
 
 	private int width;

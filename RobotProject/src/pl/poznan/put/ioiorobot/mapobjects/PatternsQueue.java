@@ -9,6 +9,10 @@ import pl.poznan.put.ioiorobot.utils.C;
 import pl.poznan.put.ioiorobot.widgets.PatternsWidget;
 import android.util.Log;
 
+/**
+ * "Kolejka" wzorców, służy do odfiltrowania przypadkowo wykrytych wzorców nie
+ * będących markerami
+ */
 public class PatternsQueue {
 
 	public interface PatternAcceptedListener {
@@ -31,15 +35,17 @@ public class PatternsQueue {
 	public void add(Pattern newPattern) {
 		boolean inserted = false;
 
-		for (Pattern p: patterns) {
-//			Log.d(C.TAG, p.getId() + "|"+newPattern.getId()+ " Pokrycie = " + p.compareTo(newPattern));
+		for (Pattern p : patterns) {
+			// Log.d(C.TAG, p.getId() + "|"+newPattern.getId()+ " Pokrycie = " +
+			// p.compareTo(newPattern));
 			if (p.compareTo(newPattern) > C.minPatternCoverage) {
 				p.merge(newPattern);
-//				Log.d(C.TAG, "\t" + p.getId() + " count = " + p.getCount());
+				// Log.d(C.TAG, "\t" + p.getId() + " count = " + p.getCount());
 				inserted = true;
 				if (p.incrementCount() == C.minPatternCount) {
 					accept(p);
-//					Log.d(C.TAG, "\t\t" + newPattern.getId() + " -> " + p.getId());
+					// Log.d(C.TAG, "\t\t" + newPattern.getId() + " -> " +
+					// p.getId());
 				}
 			}
 			if (!p.check()) {

@@ -22,16 +22,16 @@ public class C {
 
 	public static final int maxSpeed = 100;
 
-	public static final double wheelsDistance = 205.0;
-	public static final double wheelDiameter = 60.0;
-	public static final double gearRatio = 27.0;
-	public static final double encoderResolution = 128.0;
+	public static final float wheelsDistance = 205.0f;
+	public static final float wheelDiameter = 60.0f;
+	public static final float gearRatio = 27.0f;
+	public static final float encoderResolution = 128.0f;
 	
-	public static final double sensorDistance = 150.0;
-	public static final double cameraDistance = 50.0;
+	public static final float sensorDistance = 150.0f;
+	public static final float cameraDistance = 50.0f;
 	
-	public static final double robotLenght = 200.0;
-	public static final double robotWidth = 200.0;
+	public static final float robotLenght = 200.0f;
+	public static final float robotWidth = 200.0f;
 	
 	public static final int loopSleep = 100;
 	public static final int batterySleep = 1000;

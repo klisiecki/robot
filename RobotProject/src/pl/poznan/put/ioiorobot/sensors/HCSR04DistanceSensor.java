@@ -8,6 +8,9 @@ import ioio.lib.api.exception.ConnectionLostException;
 import pl.poznan.put.ioiorobot.utils.C;
 import android.util.Log;
 
+/**
+ * Implementacja czujnika odległości HCSR04
+ */
 public class HCSR04DistanceSensor extends AbstractDistanceSensor {
 	private DigitalOutput trigger;
 	private PulseInput echo;
@@ -17,7 +20,6 @@ public class HCSR04DistanceSensor extends AbstractDistanceSensor {
 		trigger = ioio_.openDigitalOutput(triggerPin, false);
 		echo = ioio_.openPulseInput(echoPin, PulseMode.POSITIVE);
 
-		Log.d(C.TAG, "hcsr");
 		Thread t = new Thread(this);
 		t.start();
 	}

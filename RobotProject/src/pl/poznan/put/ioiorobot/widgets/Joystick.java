@@ -8,6 +8,9 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+/**
+ *	Komponent umożliwiający ręczne sterowanie robotem
+ */
 public class Joystick extends View {
 
 	private int width;

@@ -10,6 +10,9 @@ import java.util.List;
 import pl.poznan.put.ioiorobot.utils.C;
 import android.util.Log;
 
+/**
+ * Bazowa klasa sensora odległości, zawiera obsługę serwa obracającego faktyczny czujnik
+ */
 public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnable {
 
 	protected PwmOutput servo;

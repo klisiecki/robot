@@ -1,8 +1,5 @@
 package pl.poznan.put.ioiorobot.widgets;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import pl.poznan.put.ioiorobot.mapobjects.AreaMap;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -18,10 +15,10 @@ public class AreaMapWidget extends View {
 	private int height;
 
 	private AreaMap areaMap;
-	
+
 	private Paint trackPaint;
-	
-	//private static Timer timerX;
+
+	// private static Timer timerX;
 
 	public void setAreaMap(AreaMap areaMap) {
 		this.areaMap = areaMap;
@@ -49,18 +46,6 @@ public class AreaMapWidget extends View {
 		trackPaint.setColor(Color.rgb(0x00, 0x99, 0x00));
 		trackPaint.setStrokeWidth(1);
 		trackPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-		
-		
-//		if (null != timerX) {
-//			timerX.cancel();
-//			timerX.purge();
-//			timerX = null;
-//		}
-//
-//		timerX = new Timer();
-//
-//		timerX.scheduleAtFixedRate(new Update(), 0, 500);
-		
 	}
 
 	@Override
@@ -93,7 +78,7 @@ public class AreaMapWidget extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// canvas.drawRect(0, 0, width, height, backgroundPaint);
-		 canvas.drawBitmap(areaMap.drawMap(), 0, 0, trackPaint);
+		canvas.drawBitmap(areaMap.drawMap(), 0, 0, trackPaint);
 
 		canvas.save();
 	}
@@ -103,12 +88,5 @@ public class AreaMapWidget extends View {
 		invalidate();
 		return super.onTouchEvent(event);
 	}
-	
-	
-//	private class Update extends TimerTask {
-//		public void run() {
-//			AreaMapWidget.this.invalidate();
-//		}
-//	}
 
 }

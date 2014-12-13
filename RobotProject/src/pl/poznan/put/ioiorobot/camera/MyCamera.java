@@ -32,17 +32,9 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.SeekBar;
 
+
 /**
- * @author karol
- *
- */
-/**
- * @author karol
- *
- */
-/**
- * @author karol
- *
+ * Główna klasa przetwarzająca obraz
  */
 public class MyCamera implements CvCameraViewListener2 {
 
@@ -296,10 +288,10 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 	}
 
-	private double calculateAngle(Mat image, MatOfPoint cnt) {
+	private float calculateAngle(Mat image, MatOfPoint cnt) {
 		Rect r = Imgproc.boundingRect(cnt);
 		int center = r.x + r.width / 2;
-		double result = center / image.width() * C.cameraViewAngle - C.cameraViewAngle / 2;
+		float result = (float) (center / image.width() * C.cameraViewAngle - C.cameraViewAngle / 2);
 		return result;
 
 	}

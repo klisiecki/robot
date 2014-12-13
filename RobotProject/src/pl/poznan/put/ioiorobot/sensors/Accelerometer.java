@@ -114,8 +114,6 @@ public class Accelerometer implements IAccelerometer {
 
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			// TODO Auto-generated method stub
-
 		}
 
 	}

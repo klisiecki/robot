@@ -5,6 +5,9 @@ import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
 import pl.poznan.put.ioiorobot.utils.C;
 import android.graphics.Point;
 
+/**
+ *	Przeszkoda na mapie
+ */
 public class Obstacle extends Point {
 
 		public Obstacle(Position robotPosition, IDistanceSensor.Pair sensor){

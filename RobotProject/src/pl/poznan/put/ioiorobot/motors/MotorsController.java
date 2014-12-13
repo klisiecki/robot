@@ -12,13 +12,16 @@ import ioio.lib.api.exception.ConnectionLostException;
 import android.text.format.Time;
 import android.util.Log;
 
+/**
+ *	Klasa obsługjąca sterowanie silnikami
+ */
 public class MotorsController implements IMotorsController {
 	private static final int FREQUENCY = 100;
 
 	private int direction;
 	private int speed;
 
-	private int regulacja = 0;
+	private int regulation = 0;
 
 	private boolean enabled = true;
 
@@ -86,7 +89,7 @@ public class MotorsController implements IMotorsController {
 	}
 
 	public int getRegulacja() {
-		return regulacja;
+		return regulation;
 	}
 
 	class MotorThread extends Thread {
@@ -153,43 +156,34 @@ public class MotorsController implements IMotorsController {
 	}
 
 	private class PID extends TimerTask {
-		private int calka = 0;
-		private int popBlad = 0;
+		private int integral = 0;
+		private int popError = 0;
 		private int iteration = 0;
 
-		private int dlugoscRegulacjiPd = 10;
-		private int granicaCalki = 100;
+		private int pdRegulationLenght = 10;
+		private int integralBound = 100;
 
 		private int Kp = 5;
 		private int Ki = 0;
 		private int Kd = 5;
 
 		public void run() {
-			// Log.d(C.TAG, "PID begin");
-
 			int error = direction;
 
-			calka += error;
-			calka = Math.min(Math.max(calka, -granicaCalki), granicaCalki);
-			// if (calka > granicaCalki) {
-			// calka = granicaCalki;
-			// } else if (calka < -granicaCalki) {
-			// calka = -granicaCalki;
-			// }
+			integral += error;
+			integral = Math.min(Math.max(integral, -integralBound), integralBound);
 
-			int rozniczka = error - popBlad;
+			int differential = error - popError;
 
-			if (iteration == dlugoscRegulacjiPd) {
-				popBlad = error;
+			if (iteration == pdRegulationLenght) {
+				popError = error;
 				iteration = 0;
 			} else {
 				iteration++;
 			}
 
 			/* Obliczenie właściwej wartości regulacji. */
-			regulacja = Math.round((Kp * error + Kd * rozniczka + Ki * calka) / (Kp + Kd + Ki));
-
-			// Log.d(C.TAG, "Regulacja = " + regulacja);
+			regulation = Math.round((Kp * error + Kd * differential + Ki * integral) / (Kp + Kd + Ki));
 		}
 	}
 }

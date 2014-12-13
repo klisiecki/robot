@@ -6,6 +6,9 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 
+/**
+ *	View widoku kamery
+ */
 public class MyJavaCameraView extends JavaCameraView {
 	
 	public Camera getCamera() {
@@ -14,7 +17,6 @@ public class MyJavaCameraView extends JavaCameraView {
 
 	public MyJavaCameraView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		// TODO Auto-generated constructor stub
 	}
 
 }
