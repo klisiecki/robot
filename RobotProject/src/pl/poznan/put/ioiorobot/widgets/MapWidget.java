@@ -12,8 +12,8 @@ import android.view.View;
 
 public class MapWidget extends View {
 
-	private int width;
-	private int height;
+	private int width=100;
+	private int height=100;
 
 	// private int bmpSize = 500;
 	private int scale = 3;
@@ -112,7 +112,7 @@ public class MapWidget extends View {
 
 		int x = (int) (position.x() / scale + width / 2);
 		int y = (int) (position.y() / scale + height / 2);
-		int angle = (int) (position.angle());
+		//int angle = (int) (position.angle());
 		canvas.drawCircle(x, y, 5, headPaint);
 
 		canvas.save();

@@ -135,10 +135,10 @@ public class EncodersData {
 					listener.onPositionChanged(position);
 				}
 			} else {
-				// Log.d(C.TAG, "\t\t\t\t\tNO MATCH");
+				 //Log.d(C.TAG, "\t\t\t\t\tNO MATCH");
 			}
 		} else {
-			// Log.d(C.TAG, "\t\t\tUART DATA PROBLEM");
+			 //Log.d(C.TAG, "\t\t\tUART DATA PROBLEM");
 		}
 	}
 

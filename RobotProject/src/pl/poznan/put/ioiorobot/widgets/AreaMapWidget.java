@@ -54,7 +54,9 @@ public class AreaMapWidget extends View {
 		height = measureSize(heightMeasureSpec, desiredHeight);
 		width = height = Math.min(width, height);
 		
-		areaMap.setSize(width, height);
+		if(areaMap != null) {
+			areaMap.setSize(width, height);
+		}
 
 		setMeasuredDimension(width, height);
 	}

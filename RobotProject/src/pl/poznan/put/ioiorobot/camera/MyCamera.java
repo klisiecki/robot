@@ -282,7 +282,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
-				Pattern pattern = new Pattern(fragment, calculateAngle(imgRgba, cnt)); //TODO fragment zamiast cnt?
+				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRgba, cnt)); //TODO fragment zamiast cnt?
 				// DAO.writeToExternal(pattern.toString(), "array7." + slotNr);
 				if (patternFoundListener != null) {
 					patternFoundListener.onPatternFound(pattern);
@@ -294,7 +294,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 	}
 
-	private float calculateAngle(Mat image, MatOfPoint cnt) {
+	private float calculateCameraAngle(Mat image, MatOfPoint cnt) {
 		Rect r = Imgproc.boundingRect(cnt);
 		int center = r.x + r.width / 2;
 		float result = (float) (center / image.width() * C.cameraViewAngle - C.cameraViewAngle / 2);

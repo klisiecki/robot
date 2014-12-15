@@ -13,7 +13,7 @@ public class Obstacle extends Point {
 		public Obstacle(Position robotPosition, IDistanceSensor.Pair sensor){
 			super();
 			
-			double angle = robotPosition.angle() + sensor.angle/180.0 * Math.PI;
+			double angle = robotPosition.angle() - sensor.angle/180.0 * Math.PI;
 			if (angle > Math.PI) {
 				angle -= 2 * Math.PI;
 			} else if (angle < -Math.PI) {

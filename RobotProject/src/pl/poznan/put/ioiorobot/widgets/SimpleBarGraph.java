@@ -3,6 +3,8 @@ package pl.poznan.put.ioiorobot.widgets;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.poznan.put.ioiorobot.utils.C;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -92,12 +94,13 @@ public class SimpleBarGraph extends View {
 		canvas.drawRect(0, 0, width, height, backgroundPaint);
 
 		for (int i = 0; i < barsNumber; i++) {
-			int value = valuesCopy.get(i);
+			int value = valuesCopy.get(barsNumber - i - 1);
 			int scaledValue = value > maxValue ? maxValue : value;
 
-			int left = width - width * i / barsNumber + 5;
+			int left = width * i / barsNumber + 5;
+
 			int top = height - (int) (height * ((float) scaledValue / maxValue));
-			int right = width - width * (i + 1) / barsNumber;
+			int right = width * (i + 1) / barsNumber;
 			int bottom = height;
 			canvas.drawRect(left, top, right, bottom, barPaint);
 		}

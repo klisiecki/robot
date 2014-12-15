@@ -103,6 +103,10 @@ public class MotorsController implements IMotorsController {
 			while (true) {
 
 				try {
+					float left = ((float) Math.abs(speed) + (float) direction * speed / 100f) / 200f;
+					float right = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
+					
+					
 					if (speed > 5) {
 						l1.write(true);
 						l2.write(false);
@@ -113,6 +117,9 @@ public class MotorsController implements IMotorsController {
 						l2.write(true);
 						r1.write(false);
 						r2.write(true);
+						float tmp = left;
+						left = right;
+						right = tmp;
 					} else {
 						l1.write(false);
 						l2.write(false);
@@ -124,8 +131,7 @@ public class MotorsController implements IMotorsController {
 					// float right = Math.min( ((float) Math.abs(speed) -
 					// direction)/100f, 1f);
 
-					float left = ((float) Math.abs(speed) + (float) direction * speed / 100f) / 200f;
-					float right = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
+
 					if (!enabled) {
 						left = right = 0;
 					}

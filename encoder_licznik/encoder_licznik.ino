@@ -1,6 +1,11 @@
 // http://majsterkowo.pl/forum/przerwania-dlaczego-jest-to-proste-t984.html
 
 int requestPin = 4;
+int left1Pin = 12;
+int left2Pin = 13;
+int right1Pin = 10;
+int right2Pin = 11;
+
 volatile unsigned long counterL = 0;
 volatile unsigned long counterR = 0;
 unsigned long counterLbuff = 0;
@@ -22,6 +27,12 @@ double encoderResolution = 128.0;
 void setup()
 {
   pinMode(requestPin, INPUT);                   
+  
+  pinMode(left1Pin, INPUT);
+  pinMode(left2Pin, INPUT);
+  pinMode(right1Pin, INPUT);
+  pinMode(right2Pin, INPUT);
+  
   attachInterrupt(0, blinkR, RISING);      // przerwanie int.0  - pin 2
   attachInterrupt(1, blinkL, RISING);      // przerwanie int.1  - pin 3
                                           
@@ -83,12 +94,20 @@ void serialEvent() {
 
 void blinkL()                                            
 {
-  counterL++;
+  if(digitalRead(left1Pin) == HIGH && digitalRead(left2Pin) == LOW) {
+    counterL--;
+  } else { // if(digitalRead(left1Pin) == HIGH && digitalRead(left2Pin) == LOW) {
+    counterL++;
+  }
 }
 
 void blinkR()                                            
 {
-  counterR++;
+  if(digitalRead(right1Pin) == HIGH && digitalRead(right2Pin) == LOW) {
+    counterR--;
+  } else { //if(digitalRead(right1Pin) == HIGH && digitalRead(right2Pin) == LOW) {
+    counterR++;
+  }
 }
 
 

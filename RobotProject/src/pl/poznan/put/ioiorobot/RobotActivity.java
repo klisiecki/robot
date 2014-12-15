@@ -292,7 +292,7 @@ public class RobotActivity extends IOIOActivity {
 					@Override
 					public void run() {
 						barGraph.setValues(results);
-						Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
+						//Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
 						if (last.distance < C.maxObstacleDistance) {
 							areaMap.addObstacle(new Obstacle(robotPosition, last));
 

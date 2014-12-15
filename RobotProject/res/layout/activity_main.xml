@@ -32,38 +32,59 @@
             android:gravity="center"
             android:orientation="vertical" >
 
+            <!--
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/camera"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
+            -->
 
             <ToggleButton
                 android:id="@+id/cameraToggleButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical|center_horizontal|top"
-                android:minHeight="28dip" />
+                android:minHeight="35dip"
+                android:textOff="@string/camera"
+                android:textOn="@string/camera" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:background="@color/black_overlay" />
-
+            <!--
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/sensor"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
+            -->
 
             <ToggleButton
                 android:id="@+id/sensorToggleButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical|center_horizontal|top"
-                android:minHeight="28dip" />
+                android:minHeight="35dip"
+                android:textOff="@string/sensor"
+                android:textOn="@string/sensor" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/black_overlay" />
+
+            <ToggleButton
+                android:id="@+id/startToggleButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|center_horizontal|top"
+                android:minHeight="70dip"
+                android:textOff="START"
+                android:textOn="STOP" />
 
             <View
                 android:layout_width="match_parent"
@@ -82,7 +103,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
-            android:layout_toLeftOf="@+id/startToggleButton"
+            android:layout_toLeftOf="@+id/areaMapWidget"
             android:layout_toRightOf="@+id/linear1"
             android:gravity="center"
             android:orientation="vertical" >
@@ -107,44 +128,32 @@
                 android:layout_height="wrap_content"
                 android:max="200"
                 android:progress="1" />
-        </LinearLayout>
 
-        <ToggleButton
-            android:id="@+id/startToggleButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/distanceBarGraph"
-            android:layout_toLeftOf="@+id/areaMapWidget"
-            android:gravity="center_vertical|center_horizontal|top"
-            android:minHeight="100dip"
-            android:textOff="START"
-            android:textOn="STOP" />
+            <pl.poznan.put.ioiorobot.widgets.MapWidget
+                android:id="@+id/mapWidget"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
         <pl.poznan.put.ioiorobot.widgets.AreaMapWidget
             android:id="@+id/areaMapWidget"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/distanceBarGraph"
-            android:layout_toLeftOf="@+id/mapWidget" />
-
-        <pl.poznan.put.ioiorobot.widgets.MapWidget
-            android:id="@+id/mapWidget"
-            android:layout_width="30dp"
+            android:layout_width="255dp"
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
             android:layout_toLeftOf="@+id/joystick" />
 
         <pl.poznan.put.ioiorobot.widgets.Joystick
             android:id="@+id/joystick"
-            android:layout_width="200dp"
+            android:layout_width="140dp"
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="42dp" />
 
         <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
             android:id="@+id/distanceBarGraph"
             android:layout_width="fill_parent"
-            android:layout_height="100dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true" />
 
         <pl.poznan.put.ioiorobot.widgets.PatternsWidget
