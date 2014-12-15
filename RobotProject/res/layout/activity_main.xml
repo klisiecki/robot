@@ -129,7 +129,7 @@
 
         <pl.poznan.put.ioiorobot.widgets.MapWidget
             android:id="@+id/mapWidget"
-            android:layout_width="20dp"
+            android:layout_width="30dp"
             android:layout_height="wrap_content"
             android:layout_above="@+id/distanceBarGraph"
             android:layout_toLeftOf="@+id/joystick" />

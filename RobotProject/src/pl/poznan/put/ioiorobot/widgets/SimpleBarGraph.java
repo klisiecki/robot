@@ -95,9 +95,9 @@ public class SimpleBarGraph extends View {
 			int value = valuesCopy.get(i);
 			int scaledValue = value > maxValue ? maxValue : value;
 
-			int left = width * i / barsNumber + 5;
+			int left = width - width * i / barsNumber + 5;
 			int top = height - (int) (height * ((float) scaledValue / maxValue));
-			int right = width * (i + 1) / barsNumber;
+			int right = width - width * (i + 1) / barsNumber;
 			int bottom = height;
 			canvas.drawRect(left, top, right, bottom, barPaint);
 		}

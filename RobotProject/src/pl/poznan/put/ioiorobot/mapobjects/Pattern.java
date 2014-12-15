@@ -64,33 +64,41 @@ public class Pattern {
 	 * @return
 	 */
 	public Point intersection(final Point o1, final Point p1, final Point o2, final Point p2) {
-		Log.d(C.TAG, "intersection");
+		//Log.d(C.TAG, "intersection");
 		Point x = new Point(o2.x - o1.x, o2.y - o1.y);
 		Point d1 = new Point(p1.x - o1.x, p1.y - o1.y); //wektory
-		Point d2 = new Point(p2.x - o2.x, p2.y - o2.y);
+		Point d2 = new Point(p2.x - o2.x, p2.y - o2.y); //wektory
 		
-		Log.d(C.TAG, "d1 = "+d1 + ", d2 = "+d2);
+		//Log.d(C.TAG, "d1 = "+d1 + ", d2 = "+d2);
 
 		int cross = d1.x * d2.y - d1.y * d2.x;
-		Log.d(C.TAG, "cross = "+cross);
+		//Log.d(C.TAG, "cross = "+cross);
 		if (cross == 0) {
 			return null;
 		}
-		double t1 = (x.x * d2.y - x.y * d2.x) / cross;
+		double t1 = (x.x * d2.y - x.y * d2.x) / (double)cross;
 		Point r = new Point(o1.x + (int) (d1.x * t1), o1.y + (int) (d1.y * t1));
+		
+		//TODO Dodać sprawdzenie, czy półproste na pewno się pokrywają (a nie ich przedłużenia z tyłu)
+		
 		return r;
 
 	}
 
 	private void recalculatePosition() {
 		if (viewPositions.size() >= 2) {
+			
+			//TODO Znajdowanie punkt przeciecia wielu punktów, a nie tylko pierwszego i ostatniego
+			
 			Point o1 = viewPositions.get(0).getPoint();
 			Point p1 = viewPositions.get(0).getVectorPoint();
 			Point o2 = viewPositions.get(viewPositions.size()-1).getPoint();
 			Point p2 = viewPositions.get(viewPositions.size()-1).getVectorPoint();
 
 			Point p = intersection(o1, p1, o2, p2);
-
+			
+			//Log.d(C.TAG, "PRZECIĘCIE: " + o1 + " " + p1 + "     " + o2 + " " + p2 + "               " + p);
+			
 			if (p != null) {
 				position = p;
 			} else {

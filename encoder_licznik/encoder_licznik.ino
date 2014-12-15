@@ -96,7 +96,7 @@ void calculate(long left, long right) {
   double leftMM = (left / (encoderResolution * gearRatio)) * PI * wheelDiameter;
   double rightMM = (right / (encoderResolution * gearRatio)) * PI * wheelDiameter;
   
-  double angle = (rightMM - leftMM) / wheelsDistance;
+  double angle = (leftMM - rightMM) / wheelsDistance;
   double distance = (rightMM + leftMM) / 2;
   double x = distance * sin(positionAngle + angle);
   double y = distance * cos(positionAngle + angle);

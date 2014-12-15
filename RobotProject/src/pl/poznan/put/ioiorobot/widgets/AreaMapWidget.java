@@ -18,8 +18,6 @@ public class AreaMapWidget extends View {
 
 	private Paint trackPaint;
 
-	// private static Timer timerX;
-
 	public void setAreaMap(AreaMap areaMap) {
 		this.areaMap = areaMap;
 	}
@@ -55,6 +53,8 @@ public class AreaMapWidget extends View {
 		width = measureSize(widthMeasureSpec, desiredWidth);
 		height = measureSize(heightMeasureSpec, desiredHeight);
 		width = height = Math.min(width, height);
+		
+		areaMap.setSize(width, height);
 
 		setMeasuredDimension(width, height);
 	}
@@ -78,7 +78,9 @@ public class AreaMapWidget extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// canvas.drawRect(0, 0, width, height, backgroundPaint);
-		canvas.drawBitmap(areaMap.drawMap(), 0, 0, trackPaint);
+		if(areaMap != null){
+			canvas.drawBitmap(areaMap.drawMap(), 0, 0, trackPaint);
+		}
 
 		canvas.save();
 	}

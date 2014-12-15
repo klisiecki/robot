@@ -123,7 +123,7 @@ public class EncodersData {
 			String pattern = "^> *-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+<$";
 
 			if (line.matches(pattern)) {
-				// Log.d(C.TAG, "\t\t\tUART RECEIVED OK: " + line);
+				//Log.d(C.TAG, "\t\t\tUART RECEIVED OK: " + line);
 
 				line = line.substring(1, line.length() - 1);
 				line = line.trim();

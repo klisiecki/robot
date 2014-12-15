@@ -1,6 +1,8 @@
 package pl.poznan.put.ioiorobot.motors;
 
+import pl.poznan.put.ioiorobot.utils.C;
 import android.graphics.Point;
+import android.util.Log;
 
 /**
  * Klasa przechowująca pozycję robota w układzie współrzędnych wraz z aktualnym
@@ -28,7 +30,8 @@ public class Position {
 	}
 
 	public Point getVectorPoint() {
-		return new Point((int) (Math.cos(angle) * 100 + x), (int) (Math.sin(angle) * 100 + y));
+		Log.d(C.TAG, "\t\t\t angle == " + angle + "   x == " + Math.sin(angle)*100 + "    y == " + Math.cos(angle)*100);
+		return new Point((int) (Math.sin(angle) * 100 + x), (int) (Math.cos(angle) * 100 + y));
 	}
 
 	public void addAngle(float angle) {

@@ -94,7 +94,7 @@ public class MapWidget extends View {
 
 	public void addPosition(Position pos) {
 		float yParam = -pos.y() + 200;
-		float xParam = -pos.x();
+		float xParam = pos.x();
 
 		position.set(xParam, yParam, pos.angle());
 

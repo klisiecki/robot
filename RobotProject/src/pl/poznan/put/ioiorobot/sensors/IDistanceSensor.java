@@ -3,7 +3,7 @@ package pl.poznan.put.ioiorobot.sensors;
 import java.util.List;
 
 public interface IDistanceSensor {
-	static final int SERVO_MIN = 600; // 600
+	static final int SERVO_MIN = 800; // 600
 	static final int SERVO_MAX = 2300; // 2300
 
 	static final int ANGLE_MIN = -80;

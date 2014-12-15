@@ -43,10 +43,10 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	public enum Mode {
-		PROCESSING, CAMERA_ONLY
+		PROCESSING, CAMERA_ONLY, MOCK
 	}
 
-	private Mode mode;
+	private Mode mode = Mode.CAMERA_ONLY;
 
 	public Mode getMode() {
 		return mode;
@@ -130,10 +130,16 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		if (mode == Mode.CAMERA_ONLY) {
+		if (mode == Mode.PROCESSING) {
+			return findRegularShapes(inputFrame);
+		} else if (mode == Mode.MOCK) {
+			if (patternFoundListener != null) {
+				patternFoundListener.onPatternFound(new Pattern(inputFrame.gray(), 0));
+			}
+			mode = Mode.CAMERA_ONLY;
 			return inputFrame.rgba();
 		} else {
-			return findRegularShapes(inputFrame);
+			return inputFrame.rgba();
 		}
 	}
 

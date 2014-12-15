@@ -17,7 +17,7 @@ public class C {
 	public static final Scalar maxColor = new Scalar(70, 255, 255); //max yelow
 
 	public static final int minPatternCoverage = 90;
-	public static final int minPatternCount = 4;
+	public static final int minPatternCount = 2; // MUSI BYĆ >=2
 	public static final int patternTTL = 10;
 
 	public static final int maxSpeed = 100;
@@ -27,11 +27,11 @@ public class C {
 	public static final float gearRatio = 27.0f;
 	public static final float encoderResolution = 128.0f;
 	
-	public static final float sensorDistance = 150.0f;
+	public static final float wheelsToSensorDistance = 150.0f;
 	public static final float cameraDistance = 50.0f;
 	
 	public static final float robotLenght = 200.0f;
-	public static final float robotWidth = 200.0f;
+	public static final float robotWidth = 150.0f;
 	
 	public static final int loopSleep = 100;
 	public static final int batterySleep = 1000;
@@ -39,5 +39,5 @@ public class C {
 	public static final int PIDPeriod = 100;
 	
 	public static double cameraViewAngle = 0.96;  //55 stopni
-	public static int maxObstacleDistance = 500;
+	public static int maxObstacleDistance = 600;
 }

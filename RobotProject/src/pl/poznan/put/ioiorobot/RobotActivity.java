@@ -61,6 +61,7 @@ public class RobotActivity extends IOIOActivity {
 	private SimpleBarGraph barGraph;
 	private ToggleButton cameraButton;
 	private ToggleButton sensorsButton;
+	private ToggleButton startButton;
 	private SeekBar seekBar1;
 	private SeekBar seekBar2;
 	private SeekBar seekBar3;
@@ -146,7 +147,7 @@ public class RobotActivity extends IOIOActivity {
 		DAO.setContext(getApplicationContext());
 		screenSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
-		C.patternSize = Math.min(screenSize.y, screenSize.x) / 4;
+		C.patternSize = Math.min(screenSize.y, screenSize.x) / 7; // było /4
 		C.screenSize = screenSize;
 	}
 
@@ -165,6 +166,7 @@ public class RobotActivity extends IOIOActivity {
 		barGraph = (SimpleBarGraph) findViewById(R.id.distanceBarGraph);
 		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);
 		sensorsButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
+		startButton = (ToggleButton) findViewById(R.id.startToggleButton);
 		seekBar1 = (SeekBar) findViewById(R.id.seekBar1);
 		seekBar2 = (SeekBar) findViewById(R.id.seekBar2);
 		seekBar3 = (SeekBar) findViewById(R.id.seekBar3);
@@ -224,6 +226,20 @@ public class RobotActivity extends IOIOActivity {
 				}
 			}
 		});
+		
+		
+		startButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (isChecked) {
+					camera.setMode(MyCamera.Mode.MOCK);
+				} else {
+					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
+				}
+			}
+		});
+		
 
 		camera.setPatternFoundListener(new PatternFoundListener() {
 

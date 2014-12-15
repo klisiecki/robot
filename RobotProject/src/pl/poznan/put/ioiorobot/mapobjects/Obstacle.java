@@ -21,7 +21,7 @@ public class Obstacle extends Point {
 			}
 			
 			//pozycja robota + pozycja czujnika + odczyt czujnika
-			this.x = (int) (robotPosition.x() + C.sensorDistance * Math.sin(robotPosition.angle()) + sensor.distance * Math.sin(angle));
-			this.y = (int) (robotPosition.y() + C.sensorDistance * Math.cos(robotPosition.angle()) + sensor.distance * Math.cos(angle));
+			this.x = (int) (robotPosition.x() + C.wheelsToSensorDistance * Math.sin(robotPosition.angle()) + sensor.distance * Math.sin(angle));
+			this.y = (int) (robotPosition.y() + C.wheelsToSensorDistance * Math.cos(robotPosition.angle()) + sensor.distance * Math.cos(angle));
 		}
 }
