@@ -32,7 +32,6 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.SeekBar;
 
-
 /**
  * Główna klasa przetwarzająca obraz
  */
@@ -92,19 +91,6 @@ public class MyCamera implements CvCameraViewListener2 {
 				cameraView.setCameraIndex(0);
 				cameraView.enableFpsMeter();
 				cameraView.enableView();
-
-				/*
-				 * // // Żadna próba wymuszenia większej rozdzielczości nie
-				 * pomogła :/ WindowManager wm = (WindowManager)
-				 * context.getSystemService(Context.WINDOW_SERVICE); Display
-				 * display = wm.getDefaultDisplay(); DisplayMetrics metrics =
-				 * new DisplayMetrics(); display.getMetrics(metrics); int width
-				 * = metrics.widthPixels; int height = metrics.heightPixels;
-				 * Log.d(C.TAG, "camera size= " + width + " x " + height);
-				 * 
-				 * cameraView.setMaxFrameSize(800, 600);
-				 */
-
 			}
 		};
 
@@ -131,7 +117,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		if (mode == Mode.PROCESSING) {
-			return findRegularShapes(inputFrame);
+			return processFrame(inputFrame);
 		} else if (mode == Mode.MOCK) {
 			if (patternFoundListener != null) {
 				patternFoundListener.onPatternFound(new Pattern(inputFrame.gray(), 0));
@@ -143,118 +129,70 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 	}
 
-	/*
-	 * private Mat findColorShapes(CvCameraViewFrame inputFrame) { Mat mat =
-	 * inputFrame.rgba(); Mat dst = new Mat(); Mat result = new Mat();
-	 * Imgproc.cvtColor(mat, dst, Imgproc.COLOR_RGB2HSV, 3);
-	 * 
-	 * Log.d(C.TAG, CameraUtils.getPixelColor(dst, 100, 100) + "");
-	 * getYellowMat(dst, dst); Point center = detectObject(mat, dst, "C",
-	 * result); xTargetPosition = (int) (((double) center.x / (double)
-	 * mat.width()) * 200.0 - 100.0); return result; }
-	 */
-
-	public static void getBlueMat(Mat src, Mat dst) {
-		Core.inRange(src, new Scalar(100, 100, 100), new Scalar(120, 255, 255), dst);
-	}
-
-	public static void getWhiteMat(Mat src, Mat dst) {
-		Core.inRange(src, new Scalar(0, 0, 70), new Scalar(255, 100, 255), dst);
-	}
-
-	public void getYellowMat(Mat src, Mat dst) {
-		Core.inRange(src, new Scalar(20, 40, 64), new Scalar(70, 255, 255), dst);
-	}
-
-	/*
-	 * public static Point detectObject(Mat src, Mat image, String text, Mat
-	 * dst) { List<MatOfPoint> contours = new ArrayList<MatOfPoint>(); Mat
-	 * hierarchy = new Mat(); src.copyTo(dst);
-	 * 
-	 * Imgproc.findContours(image, contours, hierarchy, Imgproc.RETR_LIST,
-	 * Imgproc.CHAIN_APPROX_SIMPLE);
-	 * 
-	 * int k = getBiggestContourIndex(contours); Rect bounds =
-	 * setContourRect(contours, k);
-	 * 
-	 * Point center = CameraUtils.getCenter(bounds.tl(), bounds.br());
-	 * Core.rectangle(dst, bounds.tl(), bounds.br(), new Scalar(255, 255, 0), 2,
-	 * 8, 0);
-	 * 
-	 * return center; }
-	 */
-
-	/*
-	 * public static int getBiggestContourIndex(List<MatOfPoint> contours) {
-	 * double maxArea = 0; Iterator<MatOfPoint> each = contours.iterator(); int
-	 * j = 0; int k = -1; while (each.hasNext()) { MatOfPoint wrapper =
-	 * each.next(); double area = Imgproc.contourArea(wrapper); if (area >
-	 * maxArea) { maxArea = area; k = j; } j++; } return k; }
-	 */
-
-	/*
-	 * public static Rect setContourRect(List<MatOfPoint> contours, int k) {
-	 * Rect boundRect = new Rect(); Iterator<MatOfPoint> each =
-	 * contours.iterator(); int j = 0; while (each.hasNext()) { MatOfPoint
-	 * wrapper = each.next(); if (j == k) { return
-	 * Imgproc.boundingRect(wrapper); } j++; } return boundRect; }
-	 */
-
 	/**
-	 * Główna funkcja prztwarzająca obraz TODO nazwa
+	 * Główna funkcja prztwarzająca obraz
 	 * 
 	 * @param inputFrame
 	 * @return
 	 */
-	private Mat findRegularShapes(CvCameraViewFrame inputFrame) {
+	private Mat processFrame(CvCameraViewFrame inputFrame) {
 		Mat imgRgba = inputFrame.rgba();
 		Mat imgGray = inputFrame.gray();
 
 		Mat mask = new Mat();
 		imgRgba.copyTo(mask);
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
-		getYellowMat(mask, mask);
-		// getWhiteMat(mask, mask);
+		Core.inRange(mask, C.minColor, C.maxColor, mask);
 
 		Mat image = new Mat();
 		imgRgba.copyTo(image, mask);
-		//
-		// /* Imgproc.cvtColor(image, image, Imgproc.COLOR_HSV2RGB, 4); */
-		Mat grayFiltered = new Mat();
-		Imgproc.cvtColor(image, grayFiltered, Imgproc.COLOR_RGB2GRAY);
-		 imgGray.copyTo(grayFiltered);
+		Mat grayThreshold = new Mat();
+		Imgproc.cvtColor(image, grayThreshold, Imgproc.COLOR_RGB2GRAY);
+		// imgGray.copyTo(grayThreshold);
 
-		int blockSize = 9;
-		int mC = 7;
-		Imgproc.adaptiveThreshold(grayFiltered, grayFiltered, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
-				Imgproc.THRESH_BINARY_INV, blockSize, mC);
+		Imgproc.adaptiveThreshold(grayThreshold, grayThreshold, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
+				Imgproc.THRESH_BINARY_INV, 9, 7); // blockSize = 9, mC = 7;
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayFiltered, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(grayThreshold, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
+		// pętla dla wszystkich konturów zawierających poszukiwany kolor
 		for (MatOfPoint cnt : contours) {
-			Mat rgb = new Mat();
-			Mat gray = new Mat();
-			//TODO przetwarzanie dla zółtych obszarów
+			int threshold = (int) (C.screenSize.y * C.thresholdFactor);
+			if (Imgproc.contourArea(cnt) > threshold) {
+				Mat rgb = new Mat();
+				Mat gray = new Mat();
+
+				Rect r = Imgproc.boundingRect(cnt);
+				Core.rectangle(imgRgba, r.tl(), r.br(), new Scalar(255, 0, 255), 5);
+				rgb = imgRgba.submat(r);
+				gray = imgGray.submat(r);
+
+				grayThreshold = new Mat();
+				gray.copyTo(grayThreshold);
+				Imgproc.adaptiveThreshold(grayThreshold, grayThreshold, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
+						Imgproc.THRESH_BINARY_INV, 9, 7);
+
+				processMats(rgb, gray, grayThreshold);
+			}
 		}
 
-		processMats(imgRgba, imgGray, grayFiltered);
+		// processMats(imgRgba, imgGray, grayThreshold);
 		return imgRgba;
 	}
 
 	/**
-	 * 
-	 * TODO nazwa
+	 * Funkcja przeszukująca fragment obrazu w celu znalezienia markera
 	 * 
 	 * @param imgRgba
 	 * @param imgGray
-	 * @param grayFiltered
+	 * @param grayThreshold
 	 * @return
 	 */
-	private void processMats(Mat imgRgba, Mat imgGray, Mat grayFiltered) {
+	private void processMats(Mat imgRgba, Mat imgGray, Mat grayThreshold) {
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayFiltered, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(grayThreshold, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		List<MatOfPoint> contours2 = new ArrayList<MatOfPoint>();
 
@@ -282,7 +220,10 @@ public class MyCamera implements CvCameraViewListener2 {
 
 			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
-				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRgba, cnt)); //TODO fragment zamiast cnt?
+				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRgba, cnt)); // TODO
+																								// fragment
+																								// zamiast
+																								// cnt?
 				// DAO.writeToExternal(pattern.toString(), "array7." + slotNr);
 				if (patternFoundListener != null) {
 					patternFoundListener.onPatternFound(pattern);
@@ -587,7 +528,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	 */
 	private Mat cutContour(Mat baseImage, Mat resultImage, MatOfPoint cnt) {
 		Rect rect = Imgproc.boundingRect(cnt);
-		CameraUtils.drawBounds(resultImage, cnt, new Scalar(255, 0, 0), 1);
+		CameraUtils.drawBounds(resultImage, cnt, new Scalar(255, 0, 0), 3);
 		Mat fragment = baseImage.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
 		return fragment;
 	}
@@ -605,7 +546,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 		cntList.add(cnt);
-		Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 1);
+		Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 3);
 
 		for (Point p : approxCurve.toList()) {
 			Core.circle(resultImage, p, 5, new Scalar(255, 255, 0), 5);

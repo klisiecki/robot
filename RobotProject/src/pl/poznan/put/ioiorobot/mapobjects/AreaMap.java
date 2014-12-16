@@ -77,7 +77,7 @@ public class AreaMap {
 
 	public Bitmap drawMap() {
 		//Log.d(C.TAG, "drawMap");
-		bmp.eraseColor(Color.WHITE);
+		bmp.eraseColor(Color.TRANSPARENT);
 		// canvasX.drawRect(0, 0, width, height, patternPaint);
 		
 		//rysowanie markerów
