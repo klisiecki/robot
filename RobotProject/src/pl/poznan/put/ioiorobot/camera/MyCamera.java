@@ -69,14 +69,14 @@ public class MyCamera implements CvCameraViewListener2 {
 	private SeekBar seekBar2;
 	private SeekBar seekBar3;
 
-	private int xTargetPosition;
-
+	/*
 	public int getxTargetPosition() {
 		// <-100 ; 100>
 		return seekBar1.getProgress() - 100;
 		// return xTargetPosition;
 	}
-
+	*/
+	
 	public MyCamera(final CameraBridgeViewBase cameraView, final Context context) {
 		super();
 		this.mode = Mode.CAMERA_ONLY;
@@ -144,68 +144,71 @@ public class MyCamera implements CvCameraViewListener2 {
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
 		Core.inRange(mask, C.minColor, C.maxColor, mask);
 
-		Mat image = new Mat();
-		imgRgba.copyTo(image, mask);
-		Mat grayThreshold = new Mat();
-		Imgproc.cvtColor(image, grayThreshold, Imgproc.COLOR_RGB2GRAY);
-		// imgGray.copyTo(grayThreshold);
-
-		Imgproc.adaptiveThreshold(grayThreshold, grayThreshold, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
+		Mat maskedImage = new Mat();
+		imgRgba.copyTo(maskedImage, mask);
+		
+		Mat maskedImageGray = new Mat();
+		Imgproc.cvtColor(maskedImage, maskedImageGray, Imgproc.COLOR_RGB2GRAY);
+		// imgGray.copyTo(maskedImageGray);
+		
+		Mat maskedImageGrayThresholded = new Mat();
+		Imgproc.adaptiveThreshold(maskedImageGray, maskedImageGrayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
 				Imgproc.THRESH_BINARY_INV, 9, 7); // blockSize = 9, mC = 7;
-
+		
+		
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayThreshold, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(maskedImageGrayThresholded, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		// pętla dla wszystkich konturów zawierających poszukiwany kolor
 		for (MatOfPoint cnt : contours) {
-			int threshold = (int) (C.screenSize.y * C.thresholdFactor);
+			// Pomijanie małych obiektów
+			int threshold = (int) (C.screenSize.x * C.screenSize.y * C.thresholdFactor / 100);
 			if (Imgproc.contourArea(cnt) > threshold) {
-				Mat rgb = new Mat();
-				Mat gray = new Mat();
 
+				// Rysowanie różowego prostokąta wokół analizowanych fragmentów
 				Rect r = Imgproc.boundingRect(cnt);
 				Core.rectangle(imgRgba, r.tl(), r.br(), new Scalar(255, 0, 255), 5);
-				rgb = imgRgba.submat(r);
-				gray = imgGray.submat(r);
+								
+				Mat subMat = imgRgba.submat(r);
 
-				grayThreshold = new Mat();
-				gray.copyTo(grayThreshold);
-				Imgproc.adaptiveThreshold(grayThreshold, grayThreshold, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
-						Imgproc.THRESH_BINARY_INV, 9, 7);
-
-				processMats(rgb, gray, grayThreshold);
+				processMat(subMat);
 			}
 		}
 
 		// processMats(imgRgba, imgGray, grayThreshold);
 		return imgRgba;
+		/* */
 	}
 
 	/**
-	 * Funkcja przeszukująca fragment obrazu w celu znalezienia markera
+	 * Funkcja przeszukująca fragment obrazu w celu znalezienia markerów
 	 * 
 	 * @param imgRgba
-	 * @param imgGray
-	 * @param grayThreshold
-	 * @return
 	 */
-	private void processMats(Mat imgRgba, Mat imgGray, Mat grayThreshold) {
+	private void processMat(Mat imgRgba) {
+		
+		Mat imgGray =  new Mat();
+		Imgproc.cvtColor(imgRgba, imgGray, Imgproc.COLOR_RGB2GRAY);
+
+		Mat grayThresholded = new Mat();
+		Imgproc.adaptiveThreshold(imgGray, grayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
+				Imgproc.THRESH_BINARY_INV, 9, 7);
+		
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayThreshold, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(grayThresholded, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
-		List<MatOfPoint> contours2 = new ArrayList<MatOfPoint>();
+		
+		List<MatOfPoint> contoursSorted = new ArrayList<MatOfPoint>();
 
 		for (MatOfPoint cnt : contours) {
-
 			// Pomijanie małych obiektów
-			int threshold = (int) (C.screenSize.y * C.thresholdFactor);
+			int threshold = (int) (C.screenSize.x * C.screenSize.y * C.thresholdFactor / 100);
 			if (Imgproc.contourArea(cnt) > threshold)
-				contours2.add(cnt);
+				contoursSorted.add(cnt);
 		}
 
-		Collections.sort(contours2, new Comparator<MatOfPoint>() {
-
+		Collections.sort(contoursSorted, new Comparator<MatOfPoint>() {
 			@Override
 			public int compare(MatOfPoint lhs, MatOfPoint rhs) {
 				return Imgproc.contourArea(lhs) > Imgproc.contourArea(rhs) ? -1 : 1;
@@ -214,16 +217,15 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		int contoursProcessed = 0;
 
-		for (MatOfPoint cnt : contours2) {
+		// Przeglądanie znalezionych konturów od największych do najmniejszych
+		for (MatOfPoint cnt : contoursSorted) {
 			drawContour(imgRgba, cnt);
 			Mat fragment = cutContour(imgGray, imgRgba, cnt);
 
 			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
-				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRgba, cnt)); // TODO
-																								// fragment
-																								// zamiast
-																								// cnt?
+				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRgba, cnt)); // TODO fragment zamiast cnt? - Dlaczego, po co? Tak jest chyba ok.
+				
 				// DAO.writeToExternal(pattern.toString(), "array7." + slotNr);
 				if (patternFoundListener != null) {
 					patternFoundListener.onPatternFound(pattern);
@@ -235,6 +237,13 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 	}
 
+	/**
+	 * Metoda obliczająca rzeczywisty kąt, o jaki znaleziony kontur jest odchylony od osi aparatu (bazując na znanym kącie widzenia kamery)
+	 * 
+	 * @param image
+	 * @param cnt
+	 * @return wyznaczony kąt, wartości ujemne na lewo, dodatnie na prawo
+	 */
 	private float calculateCameraAngle(Mat image, MatOfPoint cnt) {
 		Rect r = Imgproc.boundingRect(cnt);
 		int center = r.x + r.width / 2;
@@ -244,17 +253,17 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 
 	/**
-	 * Funkcja tworzy czworokąt z podanego konturu, przekształca do kwadratu i
-	 * wyświetla na górze ekranu
+	 * Funkcja tworzy czworokąt z podanego konturu i przekształca do kwadratu 
 	 * 
 	 * @param resultImage
-	 * @param maxCnt
+	 * @param cnt
 	 * @param fragment
+	 * @return true gdy udało się uzyskać kwadrat
 	 */
-	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint maxCnt, Mat fragment) {
-		List<Point> points = getRectanglePointsFromContour(maxCnt);
+	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint cnt, Mat fragment) {
+		List<Point> points = getRectanglePointsFromContour(cnt);
 		if (couldBeRectangle(points)) {
-			Rect rect = Imgproc.boundingRect(maxCnt);
+			Rect rect = Imgproc.boundingRect(cnt);
 
 			Point fragmentTL = rect.tl();
 			try {
@@ -265,15 +274,20 @@ public class MyCamera implements CvCameraViewListener2 {
 			for (Point p : points) {
 				// rysujemy
 				Core.circle(resultImage, p, 5, new Scalar(0, 255, 0), 5);
-				// przesuwamy do współrzędnych fragmentu
+				
+				// przesuwamy do współrzędnych fragmentu (zmiany są wprowadzane w tablicy points!)
 				p.x -= fragmentTL.x;
 				p.y -= fragmentTL.y;
 			}
-			Mat fragment2 = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
-			fragment2.copyTo(fragment);
-			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_GRAY2RGBA);
+			
+			// To musi być tak jak jest, w 2 linijkach, nie udoskonalać!
+			Mat fragmentTmp = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
+			fragmentTmp.copyTo(fragment);
+			
+			//Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_GRAY2RGBA);
 			// showFragment2(resultImage, fragment, slot, MyConfig.patternSize);
-			Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_RGB2GRAY);
+			//Imgproc.cvtColor(fragment, fragment, Imgproc.COLOR_RGB2GRAY);
+			
 			return true;
 		}
 		return false;
@@ -311,7 +325,25 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 		return points;
 	}
+	
+	
+	/**
+	 * @param p0
+	 * @param p1
+	 * @param p2
+	 * @return Kąt przy wierzchołku p1
+	 */
+	private double getAngle(Point p0, Point p1, Point p2) {
+		return Math.toDegrees(Math.atan2(p0.x - p1.x, p0.y - p1.y) - Math.atan2(p2.x - p1.x, p2.y - p1.y));
+	}
 
+	
+	/**
+	 * Metoda określająca, czy podana lista punktów może tworzyć prostokąt
+	 * 
+	 * @param points
+	 * @return true gdy może być prostokątem
+	 */
 	private boolean couldBeRectangle(List<Point> points) {
 		if (points.size() != 4) {
 			return false;
@@ -322,21 +354,149 @@ public class MyCamera implements CvCameraViewListener2 {
 		int left = getDistance(points.get(0), points.get(3));
 		int right = getDistance(points.get(1), points.get(2));
 
-		if (!areEqual(top, bottom) || !areEqual(left, right)) {
+		if (!areSimilar(top, bottom) || !areSimilar(left, right)) {
 			return false;
 		} else {
 			return true;
 		}
 	}
 
+	
+	/**
+	 * @param a
+	 * @param b
+	 * @return odległość pomiędzy punktami a oraz b
+	 */
 	private int getDistance(Point a, Point b) {
 		return (int) Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 	}
 
-	private boolean areEqual(int a, int b) {
+	
+	/**
+	 * @param a
+	 * @param b
+	 * @return true gdy długości boków a oraz b różnią się maksymalnie o C.rectangleFactor %
+	 */
+	private boolean areSimilar(int a, int b) {
 		return Math.abs((double) (a - b) / a) < (double) C.rectangleFactor / 100.0;
 	}
+	
+	
+	
+	//TODO To musi być rozwalone na dwie metody?
+	/**
+	 * Metoda sortująca wierzchołki
+	 * Prosta wersja, nie działa dla każdego czworokątu ale powinno wystarczyć
+	 * 
+	 * @param cornersArray
+	 */
+	private void sortCorners(List<Point> cornersArray) {
+		double x = 0, y = 0;
+		for (Point p : cornersArray) {
+			x += p.x;
+			y += p.y;
+		}
 
+		Point center = new Point(x / 4, y / 4);
+		sortCorners(cornersArray, center);
+	}
+
+	private void sortCorners(List<Point> cornersArray, Point center) {
+		List<Point> top = new ArrayList<Point>();
+		List<Point> bot = new ArrayList<Point>();
+
+		for (int i = 0; i < cornersArray.size(); i++) {
+			if (cornersArray.get(i).y < center.y)
+				top.add(cornersArray.get(i));
+			else
+				bot.add(cornersArray.get(i));
+		}
+
+		Point tl = top.get(0).x > top.get(1).x ? top.get(1) : top.get(0);
+		Point tr = top.get(0).x > top.get(1).x ? top.get(0) : top.get(1);
+		Point bl = bot.get(0).x > bot.get(1).x ? bot.get(1) : bot.get(0);
+		Point br = bot.get(0).x > bot.get(1).x ? bot.get(0) : bot.get(1);
+
+		cornersArray.clear();
+		cornersArray.add(tl);
+		cornersArray.add(tr);
+		cornersArray.add(br);
+		cornersArray.add(bl);
+	}
+
+
+	
+	/**
+	 * @param baseImage
+	 * @param resultImage
+	 *            //TODO usunąc
+	 * @param cnt
+	 * @return
+	 */
+	private Mat cutContour(Mat baseImage, Mat resultImage, MatOfPoint cnt) {
+		Rect rect = Imgproc.boundingRect(cnt);
+		CameraUtils.drawBounds(resultImage, cnt, new Scalar(255, 0, 0), 3);
+		Mat fragment = baseImage.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
+		return fragment;
+	}
+
+
+	private void drawContour(Mat resultImage, MatOfPoint cnt) {
+		MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
+		MatOfPoint2f approxCurve = new MatOfPoint2f();
+		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
+		Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
+
+		List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
+		cntList.add(cnt);
+		Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 3);
+
+		for (Point p : approxCurve.toList()) {
+			Core.circle(resultImage, p, 5, new Scalar(255, 255, 0), 5);
+		}
+	}
+
+	/**
+	 * Metoda wycinająca obszar wyznaczony przez podane punkty i rozciągając ten fragment na kwadratowy obraz
+	 * 
+	 * @param inputMat
+	 * @param p1
+	 * @param p2
+	 * @param p3
+	 * @param p4
+	 * @return wycięty i rozciągnięty fragment
+	 */
+	public static Mat warp(Mat inputMat, Point p1, Point p2, Point p3, Point p4) {
+		//TODO Coś z tym wypadało by zrobić. Dlaczego akurat 500? 
+		int resultWidth = 500;
+		int resultHeight = 500;
+
+		Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);
+		
+		List<Point> source = new ArrayList<Point>();
+		source.add(new Point(p1.x, p1.y));
+		source.add(new Point(p2.x, p2.y));
+		source.add(new Point(p3.x, p3.y));
+		source.add(new Point(p4.x, p4.y));
+		Mat startM = Converters.vector_Point2f_to_Mat(source);
+
+		List<Point> dest = new ArrayList<Point>();
+		dest.add(new Point(0, 0));
+		dest.add(new Point(0, resultHeight));
+		dest.add(new Point(resultWidth, resultHeight));
+		dest.add(new Point(resultWidth, 0));
+		Mat endM = Converters.vector_Point2f_to_Mat(dest);
+
+		Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
+
+		Imgproc.warpPerspective(inputMat, outputMat, perspectiveTransform, new Size(resultWidth, resultHeight),
+				Imgproc.INTER_CUBIC);
+		return outputMat;
+	}
+	
+	
+	
+	/*
 	private void findCornerHoughTransform(Mat fragment) {
 		// http://opencv-code.com/tutorials/automatic-perspective-correction-for-quadrilateral-objects/
 
@@ -436,53 +596,18 @@ public class MyCamera implements CvCameraViewListener2 {
 		// Imgproc.cvtColor(image, image, Imgproc.COLOR_GRAY2RGB, 4);
 
 	}
-
-	/**
-	 * Prosta wersja, nie działa dla każdego czworokątu ale powinno wystarczyć
-	 * 
-	 * @param cornersArray
 	 */
-	private void sortCorners(List<Point> cornersArray) {
-		double x = 0, y = 0;
-		for (Point p : cornersArray) {
-			x += p.x;
-			y += p.y;
-		}
-
-		Point center = new Point(x / 4, y / 4);
-		sortCorners(cornersArray, center);
-	}
-
-	void sortCorners(List<Point> cornersArray, Point center) {
-		List<Point> top = new ArrayList<Point>();
-		List<Point> bot = new ArrayList<Point>();
-
-		for (int i = 0; i < cornersArray.size(); i++) {
-			if (cornersArray.get(i).y < center.y)
-				top.add(cornersArray.get(i));
-			else
-				bot.add(cornersArray.get(i));
-		}
-
-		Point tl = top.get(0).x > top.get(1).x ? top.get(1) : top.get(0);
-		Point tr = top.get(0).x > top.get(1).x ? top.get(0) : top.get(1);
-		Point bl = bot.get(0).x > bot.get(1).x ? bot.get(1) : bot.get(0);
-		Point br = bot.get(0).x > bot.get(1).x ? bot.get(0) : bot.get(1);
-
-		cornersArray.clear();
-		cornersArray.add(tl);
-		cornersArray.add(tr);
-		cornersArray.add(br);
-		cornersArray.add(bl);
-	}
-
+	
+	/*
 	private void showFragment2(Mat resultImage, Mat fragment, int position, int size) {
 		Mat slot = resultImage.submat(0, size, position * size, position * size + size);
 		Imgproc.resize(fragment, fragment, slot.size());
 		fragment.copyTo(slot);
 		Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 5);
 	}
-
+	*/
+	
+	/*
 	private void showFragment(Mat resultImage, Mat fragment, int height) {
 		int slotHeight = Math.min(height, resultImage.height());
 		int slotWidth = Math.min(slotHeight * fragment.width() / fragment.height(), resultImage.width());
@@ -490,7 +615,9 @@ public class MyCamera implements CvCameraViewListener2 {
 		Imgproc.resize(fragment, slot, slot.size());
 		Core.rectangle(slot, new Point(0, 0), new Point(slot.width(), slot.height()), new Scalar(0, 0, 0), 20);
 	}
-
+	*/
+	
+	/*
 	private void findCornerHarris(Mat fragment) {
 		Mat fragmentGray = new Mat();
 		fragment.copyTo(fragmentGray);
@@ -518,74 +645,6 @@ public class MyCamera implements CvCameraViewListener2 {
 		// fragment = cornerMap;
 
 	}
-
-	/**
-	 * @param baseImage
-	 * @param resultImage
-	 *            //TODO usunąc
-	 * @param cnt
-	 * @return
-	 */
-	private Mat cutContour(Mat baseImage, Mat resultImage, MatOfPoint cnt) {
-		Rect rect = Imgproc.boundingRect(cnt);
-		CameraUtils.drawBounds(resultImage, cnt, new Scalar(255, 0, 0), 3);
-		Mat fragment = baseImage.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
-		return fragment;
-	}
-
-	private double getAngle(Point p0, Point p1, Point p2) {
-		return Math.toDegrees(Math.atan2(p0.x - p1.x, p0.y - p1.y) - Math.atan2(p2.x - p1.x, p2.y - p1.y));
-	}
-
-	private void drawContour(Mat resultImage, MatOfPoint cnt) {
-
-		MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
-		MatOfPoint2f approxCurve = new MatOfPoint2f();
-		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
-		Imgproc.approxPolyDP(cnt2f, approxCurve, epsilon, true);
-
-		List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
-		cntList.add(cnt);
-		Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 3);
-
-		for (Point p : approxCurve.toList()) {
-			Core.circle(resultImage, p, 5, new Scalar(255, 255, 0), 5);
-		}
-	}
-
-	public static Mat warp(Mat inputMat, Point p1, Point p2, Point p3, Point p4) {
-		int resultWidth = 500;
-		int resultHeight = 500;
-
-		Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);
-
-		Point ocvPIn1 = new Point(p1.x, p1.y);
-		Point ocvPIn2 = new Point(p2.x, p2.y);
-		Point ocvPIn3 = new Point(p3.x, p3.y);
-		Point ocvPIn4 = new Point(p4.x, p4.y);
-		List<Point> source = new ArrayList<Point>();
-		source.add(ocvPIn1);
-		source.add(ocvPIn2);
-		source.add(ocvPIn3);
-		source.add(ocvPIn4);
-		Mat startM = Converters.vector_Point2f_to_Mat(source);
-
-		Point ocvPOut1 = new Point(0, 0);
-		Point ocvPOut2 = new Point(0, resultHeight);
-		Point ocvPOut3 = new Point(resultWidth, resultHeight);
-		Point ocvPOut4 = new Point(resultWidth, 0);
-		List<Point> dest = new ArrayList<Point>();
-		dest.add(ocvPOut1);
-		dest.add(ocvPOut2);
-		dest.add(ocvPOut3);
-		dest.add(ocvPOut4);
-		Mat endM = Converters.vector_Point2f_to_Mat(dest);
-
-		Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
-
-		Imgproc.warpPerspective(inputMat, outputMat, perspectiveTransform, new Size(resultWidth, resultHeight),
-				Imgproc.INTER_CUBIC);
-		return outputMat;
-	}
+	*/
 
 }

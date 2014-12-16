@@ -68,7 +68,7 @@ public class PatternsWidget extends View {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		width = C.patternSize * 7;
+		width = C.screenSize.x;
 		height = C.patternSize;
 		setMeasuredDimension(width, height);
 	}
