@@ -224,7 +224,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
-				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRgba, cnt)); // TODO fragment zamiast cnt? - Dlaczego, po co? Tak jest chyba ok.
+				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRgba, cnt));
 				
 				// DAO.writeToExternal(pattern.toString(), "array7." + slotNr);
 				if (patternFoundListener != null) {
@@ -242,7 +242,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	 * 
 	 * @param image
 	 * @param cnt
-	 * @return wyznaczony kąt, wartości ujemne na lewo, dodatnie na prawo
+	 * @return kąt w radianach, wartości ujemne na lewo, dodatnie na prawo
 	 */
 	private float calculateCameraAngle(Mat image, MatOfPoint cnt) {
 		Rect r = Imgproc.boundingRect(cnt);
@@ -383,7 +383,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	
 	
 	
-	//TODO To musi być rozwalone na dwie metody?
+	//TODO Połączyć w jedną metodę
 	/**
 	 * Metoda sortująca wierzchołki
 	 * Prosta wersja, nie działa dla każdego czworokątu ale powinno wystarczyć
