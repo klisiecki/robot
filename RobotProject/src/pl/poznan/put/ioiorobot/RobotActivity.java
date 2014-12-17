@@ -130,8 +130,6 @@ public class RobotActivity extends IOIOActivity {
 		initObjects();
 		initView();
 		initListeners();
-		Log.d(C.TAG, "onCreate");
-
 	}
 
 	@Override

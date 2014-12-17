@@ -11,7 +11,7 @@ public class C {
 
 	public static final double thresholdFactor = 0.5; // minimalne procentowe pokrycie powierzchni ekranu
 	public static final int rectangleFactor = 20;	// maksymalna procentowa różnica w długości przeciwległych boków czworokąta, przy której jest on nadal uważany za prostokąt
-	public static final int maxContoursProcessed = 5;
+	public static final int maxContoursProcessed = 3;
 
 	public static final Scalar minColor = new Scalar(20, 64, 100); // min yellow
 	public static final Scalar maxColor = new Scalar(40, 255, 255); // max yelow
