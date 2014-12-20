@@ -14,6 +14,8 @@ import pl.poznan.put.ioiorobot.camera.MyCamera;
 import pl.poznan.put.ioiorobot.camera.MyCamera.PatternFoundListener;
 import pl.poznan.put.ioiorobot.mapobjects.AreaMap;
 import pl.poznan.put.ioiorobot.mapobjects.Obstacle;
+import pl.poznan.put.ioiorobot.mapobjects.ObstacleManager;
+import pl.poznan.put.ioiorobot.mapobjects.ObstacleManager.ObstacleAcceptedListener;
 import pl.poznan.put.ioiorobot.mapobjects.Pattern;
 import pl.poznan.put.ioiorobot.mapobjects.PatternsQueue;
 import pl.poznan.put.ioiorobot.mapobjects.PatternsQueue.PatternAcceptedListener;
@@ -23,12 +25,11 @@ import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
-import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
-import pl.poznan.put.ioiorobot.sensors.SharpDistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus.BatteryStatusChangedListener;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor.DistanceResultListener;
+import pl.poznan.put.ioiorobot.sensors.SharpDistanceSensor;
 import pl.poznan.put.ioiorobot.utils.C;
 import pl.poznan.put.ioiorobot.utils.DAO;
 import pl.poznan.put.ioiorobot.widgets.AreaMapWidget;
@@ -76,9 +77,12 @@ public class RobotActivity extends IOIOActivity {
 	private IDistanceSensor distanceSensor;
 	private IBatteryStatus batteryStatus;
 	private EncodersData encodersData;
+	
 	private Position robotPosition;
 	private PatternsQueue patternsQueue;
+	private ObstacleManager obstacleManager;
 	private AreaMap areaMap;
+	
 	private Point screenSize;
 
 	class Looper extends BaseIOIOLooper {
@@ -140,6 +144,7 @@ public class RobotActivity extends IOIOActivity {
 
 	private void initObjects() {
 		patternsQueue = new PatternsQueue();
+		obstacleManager = new ObstacleManager();
 		robotPosition = new Position();
 		areaMap = new AreaMap(robotPosition);
 		DAO.setContext(getApplicationContext());
@@ -262,6 +267,15 @@ public class RobotActivity extends IOIOActivity {
 				});
 			}
 		});
+		
+		obstacleManager.setObstacleAcceptedListener(new ObstacleAcceptedListener() {
+			
+			@Override
+			public void onObstacleAccepted(Obstacle obstacle) {
+				areaMap.addObstacle(obstacle);
+				
+			}
+		});
 
 	}
 
@@ -292,15 +306,14 @@ public class RobotActivity extends IOIOActivity {
 						barGraph.setValues(results);
 						//Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
 						if (last.distance < C.maxObstacleDistance) {
-							areaMap.addObstacle(new Obstacle(robotPosition, last));
-
+							obstacleManager.addObstacle(new Obstacle(robotPosition, last));
 						}
 					}
 				});
 
 			}
 		});
-
+		
 		encodersData.setPositionChangedListener(new PositionChangedListener() {
 
 			@Override

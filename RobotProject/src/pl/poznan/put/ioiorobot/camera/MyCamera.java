@@ -123,6 +123,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	 * @return
 	 */
 	private Mat processFrame(CvCameraViewFrame inputFrame) {
+		// TODO patterny z oryginalnego obrazu
 		// pobranie klatki w RGB
 		Mat imgRgba = inputFrame.rgba();
 
@@ -306,7 +307,6 @@ public class MyCamera implements CvCameraViewListener2 {
 		return points;
 	}
 
-	
 	/**
 	 * @param baseImage
 	 * @param resultImage

@@ -38,6 +38,10 @@ public class C {
 
 	public static final int PIDPeriod = 100;
 
-	public static double cameraViewAngle = 0.96; // 55 stopni
-	public static int maxObstacleDistance = 600;
+	public static final int obstacleCellSize = 10; //kratka ma 10mm
+	public static final int obstacleRange = 4; //zasięg zaznaczania przeszkód na mapie
+	public static final int minObstacleCount = 3;
+	
+	public static final double cameraViewAngle = 0.96; // 55 stopni
+	public static final int maxObstacleDistance = 600;
 }
