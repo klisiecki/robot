@@ -1,0 +1,36 @@
+STRUKTURA
+\chapter{Rozdział duży}
+\section{Podrozdział}
+\subsection{Podpodrozdział}
+
+\section*{Gwiazdka powoduje pominięcie rozdziału przy nadawaniu numeracji}
+
+
+\textbf{POGRUBIONY}
+
+\textit{POCHYLONY}
+
+POMINIĘCIE WCIĘCIA
+\noindent
+
+LISTY
+
+\begin{...}
+    \item aaaaa;
+    \item bbbbb;
+\end{...}
+
+\begin{itemize} - lista kropkowana
+\begin{enumerate} - lista numerowana
+
+Listy można zagnieżdżać w sobie
+
+
+CYTAT
+\begin{quote}
+Lalallala
+\end{quote}
+
+
+PRZYPIS DOLNY Z NUMERKIEM
+\footnote{Jakiś dopisek}

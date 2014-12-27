@@ -1,0 +1,61 @@
+
+% Szkielet dla pracy inżynierskiej pisanej w języku polskim.
+
+\documentclass[polish,bachelor,a4paper,oneside]{ppfcmthesis}
+
+
+\usepackage[utf8]{inputenc}
+\usepackage[OT4]{fontenc}
+
+
+% Authors of the thesis here. Separate them with \and
+\author{%
+   Karol Lisiecki \album{106458} \and 
+   Radosław Osten-Sacken \album{106520}}
+\title{Robot autonomiczny....}                   % Note how we protect the final title phrase from breaking
+\ppsupervisor{dr inż. Piotr Zielniewicz} % Your supervisor comes here.
+\ppyear{2015}                                         % Year of final submission (not graduation!)
+
+
+\begin{document}
+
+% Front matter starts here
+\frontmatter\pagestyle{empty}%
+\maketitle\cleardoublepage%
+
+% Blank info page for "karta dyplomowa"
+\thispagestyle{empty}\vspace*{\fill}%
+\begin{center}Tutaj przychodzi karta pracy dyplomowej;\\oryginał wstawiamy do wersji dla archiwum PP, w pozostałych kopiach wstawiamy ksero.\end{center}%
+\vfill\cleardoublepage%
+
+% Table of contents.
+\pagenumbering{Roman}\pagestyle{ppfcmthesis}%
+\tableofcontents* \cleardoublepage%
+
+% Main content of your thesis starts here.
+\mainmatter% 
+\input{0x-spis.tex}  
+\input{010-wstep.tex}
+\input{020-platforma-software.tex}
+\input{030-inzynieria.tex}
+\input{040-hardware.tex}
+\input{050-analiza-obrazu.tex}
+\input{060-pattern.tex}
+\input{070-obstacle.tex}
+\input{080-algorytm-jazdy.tex}
+\input{090-zdalny-pulpit.tex}
+\input{100-manual.tex}
+\input{110-zakonczenie.tex}
+
+
+% All appendices and extra material, if you have any.
+\cleardoublepage\appendix%
+%\input{0a-zalacznik.tex}
+
+% Bibliography (books, articles) starts here.
+\bibliographystyle{plalpha}{\raggedright\sloppy\small\bibliography{bibliography}}
+
+% Colophon is a place where you should let others know about copyrights etc.
+\ppcolophon{}
+
+\end{document}

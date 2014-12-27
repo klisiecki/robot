@@ -1,0 +1,19 @@
+@Book{example1,
+  author =       "Autor przykładowy",
+  title =        "Tytuł",
+  publisher =    "xx",
+  address =      "xx",
+  year =         "19xx",
+  series =       "xxx",
+  ISBN =         "0000",
+  LCCN =         "0000",
+  pages =        "000",
+  bibdate =      "Wed Dec 15 10:36:52 1993",
+}
+
+@misc{example2,
+  author = "Autor",
+  title = "Tytuł",
+  howpublished = "[on-line] \url{http://wwwwwwww}",
+  year = {20xx},
+}
