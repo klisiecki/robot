@@ -3,8 +3,9 @@ package pl.poznan.put.ioiorobot.motors;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import pl.poznan.put.ioiorobot.utils.C;
+import org.opencv.core.Mat;
 
+import pl.poznan.put.ioiorobot.utils.C;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
@@ -13,7 +14,7 @@ import android.text.format.Time;
 import android.util.Log;
 
 /**
- *	Klasa obsługjąca sterowanie silnikami
+ * Klasa obsługjąca sterowanie silnikami
  */
 public class MotorsController implements IMotorsController {
 	private static final int FREQUENCY = 100;
@@ -33,10 +34,12 @@ public class MotorsController implements IMotorsController {
 	private DigitalOutput r2;
 	private PwmOutput rPwm;
 
+	private EncodersData encodersData;
+
 	private static Timer timerPID;
 
-	public MotorsController(IOIO ioio_, int l1Pin, int l2Pin, int lPwmPin, int r1Pin, int r2Pin, int rPwmPin)
-			throws ConnectionLostException {
+	public MotorsController(IOIO ioio_, int l1Pin, int l2Pin, int lPwmPin, int r1Pin, int r2Pin, int rPwmPin,
+			EncodersData encodersData) throws ConnectionLostException {
 		direction = 0;
 		speed = 0;
 		this.ioio_ = ioio_;
@@ -46,6 +49,8 @@ public class MotorsController implements IMotorsController {
 		r1 = ioio_.openDigitalOutput(r1Pin, false);
 		r2 = ioio_.openDigitalOutput(r2Pin, false);
 		rPwm = ioio_.openPwmOutput(rPwmPin, FREQUENCY);
+
+		this.encodersData = encodersData;
 
 		MotorThread t = new MotorThread();
 
@@ -65,10 +70,10 @@ public class MotorsController implements IMotorsController {
 	}
 
 	public void setDirection(int direction) {
-		if (direction > C.maxSpeed) {
-			this.direction = C.maxSpeed;
-		} else if (direction < -C.maxSpeed) {
-			this.direction = -C.maxSpeed;
+		if (direction > C.maxDirection) {
+			this.direction = C.maxDirection;
+		} else if (direction < -C.maxDirection) {
+			this.direction = -C.maxDirection;
 		} else {
 			this.direction = direction;
 		}
@@ -88,6 +93,51 @@ public class MotorsController implements IMotorsController {
 		}
 	}
 
+	
+	public void turnTo(float targetAngle) {
+		speed = C.maxSpeed;
+		start();
+
+		float changeAngle = targetAngle - encodersData.getPosition().angle();
+		try {
+			if (changeAngle < -Math.PI) {
+				direction = C.maxDirection;
+				while (encodersData.getPosition().angle() > 0)
+					Thread.sleep(20);
+				while (encodersData.getPosition().angle() < targetAngle)
+					Thread.sleep(20);
+			} else if (changeAngle >= -Math.PI && changeAngle < 0) {
+				direction = -C.maxDirection;
+				while (encodersData.getPosition().angle() > targetAngle)
+					Thread.sleep(20);
+			} else if (changeAngle >= 0 && changeAngle < Math.PI) {
+				direction = C.maxDirection;
+				while (encodersData.getPosition().angle() < targetAngle)
+					Thread.sleep(20);
+			} else if (changeAngle >= Math.PI) {
+				direction = -C.maxDirection;
+				while (encodersData.getPosition().angle() < 0)
+					Thread.sleep(20);
+				while (encodersData.getPosition().angle() > targetAngle)
+					Thread.sleep(20);
+			}
+		} catch (Exception e) {
+		}
+
+		stop();
+		direction = 0;
+	}
+
+	public void turn(float angle) {
+		float targetAngle = encodersData.getPosition().angle() + angle;
+		if (targetAngle > Math.PI) {
+			targetAngle -= 2 * Math.PI;
+		} else if (targetAngle < -Math.PI) {
+			targetAngle += 2 * Math.PI;
+		}
+		turnTo(targetAngle);
+	}
+
 	public int getRegulacja() {
 		return regulation;
 	}
@@ -105,8 +155,7 @@ public class MotorsController implements IMotorsController {
 				try {
 					float left = ((float) Math.abs(speed) + (float) direction * speed / 100f) / 200f;
 					float right = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
-					
-					
+
 					if (speed > 5) {
 						l1.write(true);
 						l2.write(false);
@@ -131,13 +180,12 @@ public class MotorsController implements IMotorsController {
 					// float right = Math.min( ((float) Math.abs(speed) -
 					// direction)/100f, 1f);
 
-
 					if (!enabled) {
 						left = right = 0;
 					}
-					if (left < 0.2f)
+					if (left < 0.1f)
 						left = 0;
-					if (right < 0.2f)
+					if (right < 0.1f)
 						right = 0;
 					lPwm.setDutyCycle(Math.min(left, 1f));
 					rPwm.setDutyCycle(Math.min(right, 1f));

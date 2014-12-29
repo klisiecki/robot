@@ -26,7 +26,9 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 	}
 
 	public AbstractDistanceSensor(IOIO ioio_, int servoPin) throws ConnectionLostException {
-		servo = ioio_.openPwmOutput(servoPin, 100);
+		if (servoPin >= 0) {
+			servo = ioio_.openPwmOutput(servoPin, 100);
+		}
 		results = new ArrayList<IDistanceSensor.Pair>(RESULTS_SIZE);
 		for (int i = 0; i < RESULTS_SIZE; i++) {
 			results.add(new Pair(0, 0));
@@ -53,7 +55,7 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 	}
 
 	//TODO filtrowanie: wiele pomiarów i/lub ograniczenie z HCSR
-	abstract protected int getDistance() throws ConnectionLostException, InterruptedException;
+	abstract public int getDistance() throws ConnectionLostException, InterruptedException;
 
 	@Override
 	public void startSensor() {
@@ -82,7 +84,10 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 							listener.onResult(getResultsOnly(), results.get(i));
 						}
 					}
-
+					position = ANGLE_MIN;
+					servo.setPulseWidth(map(position));
+					Thread.sleep(1000);
+/*
 					for (int i = RESULTS_SIZE - 2; i > 0; i--) {
 						position -= ANGLE_STEP;
 						servo.setPulseWidth(map(position));
@@ -94,7 +99,7 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 						}
 					}
 					position -= ANGLE_STEP;
-
+*/
 				} else {
 					servo.setPulseWidth(0);
 					Thread.sleep(200);

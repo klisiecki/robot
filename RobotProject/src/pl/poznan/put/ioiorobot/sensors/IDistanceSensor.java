@@ -1,5 +1,7 @@
 package pl.poznan.put.ioiorobot.sensors;
 
+import ioio.lib.api.exception.ConnectionLostException;
+
 import java.util.List;
 
 public interface IDistanceSensor {
@@ -10,7 +12,7 @@ public interface IDistanceSensor {
 	static final int ANGLE_MAX = 60; //TODO robi 16 kroków zamiast 17 
 	static final int ANGLE_STEP = 5;
 
-	static final int STEP_DELAY = 300;
+	static final int STEP_DELAY = 150;
 
 	static final int RESULTS_SIZE = (ANGLE_MAX - ANGLE_MIN) / ANGLE_STEP;
 	
@@ -27,6 +29,8 @@ public interface IDistanceSensor {
 	void stopSensor();
 	
 	void startSensor();
+	
+	int getDistance() throws ConnectionLostException, InterruptedException;
 	
 	public class Pair {
 		public Pair(int angle, int distance) {

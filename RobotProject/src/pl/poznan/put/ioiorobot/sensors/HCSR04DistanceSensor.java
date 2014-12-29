@@ -20,17 +20,19 @@ public class HCSR04DistanceSensor extends AbstractDistanceSensor {
 		trigger = ioio_.openDigitalOutput(triggerPin, false);
 		echo = ioio_.openPulseInput(echoPin, PulseMode.POSITIVE);
 
-		Thread t = new Thread(this);
-		t.start();
+		if (servoPin >= 0) {
+			Thread t = new Thread(this);
+			t.start();
+		}
 	}
 
 	@Override
-	protected int getDistance() throws ConnectionLostException, InterruptedException {
+	public int getDistance() throws ConnectionLostException, InterruptedException {
 		trigger.write(true);
 		Thread.sleep(1);
 		trigger.write(false);
 		Thread.sleep(10);
 		int echoSeconds = (int) (echo.getDuration() * 1000 * 1000);
-		return (int) echoSeconds / 29 / 2 * 10;  // *10 zamienia na mm
+		return (int) echoSeconds / 29 / 2 * 10; // *10 zamienia na mm
 	}
 }

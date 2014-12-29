@@ -20,7 +20,8 @@ public class C {
 	public static final int minPatternCount = 4; // MUSI BYĆ >=2
 	public static final int patternTTL = 10;
 
-	public static final int maxSpeed = 100;
+	public static final int maxSpeed = 80;
+	public static final int maxDirection = 100;
 
 	public static final float wheelsDistance = 205.0f;
 	public static final float wheelDiameter = 60.0f;
@@ -33,7 +34,7 @@ public class C {
 	public static final float robotLenght = 200.0f;
 	public static final float robotWidth = 150.0f;
 
-	public static final int loopSleep = 100;
+	public static final int loopSleep = 10;
 	public static final int batterySleep = 1000;
 
 	public static final int PIDPeriod = 100;
