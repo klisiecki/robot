@@ -54,7 +54,6 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 		isRunning = false;
 	}
 
-	//TODO filtrowanie: wiele pomiarów i/lub ograniczenie z HCSR
 	abstract public int getDistance() throws ConnectionLostException, InterruptedException;
 
 	@Override

@@ -45,4 +45,6 @@ public class C {
 	
 	public static final float cameraViewAngle = 0.96f; // 55 stopni
 	public static final int maxObstacleDistance = 600;
+	public static final int minFreeDistance = 350;
+	
 }

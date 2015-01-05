@@ -95,7 +95,6 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		// TODO rozmiar można brać stąd
 	}
 
 	@Override
@@ -134,7 +133,6 @@ public class MyCamera implements CvCameraViewListener2 {
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
 		Core.inRange(mask, C.minColor, C.maxColor, mask);
 		
-
 		Mat maskedImage = new Mat();
 		imgRgba.copyTo(maskedImage, mask);
 

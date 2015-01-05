@@ -25,6 +25,7 @@ import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
+import pl.poznan.put.ioiorobot.sensors.FrontDistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus.BatteryStatusChangedListener;
@@ -76,8 +77,8 @@ public class RobotActivity extends IOIOActivity {
 	private MyCamera camera;
 	private IMotorsController motorsController;
 	private IDistanceSensor distanceSensor;
-	private IDistanceSensor frontDistanceSensor;
 	private IBatteryStatus batteryStatus;
+	private FrontDistanceSensor frontDistanceSensor;
 	private EncodersData encodersData;
 
 	private Position robotPosition;
@@ -97,7 +98,7 @@ public class RobotActivity extends IOIOActivity {
 				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
 						robotPosition);
 				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3, encodersData);
-				frontDistanceSensor = new HCSR04DistanceSensor(ioio_, -1, 8, 9);
+				frontDistanceSensor = new FrontDistanceSensor(ioio_, 6, 7, 8, 9, 10, 11, C.minFreeDistance);
 				distanceSensor = new SharpDistanceSensor(ioio_, 13, 33);
 				batteryStatus = new BatteryStatus(ioio_, 46);
 				initIOIOListeners();
@@ -117,7 +118,7 @@ public class RobotActivity extends IOIOActivity {
 
 			if (startButton.isChecked()) {
 				motorsController.setSpeed(C.maxSpeed);
-				if (frontDistanceSensor.getDistance() > 350) {
+				if (frontDistanceSensor.isFreeCenter()) {
 					motorsController.start();
 					Log.d(C.TAG, "NIE MA przeskozda!!!");
 				} else {
@@ -248,7 +249,7 @@ public class RobotActivity extends IOIOActivity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
-					//camera.setMode(MyCamera.Mode.MOCK);
+					// camera.setMode(MyCamera.Mode.MOCK);
 				} else {
 					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
 				}

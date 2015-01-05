@@ -121,31 +121,6 @@ public class Pattern {
 			position.y /= intersections.size();
 
 		}
-
-		// if (viewPositions.size() == 2) {
-		// // TODO Znajdowanie punkt przeciecia wielu punktów, a nie tylko
-		// // pierwszego i ostatniego
-		//
-		// Point o1 = viewPositions.get(0).getPoint();
-		// Point p1 = viewPositions.get(0).getVectorPoint();
-		// Point o2 = viewPositions.get(1).getPoint();
-		// Point p2 = viewPositions.get(1).getVectorPoint();
-		//
-		// Point p = intersection(o1, p1, o2, p2);
-		//
-		// // Log.d(C.TAG, "PRZECIĘCIE: " + o1 + " " + p1 + "     " + o2 + " "
-		// // + p2 + "               " + p);
-		//
-		// if (p != null) {
-		// position = p;
-		// } else {
-		// Log.d(C.TAG, "NULL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		// viewPositions.remove(1);
-		// }
-		// } else {
-		// // TODO dodawanie kolejnych punktów
-		//
-		// }
 	}
 
 	public void merge(Pattern p) {
