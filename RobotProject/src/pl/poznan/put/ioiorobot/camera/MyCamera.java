@@ -123,7 +123,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	 * @return
 	 */
 	private Mat processFrame(CvCameraViewFrame inputFrame) {
-		// TODO patterny z oryginalnego obrazu
+		// TODO patterny z oryginalnego obrazu (bez nałożonych kresek i ramek)
 		// pobranie klatki w RGB
 		Mat imgRgba = inputFrame.rgba();
 
@@ -132,6 +132,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		imgRgba.copyTo(mask);
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
 		Core.inRange(mask, C.minColor, C.maxColor, mask);
+		
 
 		Mat maskedImage = new Mat();
 		imgRgba.copyTo(maskedImage, mask);
@@ -139,10 +140,12 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat maskedImageGray = new Mat();
 		Imgproc.cvtColor(maskedImage, maskedImageGray, Imgproc.COLOR_RGB2GRAY);
 
+
 		Mat maskedImageGrayThresholded = new Mat();
 		Imgproc.adaptiveThreshold(maskedImageGray, maskedImageGrayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
 				Imgproc.THRESH_BINARY_INV, 9, 7); // blockSize = 9, mC = 7;
 
+		
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(maskedImageGrayThresholded, contours, new Mat(), Imgproc.RETR_EXTERNAL,
 				Imgproc.CHAIN_APPROX_SIMPLE);
@@ -153,8 +156,8 @@ public class MyCamera implements CvCameraViewListener2 {
 			int threshold = (int) (C.screenSize.x * C.screenSize.y * C.thresholdFactor / 100);
 			if (Imgproc.contourArea(cnt) > threshold) {
 
-				// Rysowanie różowego prostokąta wokół analizowanych fragmentów
 				Rect r = Imgproc.boundingRect(cnt);
+				// Rysowanie różowego prostokąta wokół analizowanych fragmentów
 				Core.rectangle(imgRgba, r.tl(), r.br(), new Scalar(255, 0, 255), 5);
 
 				Mat subMat = imgRgba.submat(r);
@@ -245,9 +248,9 @@ public class MyCamera implements CvCameraViewListener2 {
 	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint cnt, Mat fragment) {
 		List<Point> points = getRectanglePointsFromContour(cnt);
 
-		// jeżlii znaleziony kontur przypomina prostokąt oraz udało się
+		// jeżlii znaleziony kontur przypomina kwadrat oraz udało się
 		// posortować jego wierzchołki
-		if (CameraHelper.couldBeRectangle(points) && CameraHelper.sortCorners(points)) {
+		if (CameraHelper.couldBeSquare(points) && CameraHelper.sortCorners(points)) {
 			Rect rect = Imgproc.boundingRect(cnt);
 
 			Point fragmentTL = rect.tl();

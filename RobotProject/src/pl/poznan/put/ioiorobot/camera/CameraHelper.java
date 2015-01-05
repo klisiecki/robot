@@ -43,7 +43,7 @@ public class CameraHelper {
 	 * @param points
 	 * @return true gdy może być prostokątem
 	 */
-	public static boolean couldBeRectangle(List<Point> points) {
+	public static boolean couldBeSquare(List<Point> points) {
 		if (points.size() != 4) {
 			return false;
 		}
@@ -53,6 +53,8 @@ public class CameraHelper {
 		int left = CameraHelper.getDistance(points.get(0), points.get(3));
 		int right = CameraHelper.getDistance(points.get(1), points.get(2));
 
+		//TODO Przydało by się sprawdzenie, czy różnica długości podstaw i boków nie jest za duża, czy to na pewno kwadrat, a nie rozciągnięty prostokąt
+		
 		if (!CameraHelper.areSimilar(top, bottom) || !CameraHelper.areSimilar(left, right)) {
 			return false;
 		} else {
