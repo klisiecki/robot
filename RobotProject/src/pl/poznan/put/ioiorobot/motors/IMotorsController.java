@@ -15,4 +15,6 @@ public interface IMotorsController {
 	void stop();
 	
 	void start();
+
+	void turn(float d);
 }

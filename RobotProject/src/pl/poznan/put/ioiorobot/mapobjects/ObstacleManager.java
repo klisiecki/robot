@@ -55,8 +55,6 @@ public class ObstacleManager {
 					put(new Point(i, j));
 				}
 			}
-			
-			
 		}
 
 		private void put(Point point) {
@@ -73,8 +71,6 @@ public class ObstacleManager {
 					obstacleAcceptedListener.onObstacleAccepted(o);
 				}
 			}
-			
-			
 		}
 	}
 

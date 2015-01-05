@@ -27,7 +27,7 @@ public class SharpDistanceSensor extends AbstractDistanceSensor {
 	}
 
 	@Override
-	protected int getDistance() throws ConnectionLostException, InterruptedException {
+	public int getDistance() throws ConnectionLostException, InterruptedException {
 		//wzór z https://www.sparkfun.com/products/242
 		for (int i = 0; i < size; i++) {
 			buffer[i] = Math.round(input.getVoltageBuffered() * 1000) / 1000.0f;

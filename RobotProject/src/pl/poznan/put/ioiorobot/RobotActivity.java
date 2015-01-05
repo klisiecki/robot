@@ -25,6 +25,7 @@ import pl.poznan.put.ioiorobot.motors.IMotorsController;
 import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
+import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus.BatteryStatusChangedListener;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
@@ -75,14 +76,15 @@ public class RobotActivity extends IOIOActivity {
 	private MyCamera camera;
 	private IMotorsController motorsController;
 	private IDistanceSensor distanceSensor;
+	private IDistanceSensor frontDistanceSensor;
 	private IBatteryStatus batteryStatus;
 	private EncodersData encodersData;
-	
+
 	private Position robotPosition;
 	private PatternsQueue patternsQueue;
 	private ObstacleManager obstacleManager;
 	private AreaMap areaMap;
-	
+
 	private Point screenSize;
 
 	class Looper extends BaseIOIOLooper {
@@ -92,12 +94,12 @@ public class RobotActivity extends IOIOActivity {
 			showToast("Connected");
 
 			try {
-				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3);
-				// distanceSensor = new HCSR04DistanceSensor(ioio_, 13, 8, 9);
-				distanceSensor = new SharpDistanceSensor(ioio_, 13, 33);
-				batteryStatus = new BatteryStatus(ioio_, 46);
 				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
 						robotPosition);
+				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3, encodersData);
+				frontDistanceSensor = new HCSR04DistanceSensor(ioio_, -1, 8, 9);
+				distanceSensor = new SharpDistanceSensor(ioio_, 13, 33);
+				batteryStatus = new BatteryStatus(ioio_, 46);
 				initIOIOListeners();
 			} catch (ConnectionLostException e) {
 				Log.e(C.TAG, e.toString());
@@ -111,9 +113,20 @@ public class RobotActivity extends IOIOActivity {
 				public void run() {
 					seekBar3.setProgress(100 + motorsController.getRegulacja());
 					areaMapWidget.invalidate();
+					
 				}
 			});
-
+			
+			motorsController.setSpeed(C.maxSpeed);
+			if (frontDistanceSensor.getDistance() > 350) {
+				motorsController.start();
+				Log.d(C.TAG, "NIE MA przeskozda!!!");
+			} else {
+				Log.d(C.TAG, "przeskozda!!!");
+				motorsController.stop();
+				motorsController.turn((float)Math.PI/20);
+			}
+			
 			Thread.sleep(C.loopSleep);
 		}
 
@@ -229,8 +242,7 @@ public class RobotActivity extends IOIOActivity {
 				}
 			}
 		});
-		
-		
+
 		startButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
@@ -242,7 +254,6 @@ public class RobotActivity extends IOIOActivity {
 				}
 			}
 		});
-		
 
 		camera.setPatternFoundListener(new PatternFoundListener() {
 
@@ -267,13 +278,13 @@ public class RobotActivity extends IOIOActivity {
 				});
 			}
 		});
-		
+
 		obstacleManager.setObstacleAcceptedListener(new ObstacleAcceptedListener() {
-			
+
 			@Override
 			public void onObstacleAccepted(Obstacle obstacle) {
 				areaMap.addObstacle(obstacle);
-				
+
 			}
 		});
 
@@ -304,7 +315,7 @@ public class RobotActivity extends IOIOActivity {
 					@Override
 					public void run() {
 						barGraph.setValues(results);
-						//Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
+						// Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
 						if (last.distance < C.maxObstacleDistance) {
 							obstacleManager.addObstacle(new Obstacle(robotPosition, last));
 						}
@@ -313,7 +324,7 @@ public class RobotActivity extends IOIOActivity {
 
 			}
 		});
-		
+
 		encodersData.setPositionChangedListener(new PositionChangedListener() {
 
 			@Override

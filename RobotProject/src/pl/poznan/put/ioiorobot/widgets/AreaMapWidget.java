@@ -22,7 +22,7 @@ public class AreaMapWidget extends View {
 	private Paint obstaclePaint2;
 	private Paint robotPaint;
 
-	private float scale = 2;
+	private float scale = 10;
 
 	private int width;
 	private int height;

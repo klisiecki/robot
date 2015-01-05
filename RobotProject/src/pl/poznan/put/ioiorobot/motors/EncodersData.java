@@ -95,6 +95,10 @@ public class EncodersData {
 			}
 		}
 	}
+	
+	public Position getPosition() {
+		return new Position(position);
+	}
 
 	private void getData() {
 		try {
