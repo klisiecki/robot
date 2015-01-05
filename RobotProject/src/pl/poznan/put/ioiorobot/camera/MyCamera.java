@@ -28,6 +28,7 @@ import pl.poznan.put.ioiorobot.mapobjects.Pattern;
 import pl.poznan.put.ioiorobot.utils.C;
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.widget.SeekBar;
 
 /**
@@ -211,6 +212,7 @@ public class MyCamera implements CvCameraViewListener2 {
 			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
 				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRgba, cnt));
+				Log.d(C.TAG, "angle = " +calculateCameraAngle(imgRgba, cnt));
 
 				if (patternFoundListener != null) {
 					patternFoundListener.onPatternFound(pattern);
@@ -232,8 +234,13 @@ public class MyCamera implements CvCameraViewListener2 {
 	 */
 	private float calculateCameraAngle(Mat image, MatOfPoint cnt) {
 		Rect r = Imgproc.boundingRect(cnt);
-		int center = r.x + r.width / 2;
-		float result = (float) (center / image.width() * C.cameraViewAngle - C.cameraViewAngle / 2);
+		int center = r.x + r.width / 2; //pozycja konturu w submacie
+		
+		Size wholeSize = new Size();
+		Point offset = new Point();
+		image.locateROI(wholeSize, offset);
+		
+		float result = ((float) center + (float)offset.x) / (float)wholeSize.width * C.cameraViewAngle - C.cameraViewAngle / 2;
 		return result;
 	}
 

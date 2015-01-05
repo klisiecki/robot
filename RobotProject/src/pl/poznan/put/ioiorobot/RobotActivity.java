@@ -112,21 +112,21 @@ public class RobotActivity extends IOIOActivity {
 			runOnUiThread(new Runnable() {
 				public void run() {
 					seekBar3.setProgress(100 + motorsController.getRegulacja());
-					areaMapWidget.invalidate();
-					
 				}
 			});
-			
-			motorsController.setSpeed(C.maxSpeed);
-			if (frontDistanceSensor.getDistance() > 350) {
-				motorsController.start();
-				Log.d(C.TAG, "NIE MA przeskozda!!!");
-			} else {
-				Log.d(C.TAG, "przeskozda!!!");
-				motorsController.stop();
-				motorsController.turn((float)Math.PI/20);
+
+			if (startButton.isChecked()) {
+				motorsController.setSpeed(C.maxSpeed);
+				if (frontDistanceSensor.getDistance() > 350) {
+					motorsController.start();
+					Log.d(C.TAG, "NIE MA przeskozda!!!");
+				} else {
+					Log.d(C.TAG, "przeskozda!!!");
+					motorsController.stop();
+					motorsController.turn((float) Math.PI / 20);
+				}
 			}
-			
+
 			Thread.sleep(C.loopSleep);
 		}
 
@@ -248,7 +248,7 @@ public class RobotActivity extends IOIOActivity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
-					camera.setMode(MyCamera.Mode.MOCK);
+					//camera.setMode(MyCamera.Mode.MOCK);
 				} else {
 					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
 				}
@@ -284,6 +284,7 @@ public class RobotActivity extends IOIOActivity {
 			@Override
 			public void onObstacleAccepted(Obstacle obstacle) {
 				areaMap.addObstacle(obstacle);
+				areaMapWidget.invalidate();
 
 			}
 		});
@@ -318,6 +319,7 @@ public class RobotActivity extends IOIOActivity {
 						// Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
 						if (last.distance < C.maxObstacleDistance) {
 							obstacleManager.addObstacle(new Obstacle(robotPosition, last));
+							areaMapWidget.invalidate();
 						}
 					}
 				});
@@ -334,6 +336,7 @@ public class RobotActivity extends IOIOActivity {
 					@Override
 					public void run() {
 						mapWidget.addPosition(position);
+						areaMapWidget.invalidate();
 					}
 				});
 			}

@@ -18,7 +18,11 @@ import android.graphics.Point;
 import android.util.Log;
 
 /**
- *	Wzorzec (marker) wraz z dodatkowymi informacjami o jego położeniu itp.
+ * Wzorzec (marker) wraz z dodatkowymi informacjami o jego położeniu itp.
+ */
+/**
+ * @author karol
+ *
  */
 public class Pattern {
 	private static int nextId = 0;
@@ -33,16 +37,16 @@ public class Pattern {
 	private Point position;
 	private List<Position> viewPositions = new ArrayList<Position>();
 
-	
 	public List<Position> getViewPositions() {
 		return viewPositions;
 	}
-	public Point getPoint(){
+
+	public Point getPoint() {
 		return position;
 	}
 
 	public void addViewPosition(Position p) {
-		Log.d(C.TAG, id+ " ...adViewPosition" + p);
+		// Log.d(C.TAG, id + " ...adViewPosition" + p);
 		// jednorazowe dodanie kąta wynikającego z położenia patternu na obrazie
 		// kamery
 		p.addAngle(cameraAngle);
@@ -54,64 +58,98 @@ public class Pattern {
 	}
 
 	/**
-	 * http://stackoverflow.com/questions/7446126/opencv-2d-line-intersection-
-	 * helper-function
+	 * Układ równań z:
+	 * http://stackoverflow.com/questions/2931573/determining-if-
+	 * two-rays-intersect
 	 * 
-	 * @param o1
-	 * @param p1
-	 * @param o2
-	 * @param p2
+	 * @param as
+	 * @param ae
+	 * @param bs
+	 * @param be
 	 * @return
 	 */
-	public Point intersection(final Point o1, final Point p1, final Point o2, final Point p2) {
-		//Log.d(C.TAG, "intersection");
-		Point x = new Point(o2.x - o1.x, o2.y - o1.y);
-		Point d1 = new Point(p1.x - o1.x, p1.y - o1.y); //wektory
-		Point d2 = new Point(p2.x - o2.x, p2.y - o2.y); //wektory
-		
-		//Log.d(C.TAG, "d1 = "+d1 + ", d2 = "+d2);
+	public Point intersection2(final Point as, final Point ae, final Point bs, final Point be) {
+		Point ad = new Point(ae.x - as.x, ae.y - as.y);
+		Point bd = new Point(be.x - bs.x, be.y - bs.y);
 
-		int cross = d1.x * d2.y - d1.y * d2.x;
-		//Log.d(C.TAG, "cross = "+cross);
-		if (cross == 0) {
+		float u, v;
+		if ((ad.x * bd.y - ad.y * bd.x) == 0) {
 			return null;
 		}
-		double t1 = (x.x * d2.y - x.y * d2.x) / (double)cross;
-		Point r = new Point(o1.x + (int) (d1.x * t1), o1.y + (int) (d1.y * t1));
-		
-		//TODO Dodać sprawdzenie, czy półproste na pewno się pokrywają (a nie ich przedłużenia z tyłu)
-		
-		return r;
+		u = (float) (as.y * bd.x + bd.y * bs.x - bs.y * bd.x - bd.y * as.x) / (ad.x * bd.y - ad.y * bd.x);
 
+		if (bd.x != 0) {
+			v = (float) (as.x + ad.x * u - bs.x) / bd.x;
+		} else {
+			v = (float) (as.y + ad.y * u - bs.y) / bd.y;
+		}
+
+		if (u <= 0 || v <= 0) {
+			return null;
+		}
+
+		return new Point((int) (as.x + ad.x * u), (int) (as.y + ad.y * u));
 	}
 
 	private void recalculatePosition() {
-		if (viewPositions.size() >= 2) {
-			
-			//TODO Znajdowanie punkt przeciecia wielu punktów, a nie tylko pierwszego i ostatniego
-			
-			Point o1 = viewPositions.get(0).getPoint();
-			Point p1 = viewPositions.get(0).getVectorPoint();
-			Point o2 = viewPositions.get(viewPositions.size()-1).getPoint();
-			Point p2 = viewPositions.get(viewPositions.size()-1).getVectorPoint();
-
-			Point p = intersection(o1, p1, o2, p2);
-			
-			//Log.d(C.TAG, "PRZECIĘCIE: " + o1 + " " + p1 + "     " + o2 + " " + p2 + "               " + p);
-			
-			if (p != null) {
-				position = p;
-			} else {
-				Log.d(C.TAG, "NULL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-				viewPositions.remove(1);
+		List<Point> intersections = new ArrayList<Point>();
+		for (int i = 0; i < viewPositions.size(); i++) {
+			for (int j = i + 1; j < viewPositions.size(); j++) {
+				Point o1 = viewPositions.get(i).getPoint();
+				Point p1 = viewPositions.get(i).getVectorPoint();
+				Point o2 = viewPositions.get(j).getPoint();
+				Point p2 = viewPositions.get(j).getVectorPoint();
+				Point intersection = intersection2(o1, p1, o2, p2);
+				if (intersection != null) {
+					intersections.add(intersection);
+				}
 			}
-		} else {
-			//TODO dodawanie kolejnych punktów
 		}
+
+		if (intersections.size() == 0) {
+			position = null;
+			return;
+		} else {
+			position = new Point(0, 0);
+
+			for (Point p : intersections) {
+				position.x += p.x;
+				position.y += p.y;
+			}
+
+			position.x /= intersections.size();
+			position.y /= intersections.size();
+
+		}
+
+		// if (viewPositions.size() == 2) {
+		// // TODO Znajdowanie punkt przeciecia wielu punktów, a nie tylko
+		// // pierwszego i ostatniego
+		//
+		// Point o1 = viewPositions.get(0).getPoint();
+		// Point p1 = viewPositions.get(0).getVectorPoint();
+		// Point o2 = viewPositions.get(1).getPoint();
+		// Point p2 = viewPositions.get(1).getVectorPoint();
+		//
+		// Point p = intersection(o1, p1, o2, p2);
+		//
+		// // Log.d(C.TAG, "PRZECIĘCIE: " + o1 + " " + p1 + "     " + o2 + " "
+		// // + p2 + "               " + p);
+		//
+		// if (p != null) {
+		// position = p;
+		// } else {
+		// Log.d(C.TAG, "NULL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		// viewPositions.remove(1);
+		// }
+		// } else {
+		// // TODO dodawanie kolejnych punktów
+		//
+		// }
 	}
 
 	public void merge(Pattern p) {
-		for (Position pos : p.getViewPositions()) {
+		for (Position pos : p.viewPositions) {
 			addViewPosition(new Position(pos));
 		}
 	}

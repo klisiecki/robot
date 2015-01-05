@@ -30,8 +30,8 @@ public class Position {
 	}
 
 	public Point getVectorPoint() {
-		Log.d(C.TAG, "\t\t\t angle == " + angle + "   x == " + Math.sin(angle)*100 + "    y == " + Math.cos(angle)*100);
-		return new Point((int) (Math.sin(angle) * 100 + x), (int) (Math.cos(angle) * 100 + y));
+//		Log.d(C.TAG, "\t\t\t angle == " + angle + "   x == " + Math.sin(angle)*100 + "    y == " + Math.cos(angle)*100);
+		return new Point((int) (Math.sin(angle) * 10000 + x), (int) (Math.cos(angle) * 10000 + y));
 	}
 
 	public void addAngle(float angle) {

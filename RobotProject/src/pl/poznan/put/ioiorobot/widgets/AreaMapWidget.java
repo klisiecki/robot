@@ -1,28 +1,34 @@
 package pl.poznan.put.ioiorobot.widgets;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+
 import pl.poznan.put.ioiorobot.mapobjects.AreaMap;
 import pl.poznan.put.ioiorobot.mapobjects.Obstacle;
 import pl.poznan.put.ioiorobot.mapobjects.Pattern;
 import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.utils.C;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class AreaMapWidget extends View {
-	
+
 	private Paint backgroundPaint;
 	private Paint patternPaint;
 	private Paint obstaclePaint;
 	private Paint obstaclePaint2;
 	private Paint robotPaint;
 
-	private float scale = 10;
+	private float scale = 6;
 
 	private int width;
 	private int height;
@@ -30,6 +36,8 @@ public class AreaMapWidget extends View {
 	private AreaMap areaMap;
 
 	private Paint trackPaint;
+
+	private static Timer timer;
 
 	public void setAreaMap(AreaMap areaMap) {
 		this.areaMap = areaMap;
@@ -57,7 +65,7 @@ public class AreaMapWidget extends View {
 		trackPaint.setColor(Color.rgb(0x00, 0x99, 0x00));
 		trackPaint.setStrokeWidth(1);
 		trackPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-		
+
 		backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		backgroundPaint.setColor(Color.rgb(0x88, 0xee, 0xff));
 		backgroundPaint.setStrokeWidth(1);
@@ -65,14 +73,14 @@ public class AreaMapWidget extends View {
 
 		patternPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		patternPaint.setColor(Color.rgb(0x00, 0xaa, 0x00));
-		patternPaint.setStrokeWidth(1);
-		patternPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+		patternPaint.setStrokeWidth(5);
+		patternPaint.setStyle(Paint.Style.STROKE);
 
 		obstaclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		obstaclePaint.setColor(Color.rgb(0xdd, 0x00, 0x00));
 		obstaclePaint.setStrokeWidth(1);
 		obstaclePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-		
+
 		obstaclePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
 		obstaclePaint2.setColor(Color.rgb(0xdd, 0xdd, 0x00));
 		obstaclePaint2.setStrokeWidth(1);
@@ -84,7 +92,7 @@ public class AreaMapWidget extends View {
 		robotPaint.setStyle(Paint.Style.STROKE);
 
 	}
-	
+
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int desiredWidth = 1000;
@@ -92,7 +100,7 @@ public class AreaMapWidget extends View {
 		width = measureSize(widthMeasureSpec, desiredWidth);
 		height = measureSize(heightMeasureSpec, desiredHeight);
 		width = height = Math.min(width, height);
-	
+
 		setMeasuredDimension(width, height);
 	}
 
@@ -114,20 +122,49 @@ public class AreaMapWidget extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
+
 		// rysowanie markerów
 		for (Pattern p : areaMap.getPatterns()) {
-			addPoint(p.getPoint(), patternPaint, canvas);
+			Point position = p.getPoint();
+			if (position != null) {
+				Bitmap bmp = p.getBitmap();
+				Rect source = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+
+				int x = (int) (position.x / scale + width / 2); // +
+																// bmp.getWidth()
+																// / 2
+				int y = (int) (-position.y / scale + height / 2); // +
+																	// bmp.getWidth()
+																	// / 2
+
+				int size = (int) (C.robotWidth * 2);
+				Rect dest = new Rect(x - (int) (size / 2 / scale), y - (int) (size / 2 / scale), x
+						+ (int) (size / 2 / scale), y + (int) (size / 2 / scale));
+
+				canvas.drawBitmap(bmp, source, dest, patternPaint);
+				addPoint(position, patternPaint, canvas);
+			}
+
+//			List<Position> viewPositions = new ArrayList<Position>(p.getViewPositions());
+//			for (Position pos : viewPositions) {
+//				canvas.drawLine(pos.getPoint().x / scale + width / 2, -pos.getPoint().y / scale + width / 2,
+//						pos.getVectorPoint().x / scale + width / 2, -pos.getVectorPoint().y / scale + width / 2,
+//						patternPaint);
+//			}
+
 		}
 
 		// rysowanie przeszkód
 		for (Obstacle o : areaMap.getObstacles()) {
-			if (o.isAccepted()) addPoint(o.getPoint(), obstaclePaint, canvas);
+			if (o.isAccepted())
+				addPoint(o.getPoint(), obstaclePaint, canvas);
 		}
 
 		for (Obstacle o : areaMap.getObstacles()) {
-			if (!o.isAccepted()) addPoint(o.getPoint(), obstaclePaint2, canvas);
+			if (!o.isAccepted())
+				addPoint(o.getPoint(), obstaclePaint2, canvas);
 		}
-		
+
 		// rysowanie robota
 		canvas.save();
 		Position robotPosition = areaMap.getRobotPosition();
@@ -152,7 +189,7 @@ public class AreaMapWidget extends View {
 		canvas.restore();
 		canvas.save();
 	}
-	
+
 	private void addPoint(Point p, Paint paint, Canvas canvas) {
 		if (p != null) {
 			int x = (int) (p.x / scale + width / 2);
@@ -161,8 +198,6 @@ public class AreaMapWidget extends View {
 			canvas.drawCircle(x, y, 3, paint);
 		}
 	}
-	
-	
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
