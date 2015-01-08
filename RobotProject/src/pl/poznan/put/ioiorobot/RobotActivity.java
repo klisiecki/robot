@@ -116,6 +116,9 @@ public class RobotActivity extends IOIOActivity {
 				}
 			});
 
+			
+			Log.d(C.TAG, "frontDistanceSensor: " + frontDistanceSensor.isFreeLeft() + "\t" + frontDistanceSensor.isFreeCenter() + "\t" + frontDistanceSensor.isFreeRight());
+			
 			if (startButton.isChecked()) {
 				motorsController.setSpeed(C.maxSpeed);
 				if (frontDistanceSensor.isFreeCenter()) {
