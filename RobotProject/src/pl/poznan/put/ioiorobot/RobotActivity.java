@@ -80,6 +80,7 @@ public class RobotActivity extends IOIOActivity {
 	private IBatteryStatus batteryStatus;
 	private FrontDistanceSensor frontDistanceSensor;
 	private EncodersData encodersData;
+	private Controller controller;
 
 	private Position robotPosition;
 	private PatternsQueue patternsQueue;
@@ -87,6 +88,8 @@ public class RobotActivity extends IOIOActivity {
 	private AreaMap areaMap;
 
 	private Point screenSize;
+	
+	private boolean autoDrive = false;
 
 	class Looper extends BaseIOIOLooper {
 
@@ -101,6 +104,7 @@ public class RobotActivity extends IOIOActivity {
 				frontDistanceSensor = new FrontDistanceSensor(ioio_, 6, 7, 8, 9, 10, 11, C.minFreeDistance);
 				distanceSensor = new SharpDistanceSensor(ioio_, 13, 33);
 				batteryStatus = new BatteryStatus(ioio_, 46);
+				controller = new Controller(robotPosition, camera, motorsController, frontDistanceSensor);
 				initIOIOListeners();
 			} catch (ConnectionLostException e) {
 				Log.e(C.TAG, e.toString());
@@ -117,18 +121,22 @@ public class RobotActivity extends IOIOActivity {
 			});
 
 			
-			Log.d(C.TAG, "frontDistanceSensor: " + frontDistanceSensor.isFreeLeft() + "\t" + frontDistanceSensor.isFreeCenter() + "\t" + frontDistanceSensor.isFreeRight());
+//			Log.d(C.TAG, "frontDistanceSensor: " + frontDistanceSensor.isFreeLeft() + "\t" + frontDistanceSensor.isFreeCenter() + "\t" + frontDistanceSensor.isFreeRight());
+//			
+//			if (startButton.isChecked()) {
+//				motorsController.setSpeed(C.maxSpeed);
+//				if (frontDistanceSensor.isFreeCenter()) {
+//					motorsController.start();
+//					Log.d(C.TAG, "NIE MA przeskozda!!!");
+//				} else {
+//					Log.d(C.TAG, "przeskozda!!!");
+//					motorsController.stop();
+//					motorsController.turn((float) Math.PI / 20);
+//				}
+//			}
 			
-			if (startButton.isChecked()) {
-				motorsController.setSpeed(C.maxSpeed);
-				if (frontDistanceSensor.isFreeCenter()) {
-					motorsController.start();
-					Log.d(C.TAG, "NIE MA przeskozda!!!");
-				} else {
-					Log.d(C.TAG, "przeskozda!!!");
-					motorsController.stop();
-					motorsController.turn((float) Math.PI / 20);
-				}
+			if (autoDrive) {
+
 			}
 
 			Thread.sleep(C.loopSleep);
@@ -253,8 +261,13 @@ public class RobotActivity extends IOIOActivity {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
 					// camera.setMode(MyCamera.Mode.MOCK);
+					autoDrive = true;
+					controller.start();
 				} else {
-					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
+//					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
+					autoDrive = false;
+					controller.interrupt();
+					motorsController.stop();
 				}
 			}
 		});

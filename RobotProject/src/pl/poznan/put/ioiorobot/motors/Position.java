@@ -64,6 +64,10 @@ public class Position {
 		this.y = y;
 		this.angle = angle;
 	}
+	
+	public float distanceTo(Position position) {
+		return (float) Math.sqrt((position.x - x)*(position.x - x) + (position.y - y)*(position.y - y));
+	}
 
 	// public void move(float x, float y, float angle) {
 	// this.x += x;

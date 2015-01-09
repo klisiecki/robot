@@ -94,7 +94,7 @@ public class MotorsController implements IMotorsController {
 	}
 
 	
-	public void turnTo(float targetAngle) {
+	private void turnTo(float targetAngle) {
 		speed = C.maxSpeed;
 		start();
 
@@ -102,23 +102,23 @@ public class MotorsController implements IMotorsController {
 		try {
 			if (changeAngle < -Math.PI) {
 				direction = C.maxDirection;
-				while (encodersData.getPosition().angle() > 0)
+				while (encodersData.getPosition().angle() > 0 && enabled)
 					Thread.sleep(20);
-				while (encodersData.getPosition().angle() < targetAngle)
+				while (encodersData.getPosition().angle() < targetAngle && enabled)
 					Thread.sleep(20);
 			} else if (changeAngle >= -Math.PI && changeAngle < 0) {
 				direction = -C.maxDirection;
-				while (encodersData.getPosition().angle() > targetAngle)
+				while (encodersData.getPosition().angle() > targetAngle && enabled)
 					Thread.sleep(20);
 			} else if (changeAngle >= 0 && changeAngle < Math.PI) {
 				direction = C.maxDirection;
-				while (encodersData.getPosition().angle() < targetAngle)
+				while (encodersData.getPosition().angle() < targetAngle && enabled)
 					Thread.sleep(20);
 			} else if (changeAngle >= Math.PI) {
 				direction = -C.maxDirection;
-				while (encodersData.getPosition().angle() < 0)
+				while (encodersData.getPosition().angle() < 0 && enabled)
 					Thread.sleep(20);
-				while (encodersData.getPosition().angle() > targetAngle)
+				while (encodersData.getPosition().angle() > targetAngle && enabled)
 					Thread.sleep(20);
 			}
 		} catch (Exception e) {
@@ -153,32 +153,59 @@ public class MotorsController implements IMotorsController {
 			while (true) {
 
 				try {
-					float left = ((float) Math.abs(speed) + (float) direction * speed / 100f) / 200f;
-					float right = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
+					float left = 0; // = ((float) Math.abs(speed) + (float) direction * speed / 100f) / 200f;
+					float right = 0; // = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
 
-					if (speed > 5) {
+					if (speed > 0 && direction == 0) {
 						l1.write(true);
 						l2.write(false);
 						r1.write(true);
 						r2.write(false);
-					} else if (speed < -5) {
+						left = right = (float)speed/C.maxSpeed;
+					} else if (speed > 0 && direction < 0) {
 						l1.write(false);
 						l2.write(true);
+						r1.write(true);
+						r2.write(false);
+						left = right = (float)speed/C.maxSpeed/2;
+					} else if (speed > 0 && direction > 0) {
+						l1.write(true);
+						l2.write(false);
 						r1.write(false);
 						r2.write(true);
-						float tmp = left;
-						left = right;
-						right = tmp;
+						left = right = (float)speed/C.maxSpeed/2;
 					} else {
 						l1.write(false);
 						l2.write(false);
 						r1.write(false);
 						r2.write(false);
 					}
-					// float left = Math.min( ((float) Math.abs(speed) +
-					// direction)/100f, 1f);
-					// float right = Math.min( ((float) Math.abs(speed) -
-					// direction)/100f, 1f);
+					
+					
+					
+//					float left = ((float) Math.abs(speed) + (float) direction * speed / 100f) / 200f;
+//					float right = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
+//
+//					if (speed > 5) {
+//						l1.write(true);
+//						l2.write(false);
+//						r1.write(true);
+//						r2.write(false);
+//					} else if (speed < -5) {
+//						l1.write(false);
+//						l2.write(true);
+//						r1.write(false);
+//						r2.write(true);
+//						float tmp = left;
+//						left = right;
+//						right = tmp;
+//					} else {
+//						l1.write(false);
+//						l2.write(false);
+//						r1.write(false);
+//						r2.write(false);
+//					}
+					
 
 					if (!enabled) {
 						left = right = 0;
@@ -187,7 +214,7 @@ public class MotorsController implements IMotorsController {
 						left = 0;
 					if (right < 0.1f)
 						right = 0;
-					lPwm.setDutyCycle(Math.min(left, 1f));
+					lPwm.setDutyCycle(Math.min(left, 1f)); // float [0 ; 1]
 					rPwm.setDutyCycle(Math.min(right, 1f));
 					// Log.d(C.TAG, "\t\t\tx= " + direction + " , y= " + speed
 					// + "     L = " + left + "   R = " + right);

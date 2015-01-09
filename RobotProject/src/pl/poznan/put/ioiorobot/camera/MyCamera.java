@@ -58,6 +58,16 @@ public class MyCamera implements CvCameraViewListener2 {
 	private BaseLoaderCallback loaderCallback;
 	private Context context;
 	private PatternFoundListener patternFoundListener;
+	
+	private int framesToProcess;
+	
+	public void setFramesToProcess(int framesToProcess) {
+		this.framesToProcess = framesToProcess;
+	}
+	
+	public boolean isReady() {
+		return framesToProcess == 0;
+	}
 
 	private SeekBar seekBar1;
 	private SeekBar seekBar2;
@@ -103,7 +113,8 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		if (mode == Mode.PROCESSING) {
+		if (mode == Mode.PROCESSING || framesToProcess > 0) {
+			framesToProcess--;
 			return processFrame(inputFrame);
 		} else if (mode == Mode.MOCK) {
 			if (patternFoundListener != null) {
