@@ -1,8 +1,6 @@
 package pl.poznan.put.ioiorobot.motors;
 
-import pl.poznan.put.ioiorobot.utils.C;
 import android.graphics.Point;
-import android.util.Log;
 
 /**
  * Klasa przechowująca pozycję robota w układzie współrzędnych wraz z aktualnym
@@ -51,6 +49,12 @@ public class Position {
 		this.x = x;
 		this.y = y;
 		this.angle = angle;
+	}
+	
+	public Position(Position position, Point shift) {
+		this(position);
+		this.x += shift.y * Math.sin(position.angle()) + shift.x * Math.cos(position.angle());
+		this.y += shift.y * Math.cos(position.angle()) + shift.x * Math.sin(position.angle());
 	}
 
 	public Position(Position position) {

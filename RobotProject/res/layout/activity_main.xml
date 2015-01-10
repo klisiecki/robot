@@ -17,151 +17,169 @@
             android:layout_height="wrap_content" />
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/relative_controls"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true" >
+    <ViewFlipper android:id="@+id/viewFlipper" 
+                   android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/linear1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/distanceBarGraph"
-            android:gravity="center"
-            android:orientation="vertical" >
+        <RelativeLayout
+            android:id="@+id/relative_controls"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true" >
 
-            <!--
+            <LinearLayout
+                android:id="@+id/linear1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/distanceBarGraph"
+                android:gravity="center"
+                android:orientation="vertical" >
+
+                <!--
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/camera"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-            -->
+                -->
 
-            <ToggleButton
-                android:id="@+id/cameraToggleButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical|center_horizontal|top"
-                android:minHeight="35dip"
-                android:textOff="@string/camera"
-                android:textOn="@string/camera" />
+                <ToggleButton
+                    android:id="@+id/cameraToggleButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal|top"
+                    android:minHeight="35dip"
+                    android:textOff="@string/camera"
+                    android:textOn="@string/camera" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@color/black_overlay" />
-            <!--
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/black_overlay" />
+                <!--
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/sensor"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-            -->
+                -->
 
-            <ToggleButton
-                android:id="@+id/sensorToggleButton"
+                <ToggleButton
+                    android:id="@+id/sensorToggleButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal|top"
+                    android:minHeight="35dip"
+                    android:textOff="@string/sensor"
+                    android:textOn="@string/sensor" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/black_overlay" />
+
+                <ToggleButton
+                    android:id="@+id/startToggleButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal|top"
+                    android:minHeight="70dip"
+                    android:textOff="START"
+                    android:textOn="STOP" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/black_overlay" />
+
+                <pl.poznan.put.ioiorobot.widgets.BatteryStatusBar
+                    android:id="@+id/batteryStatusBar"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linear2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/distanceBarGraph"
+                android:layout_toLeftOf="@+id/areaMapWidget"
+                android:layout_toRightOf="@+id/linear1"
+                android:gravity="center"
+                android:orientation="vertical" >
+
+                <SeekBar
+                    android:id="@+id/seekBar1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:max="200"
+                    android:progress="1" />
+
+                <SeekBar
+                    android:id="@+id/seekBar2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:max="360"
+                    android:progress="1" />
+
+                <SeekBar
+                    android:id="@+id/seekBar3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:max="200"
+                    android:progress="1" />
+
+                <pl.poznan.put.ioiorobot.widgets.MapWidget
+                    android:id="@+id/mapWidget"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <pl.poznan.put.ioiorobot.widgets.AreaMapWidget
+                android:id="@+id/areaMapWidget"
+                android:layout_width="255dp"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/distanceBarGraph"
+                android:layout_toLeftOf="@+id/joystick" />
+
+            <pl.poznan.put.ioiorobot.widgets.Joystick
+                android:id="@+id/joystick"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/distanceBarGraph"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="42dp" />
+
+            <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
+                android:id="@+id/distanceBarGraph"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true" />
+
+            <pl.poznan.put.ioiorobot.widgets.PatternsWidget
+                android:id="@+id/patternsWidget"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical|center_horizontal|top"
-                android:minHeight="35dip"
-                android:textOff="@string/sensor"
-                android:textOn="@string/sensor" />
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" />
+        </RelativeLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@color/black_overlay" />
+        <RelativeLayout
+            android:id="@+id/relative2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true" >
 
-            <ToggleButton
-                android:id="@+id/startToggleButton"
+            <pl.poznan.put.ioiorobot.widgets.AreaMapWidget
+                android:id="@+id/areaMapWidgetBig"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical|center_horizontal|top"
-                android:minHeight="70dip"
-                android:textOff="START"
-                android:textOn="STOP" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@color/black_overlay" />
-
-            <pl.poznan.put.ioiorobot.widgets.BatteryStatusBar
-                android:id="@+id/batteryStatusBar"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/linear2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/distanceBarGraph"
-            android:layout_toLeftOf="@+id/areaMapWidget"
-            android:layout_toRightOf="@+id/linear1"
-            android:gravity="center"
-            android:orientation="vertical" >
-
-            <SeekBar
-                android:id="@+id/seekBar1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:max="200"
-                android:progress="1" />
-
-            <SeekBar
-                android:id="@+id/seekBar2"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:max="360"
-                android:progress="1" />
-
-            <SeekBar
-                android:id="@+id/seekBar3"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:max="200"
-                android:progress="1" />
-
-            <pl.poznan.put.ioiorobot.widgets.MapWidget
-                android:id="@+id/mapWidget"
-                android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <pl.poznan.put.ioiorobot.widgets.AreaMapWidget
-            android:id="@+id/areaMapWidget"
-            android:layout_width="255dp"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/distanceBarGraph"
-            android:layout_toLeftOf="@+id/joystick" />
-
-        <pl.poznan.put.ioiorobot.widgets.Joystick
-            android:id="@+id/joystick"
-            android:layout_width="140dp"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/distanceBarGraph"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="42dp" />
-
-        <pl.poznan.put.ioiorobot.widgets.SimpleBarGraph
-            android:id="@+id/distanceBarGraph"
-            android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true" />
-
-        <pl.poznan.put.ioiorobot.widgets.PatternsWidget
-            android:id="@+id/patternsWidget"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true" />
-    </RelativeLayout>
+        </RelativeLayout>
+    </ViewFlipper>
 
 </FrameLayout>

@@ -122,7 +122,6 @@ public class AreaMapWidget extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-
 		// rysowanie markerów
 		for (Pattern p : areaMap.getPatterns()) {
 			Point position = p.getPoint();

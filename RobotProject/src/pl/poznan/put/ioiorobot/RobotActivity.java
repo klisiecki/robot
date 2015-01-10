@@ -26,7 +26,6 @@ import pl.poznan.put.ioiorobot.motors.MotorsController;
 import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.FrontDistanceSensor;
-import pl.poznan.put.ioiorobot.sensors.HCSR04DistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus.BatteryStatusChangedListener;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
@@ -44,6 +43,8 @@ import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -52,6 +53,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.widget.ViewFlipper;
 
 /**
  * Główna klasa aplikacji. Zawiera wszystkie widoki oraz główną pętlę programu.
@@ -72,6 +74,8 @@ public class RobotActivity extends IOIOActivity {
 	private PatternsWidget patternsWidget;
 	private MapWidget mapWidget;
 	private AreaMapWidget areaMapWidget;
+	private AreaMapWidget areaMapWidgetBig;
+	private ViewFlipper vf;
 
 	// Controls
 	private MyCamera camera;
@@ -88,8 +92,6 @@ public class RobotActivity extends IOIOActivity {
 	private AreaMap areaMap;
 
 	private Point screenSize;
-	
-	private boolean autoDrive = false;
 
 	class Looper extends BaseIOIOLooper {
 
@@ -120,24 +122,9 @@ public class RobotActivity extends IOIOActivity {
 				}
 			});
 
-			
-//			Log.d(C.TAG, "frontDistanceSensor: " + frontDistanceSensor.isFreeLeft() + "\t" + frontDistanceSensor.isFreeCenter() + "\t" + frontDistanceSensor.isFreeRight());
-//			
-//			if (startButton.isChecked()) {
-//				motorsController.setSpeed(C.maxSpeed);
-//				if (frontDistanceSensor.isFreeCenter()) {
-//					motorsController.start();
-//					Log.d(C.TAG, "NIE MA przeskozda!!!");
-//				} else {
-//					Log.d(C.TAG, "przeskozda!!!");
-//					motorsController.stop();
-//					motorsController.turn((float) Math.PI / 20);
-//				}
-//			}
-			
-			if (autoDrive) {
-
-			}
+			Log.d(C.TAG,
+					"frontDistanceSensor: " + frontDistanceSensor.isFreeLeft() + "\t"
+							+ frontDistanceSensor.isFreeCenter() + "\t" + frontDistanceSensor.isFreeRight());
 
 			Thread.sleep(C.loopSleep);
 		}
@@ -157,6 +144,7 @@ public class RobotActivity extends IOIOActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		initObjects();
+		initWindow();
 		initView();
 		initListeners();
 	}
@@ -179,13 +167,17 @@ public class RobotActivity extends IOIOActivity {
 		C.screenSize = screenSize;
 	}
 
-	private void initView() {
+	private void initWindow() {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN
 				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 		getWindow().getDecorView().setSystemUiVisibility(uiOptions);
+
+	}
+
+	private void initView() {
 
 		setContentView(R.layout.activity_main);
 
@@ -202,7 +194,11 @@ public class RobotActivity extends IOIOActivity {
 		patternsWidget = (PatternsWidget) findViewById(R.id.patternsWidget);
 		mapWidget = (MapWidget) findViewById(R.id.mapWidget);
 		areaMapWidget = (AreaMapWidget) findViewById(R.id.areaMapWidget);
+		areaMapWidgetBig = (AreaMapWidget) findViewById(R.id.areaMapWidgetBig);
 		areaMapWidget.setAreaMap(areaMap);
+		areaMapWidgetBig.setAreaMap(areaMap);
+
+		vf = (ViewFlipper) findViewById(R.id.viewFlipper);
 	}
 
 	private void initListeners() {
@@ -261,11 +257,9 @@ public class RobotActivity extends IOIOActivity {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
 					// camera.setMode(MyCamera.Mode.MOCK);
-					autoDrive = true;
 					controller.start();
 				} else {
-//					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
-					autoDrive = false;
+					// camera.setMode(MyCamera.Mode.CAMERA_ONLY);
 					controller.interrupt();
 					motorsController.stop();
 				}
@@ -276,7 +270,7 @@ public class RobotActivity extends IOIOActivity {
 
 			@Override
 			public void onPatternFound(final Pattern pattern) {
-				pattern.addViewPosition(new Position(robotPosition));
+				pattern.addViewPosition(new Position(robotPosition, C.cameraShift));
 				patternsQueue.add(pattern);
 			}
 		});
@@ -302,6 +296,7 @@ public class RobotActivity extends IOIOActivity {
 			public void onObstacleAccepted(Obstacle obstacle) {
 				areaMap.addObstacle(obstacle);
 				areaMapWidget.invalidate();
+				areaMapWidgetBig.invalidate();
 
 			}
 		});
@@ -336,7 +331,7 @@ public class RobotActivity extends IOIOActivity {
 						// Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
 						if (last.distance < C.maxObstacleDistance) {
 							obstacleManager.addObstacle(new Obstacle(robotPosition, last));
-							areaMapWidget.invalidate();
+							areaMapWidgetBig.invalidate();
 						}
 					}
 				});
@@ -353,7 +348,7 @@ public class RobotActivity extends IOIOActivity {
 					@Override
 					public void run() {
 						mapWidget.addPosition(position);
-						areaMapWidget.invalidate();
+						areaMapWidgetBig.invalidate();
 					}
 				});
 			}
@@ -367,4 +362,21 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	public boolean onOptionsItemSelected(android.view.MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.showMap:
+			vf.showNext();
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+	};
 }

@@ -9,15 +9,11 @@ public class C {
 	public static int patternSize;
 	public static Point screenSize;
 
-	public static final double thresholdFactor = 0.5; // minimalne procentowe
-														// pokrycie powierzchni
-														// ekranu
-	public static final int rectangleFactor = 20; // maksymalna procentowa
-													// różnica w długości
-													// przeciwległych boków
-													// czworokąta, przy której
-													// jest on nadal uważany za
-													// prostokąt
+	/* minimalne procentowe pokrycie powierzchni ekranu */
+	public static final double thresholdFactor = 0.5;
+	
+	/* maksymalna procentowa różnica w długości przeciwległych boków czworokąta, przy której jest on nadal uważany za prostokąt */
+	public static final int rectangleFactor = 20;
 	public static final int maxContoursProcessed = 3;
 
 	public static final Scalar minColor = new Scalar(15, 64, 64); // min yellow
@@ -36,7 +32,9 @@ public class C {
 	public static final float encoderResolution = 128.0f;
 
 	public static final float wheelsToSensorDistance = 150.0f;
-	public static final float cameraDistance = 50.0f;
+	
+	/* przesunięcie kamery względem pozycji robota */
+	public static final Point cameraShift = new Point(-5, 5);
 
 	public static final float robotLenght = 200.0f;
 	public static final float robotWidth = 150.0f;
