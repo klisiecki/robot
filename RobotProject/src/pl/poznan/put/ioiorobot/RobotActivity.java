@@ -319,7 +319,7 @@ public class RobotActivity extends IOIOActivity {
 		distanceSensor.setDistanceResultListener(new DistanceResultListener() {
 
 			@Override
-			public void onResult(final List<Integer> results, final IDistanceSensor.Pair last) {
+			public void onResult(final List<Integer> results, final IDistanceSensor.AngleDistancePair last) {
 				runOnUiThread(new Runnable() {
 
 					@Override

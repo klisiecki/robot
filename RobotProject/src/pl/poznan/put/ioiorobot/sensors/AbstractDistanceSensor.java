@@ -17,7 +17,7 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 
 	protected PwmOutput servo;
 	private boolean isRunning = false;
-	private List<Pair> results;
+	private List<AngleDistancePair> results;
 
 	private DistanceResultListener listener;
 
@@ -29,21 +29,21 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 		if (servoPin >= 0) {
 			servo = ioio_.openPwmOutput(servoPin, 100);
 		}
-		results = new ArrayList<IDistanceSensor.Pair>(RESULTS_SIZE);
+		results = new ArrayList<IDistanceSensor.AngleDistancePair>(RESULTS_SIZE);
 		for (int i = 0; i < RESULTS_SIZE; i++) {
-			results.add(new Pair(0, 0));
+			results.add(new AngleDistancePair(0, 0));
 		}
 	}
 
 	@Override
-	public List<Pair> getResults() {
+	public List<AngleDistancePair> getResults() {
 		return results;
 	}
 
 	@Override
 	public List<Integer> getResultsOnly() {
 		ArrayList<Integer> result = new ArrayList<Integer>();
-		for (IDistanceSensor.Pair pair : results) {
+		for (IDistanceSensor.AngleDistancePair pair : results) {
 			result.add(pair.distance);
 		}
 		return result;
@@ -73,7 +73,7 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 					for (int i = 0; i < RESULTS_SIZE; i++) {
 						servo.setPulseWidth(map(position));
 						Thread.sleep(STEP_DELAY);
-						results.set(i, new Pair(position, getDistance()));
+						results.set(i, new AngleDistancePair(position, getDistance()));
 						// Log.d(C.TAG, i + "+, " + position + ", map: " +
 						// map(position) + " | "+results.get(i).distance);
 						if (i != RESULTS_SIZE - 1) {

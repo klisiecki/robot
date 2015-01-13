@@ -40,7 +40,7 @@ public class Obstacle {
 		accepted = false;
 	}
 
-	public Obstacle(Position robotPosition, IDistanceSensor.Pair sensor) {
+	public Obstacle(Position robotPosition, IDistanceSensor.AngleDistancePair sensor) {
 		super();
 		point = new Point();
 		double angle = robotPosition.angle() - sensor.angle / 180.0 * Math.PI;

@@ -1,44 +1,24 @@
 package pl.poznan.put.ioiorobot.motors;
 
+import ioio.lib.api.DigitalOutput;
+import ioio.lib.api.IOIO;
+import ioio.lib.api.Uart;
+import ioio.lib.api.exception.ConnectionLostException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Timer;
-import java.util.TimerTask;
-
-import pl.poznan.put.ioiorobot.utils.C;
-
-import ioio.lib.api.DigitalInput;
-import ioio.lib.api.DigitalOutput;
-import ioio.lib.api.IOIO;
-import ioio.lib.api.PwmOutput;
-import ioio.lib.api.Uart;
-import ioio.lib.api.exception.ConnectionLostException;
-import android.text.format.Time;
-import android.util.Log;
 
 /**
  * Klasa komunikująca się z Arduino, służy do przechowywania aktualnej pozycji
  * robnota i informowania o jej zmianach
- *
  */
 public class EncodersData {
 
-	public interface PositionChangedListener {
-		public void onPositionChanged(Position position);
-	}
-
 	private PositionChangedListener listener;
-
-	public void setPositionChangedListener(PositionChangedListener listener) {
-		this.listener = listener;
-	}
-
-	private IOIO ioio_;
 	private Uart uart;
 	private DigitalOutput request;
 	private Position position;
@@ -50,7 +30,6 @@ public class EncodersData {
 
 	public EncodersData(IOIO ioio_, int rxPin, int txPin, int requestPin, int baud, Uart.Parity parity,
 			Uart.StopBits stopBits, Position position) throws ConnectionLostException {
-		this.ioio_ = ioio_;
 		this.position = position;
 		uart = ioio_.openUart(rxPin, txPin, baud, parity, stopBits);
 		request = ioio_.openDigitalOutput(requestPin);
@@ -66,27 +45,11 @@ public class EncodersData {
 			e.printStackTrace();
 		}
 
-		EncodersDataThread t = new EncodersDataThread();
-
-		// if (null != timer) { timer.cancel(); timer.purge(); timer = null; }
-		//
-		// timer = new Timer();
-		//
-		// timer.scheduleAtFixedRate(new MyTask(), 0, 50);
-
+		EncodersDataThread encodersDataThread = new EncodersDataThread();
+		encodersDataThread.start();
 	}
 
-	// private class MyTask extends TimerTask {
-	//
-	// public void run() {
-	// getData();
-	// }
-	// }
-
 	private class EncodersDataThread extends Thread {
-		public EncodersDataThread() {
-			start();
-		}
 
 		@Override
 		public void run() {
@@ -94,10 +57,6 @@ public class EncodersData {
 				getData();
 			}
 		}
-	}
-	
-	public Position getPosition() {
-		return new Position(position);
 	}
 
 	private void getData() {
@@ -122,41 +81,23 @@ public class EncodersData {
 		}
 
 		if (line != null) {
-			// Log.d(C.TAG, "\t\t\tUART RECEIVED: " + line);
-
 			String pattern = "^> *-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+ +-?[0-9]+.[0-9]+<$";
 
 			if (line.matches(pattern)) {
-				//Log.d(C.TAG, "\t\t\tUART RECEIVED OK: " + line);
-
 				line = line.substring(1, line.length() - 1);
 				line = line.trim();
 
 				String[] parts = line.split(" +");
 
-				position.set(StrToFloat(parts[0]), StrToFloat(parts[1]), StrToFloat(parts[2]));
+				position.set(parseFloat(parts[0]), parseFloat(parts[1]), parseFloat(parts[2]));
 				if (listener != null) {
 					listener.onPositionChanged(position);
 				}
-			} else {
-				 //Log.d(C.TAG, "\t\t\t\t\tNO MATCH");
 			}
-		} else {
-			 //Log.d(C.TAG, "\t\t\tUART DATA PROBLEM");
 		}
 	}
 
-	private int StrToInt(String s) {
-		try {
-			int i = Integer.parseInt(s);
-			return i;
-		} catch (NumberFormatException e) {
-			return 0;
-		}
-
-	}
-
-	private float StrToFloat(String s) {
+	private float parseFloat(String s) {
 		try {
 			float i = Float.parseFloat(s);
 			return i;
@@ -164,13 +105,17 @@ public class EncodersData {
 			return 0.0f;
 		}
 	}
-
-	private double StrToDouble(String s) {
-		try {
-			double i = Double.parseDouble(s);
-			return i;
-		} catch (NumberFormatException e) {
-			return 0.0;
-		}
+	
+	public Position getPosition() {
+		return new Position(position);
 	}
+	
+	public void setPositionChangedListener(PositionChangedListener listener) {
+		this.listener = listener;
+	}
+	
+	public interface PositionChangedListener {
+		public void onPositionChanged(Position position);
+	}
+
 }
