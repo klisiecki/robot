@@ -35,10 +35,18 @@ public class PatternsQueue {
 	public void add(Pattern newPattern) {
 		boolean inserted = false;
 
+		//usuwanie 
+		int contentPercentage = newPattern.getContenPencentage();
+		Log.d(C.TAG, contentPercentage + "%");
+		if (contentPercentage < C.minPatternContent || contentPercentage > C.maxPatternContent) {
+			return;
+		}
+
 		for (Pattern p : patterns) {
 			// Log.d(C.TAG, p.getId() + "|"+newPattern.getId()+ " Pokrycie = " +
 			// p.compareTo(newPattern));
 			if (p.compareTo(newPattern) > C.minPatternCoverage) {
+				Log.d(C.TAG, "accepted " + p.getContenPencentage());
 				p.merge(newPattern);
 				// Log.d(C.TAG, "\t" + p.getId() + " count = " + p.getCount());
 				inserted = true;

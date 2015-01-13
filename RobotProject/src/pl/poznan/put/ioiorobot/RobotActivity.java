@@ -375,6 +375,8 @@ public class RobotActivity extends IOIOActivity {
 		case R.id.showMap:
 			vf.showNext();
 			return true;
+		case R.id.showDebug:
+			camera.switchDebug();
 		default:
 			return super.onContextItemSelected(item);
 		}

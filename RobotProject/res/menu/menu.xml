@@ -1,6 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <menu xmlns:android="http://schemas.android.com/apk/res/android">
-        <item android:id="@+id/showMap"
-            android:title="Pokaż widok mapy"
-            ></item>
-    </menu>
+    <item
+        android:id="@+id/showMap"
+        android:title="Pokaż/ukryj widok mapy">
+    </item>
+    <item
+        android:id="@+id/showDebug"
+        android:title="Pokaż/ukryj debugowanie obrazu">
+    </item>
+
+</menu>

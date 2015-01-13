@@ -19,9 +19,20 @@ public class C {
 	public static final Scalar minColor = new Scalar(15, 64, 64); // min yellow
 	public static final Scalar maxColor = new Scalar(45, 255, 255); // max yelow
 
+	/* minimalne pokrycie dwóch znaczników aby były uznane za ten sam */
 	public static final int minPatternCoverage = 80;
+	
+	/* minimalna liczba znalezień znacznika aby został zaakceptowany */
 	public static final int minPatternCount = 4; // MUSI BYĆ >=2
+	
+	/* po takiej liczbie wykrytych znaczników, dany znacznik jest usuwany jeśli nie został wykryty ponownie */
+	//TODO przemyśleć to, np gdy robot będzie jeździł po dużym obszarze?
 	public static final int patternTTL = 10;
+	
+	/* mimalny i maksymalny procentowy udział koloru czarnego w stosunku do białego, 
+	 * aby znacznik nie został odrzucony */
+	public static final int minPatternContent = 10;
+	public static final int maxPatternContent = 70;
 
 	public static final int maxSpeed = 60;
 	public static final int maxDirection = 60;

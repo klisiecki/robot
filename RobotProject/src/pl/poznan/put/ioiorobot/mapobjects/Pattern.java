@@ -219,6 +219,19 @@ public class Pattern {
 		return result;
 	}
 
+	public int getContenPencentage() {
+		int countBlack = 0;
+		int countAll = size * size;
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (array[i][j]) {
+					countBlack++;
+				}
+			}
+		}
+		return 100 - countBlack * 100 / countAll;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder("");
