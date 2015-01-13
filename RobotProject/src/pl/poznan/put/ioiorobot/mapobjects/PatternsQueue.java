@@ -15,27 +15,20 @@ import android.util.Log;
  */
 public class PatternsQueue {
 
-	public interface PatternAcceptedListener {
-		void onPatternAccepted(Pattern pattern);
-	}
-
-	private PatternAcceptedListener patternAcceptedListener;
-
-	public void setPatternAcceptedListener(PatternAcceptedListener patternAcceptedListener) {
-		this.patternAcceptedListener = patternAcceptedListener;
-	}
-
 	private LinkedList<Pattern> patterns;
 	private List<Pattern> toRemove = new ArrayList<Pattern>();
+	private PatternAcceptedListener patternAcceptedListener;
 
 	public PatternsQueue() {
 		patterns = new LinkedList<Pattern>();
 	}
 
+	/**
+	 * Dodaje znaleziony pattern do kolejki
+	 */
 	public void add(Pattern newPattern) {
 		boolean inserted = false;
 
-		//usuwanie 
 		int contentPercentage = newPattern.getContenPencentage();
 		Log.d(C.TAG, contentPercentage + "%");
 		if (contentPercentage < C.minPatternContent || contentPercentage > C.maxPatternContent) {
@@ -43,17 +36,12 @@ public class PatternsQueue {
 		}
 
 		for (Pattern p : patterns) {
-			// Log.d(C.TAG, p.getId() + "|"+newPattern.getId()+ " Pokrycie = " +
-			// p.compareTo(newPattern));
 			if (p.compareTo(newPattern) > C.minPatternCoverage) {
 				Log.d(C.TAG, "accepted " + p.getContenPencentage());
 				p.merge(newPattern);
-				// Log.d(C.TAG, "\t" + p.getId() + " count = " + p.getCount());
 				inserted = true;
 				if (p.incrementCount() == C.minPatternCount) {
 					accept(p);
-					// Log.d(C.TAG, "\t\t" + newPattern.getId() + " -> " +
-					// p.getId());
 				}
 			}
 			if (!p.check()) {
@@ -71,5 +59,13 @@ public class PatternsQueue {
 
 	private void accept(Pattern pattern) {
 		patternAcceptedListener.onPatternAccepted(pattern);
+	}
+	
+	public interface PatternAcceptedListener {
+		void onPatternAccepted(Pattern pattern);
+	}
+	
+	public void setPatternAcceptedListener(PatternAcceptedListener patternAcceptedListener) {
+		this.patternAcceptedListener = patternAcceptedListener;
 	}
 }

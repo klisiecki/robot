@@ -6,7 +6,7 @@ import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.FrontDistanceSensor;
 import pl.poznan.put.ioiorobot.utils.C;
 
-public class Controller extends Thread {
+public class RobotController extends Thread {
 
 	private float distance;
 	private Position lastPosition;
@@ -17,7 +17,7 @@ public class Controller extends Thread {
 	private DrivingThread drivingThread;
 	private boolean motorsRunning = false;
 
-	public Controller(Position position, MyCamera camera, IMotorsController motorsController,
+	public RobotController(Position position, MyCamera camera, IMotorsController motorsController,
 			FrontDistanceSensor frontDistanceSensor) {
 		super();
 		this.position = position;
@@ -80,7 +80,7 @@ public class Controller extends Thread {
 					sleep(C.loopSleep);
 				}
 			} catch (Exception e) {
-
+				e.printStackTrace();
 			}
 		}
 	}

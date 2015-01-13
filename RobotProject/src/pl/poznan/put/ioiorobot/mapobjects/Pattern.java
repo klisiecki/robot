@@ -24,6 +24,10 @@ import android.util.Log;
  * @author karol
  *
  */
+/**
+ * @author karol
+ *
+ */
 public class Pattern {
 	private static int nextId = 0;
 
@@ -62,11 +66,8 @@ public class Pattern {
 	 * http://stackoverflow.com/questions/2931573/determining-if-
 	 * two-rays-intersect
 	 * 
-	 * @param as
-	 * @param ae
-	 * @param bs
-	 * @param be
-	 * @return
+	 * Funkcja zwraca punkt przecięcia dwóch półprostych
+	 * @return punkt przecięcia, null gdy półproste są równoległe
 	 */
 	public Point intersection2(final Point as, final Point ae, final Point bs, final Point be) {
 		Point ad = new Point(ae.x - as.x, ae.y - as.y);
@@ -91,6 +92,9 @@ public class Pattern {
 		return new Point((int) (as.x + ad.x * u), (int) (as.y + ad.y * u));
 	}
 
+	/**
+	 * Funkcja przelicza estymowaną pozycję Patternu na podstawie pozycji z których był widziany
+	 */
 	private void recalculatePosition() {
 		List<Point> intersections = new ArrayList<Point>();
 		for (int i = 0; i < viewPositions.size(); i++) {
@@ -123,6 +127,9 @@ public class Pattern {
 		}
 	}
 
+	/**
+	 * Funkcja scala dwa Patterny 
+	 */
 	public void merge(Pattern p) {
 		for (Position pos : p.viewPositions) {
 			addViewPosition(new Position(pos));
@@ -161,20 +168,18 @@ public class Pattern {
 		this(mat);
 		this.cameraAngle = cameraAngle;
 	}
+	
+	public Pattern() {
+		id = nextId++;
+		size = C.patternSize;
+		array = new boolean[size][size];
+	}
 
 	public Pattern(Mat mat) {
 		this();
 		Imgproc.resize(mat, mat, new Size(size, size));
-		// int blockSize = size+1; // seekBar1.getProgress()*2 + 3
-		// int C = 7; // seekBar2.getProgress()
-		// Imgproc.adaptiveThreshold(mat, mat, 255,
-		// Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV,
-		// blockSize, C);
-
 		MinMaxLocResult minmax = Core.minMaxLoc(mat);
-		double min = minmax.minVal;
-		double max = minmax.maxVal;
-		double mean = (min + max) / 2;
+		double mean = (minmax.minVal + minmax.maxVal) / 2;
 		bitmap = Bitmap.createBitmap(size, size, Config.ARGB_4444);
 		for (int i = 0; i < mat.height(); i++) {
 			for (int j = 0; j < mat.width(); j++) {
@@ -188,21 +193,9 @@ public class Pattern {
 						array[i][j] = false;
 						bitmap.setPixel(j, i, Color.BLACK);
 					}
-				} else {
 				}
 			}
 		}
-
-	}
-
-	public Pattern() {
-		id = nextId++;
-		size = C.patternSize;
-		array = new boolean[size][size];
-	}
-
-	public void set(int i, int j, boolean value) {
-		array[i][j] = value;
 	}
 
 	public int compareTo(Pattern otherPattern) {
@@ -219,6 +212,9 @@ public class Pattern {
 		return result;
 	}
 
+	/**
+	 * Funkcja oblicza procentową zawartość faktycznego znacznika w całym jego obrysie
+	 */
 	public int getContenPencentage() {
 		int countBlack = 0;
 		int countAll = size * size;

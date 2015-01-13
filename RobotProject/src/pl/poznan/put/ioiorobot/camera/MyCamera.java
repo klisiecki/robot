@@ -45,10 +45,6 @@ public class MyCamera implements CvCameraViewListener2 {
 	private PatternFoundListener patternFoundListener;
 	private Mat imgRbgaRaw;
 	
-	private SeekBar seekBar1;
-	private SeekBar seekBar2;
-	private SeekBar seekBar3;
-
 	public void setPatternFoundListener(PatternFoundListener patternFoundListener) {
 		this.patternFoundListener = patternFoundListener;
 	}
@@ -68,10 +64,6 @@ public class MyCamera implements CvCameraViewListener2 {
 				cameraView.enableView();
 			}
 		};
-
-		seekBar1 = (SeekBar) ((Activity) context).findViewById(R.id.seekBar1);
-		seekBar2 = (SeekBar) ((Activity) context).findViewById(R.id.seekBar2);
-		seekBar3 = (SeekBar) ((Activity) context).findViewById(R.id.seekBar3);
 	}
 
 	public void resume() {
@@ -129,7 +121,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		Mat maskedImageGrayThresholded = new Mat();
 		Imgproc.adaptiveThreshold(maskedImageGray, maskedImageGrayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
-				Imgproc.THRESH_BINARY_INV, 9, 7); // blockSize = 9, mC = 7;
+				Imgproc.THRESH_BINARY_INV, C.thresholdBlockSize, C.thresholdMC); // blockSize = 9, mC = 7;
 
 		
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
@@ -156,8 +148,6 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	/**
 	 * Funkcja przeszukująca fragment obrazu w celu znalezienia markerów
-	 * 
-	 * @param imgRgba
 	 */
 	private void processMat(Mat imgRgba) {
 
@@ -166,7 +156,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		Mat grayThresholded = new Mat();
 		Imgproc.adaptiveThreshold(imgGray, grayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
-				Imgproc.THRESH_BINARY_INV, 9, 7);
+				Imgproc.THRESH_BINARY_INV, C.thresholdBlockSize, C.thresholdMC);
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(grayThresholded, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -212,8 +202,6 @@ public class MyCamera implements CvCameraViewListener2 {
 	 * Metoda obliczająca rzeczywisty kąt, o jaki znaleziony kontur jest
 	 * odchylony od osi aparatu (bazując na znanym kącie widzenia kamery)
 	 * 
-	 * @param image
-	 * @param cnt
 	 * @return kąt w radianach, wartości ujemne na lewo, dodatnie na prawo
 	 */
 	private float calculateCameraAngle(Mat image, MatOfPoint cnt) {
@@ -231,9 +219,6 @@ public class MyCamera implements CvCameraViewListener2 {
 	/**
 	 * Funkcja tworzy czworokąt z podanego konturu i przekształca do kwadratu
 	 * 
-	 * @param resultImage
-	 * @param cnt
-	 * @param fragment
 	 * @return true gdy udało się uzyskać kwadrat
 	 */
 	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint cnt, Mat fragment) {
@@ -268,7 +253,6 @@ public class MyCamera implements CvCameraViewListener2 {
 	 * Przekształca każdy kontur w maksymalnie czworokąt, poprzez usuwanie
 	 * wierzchołków przy największych kątach
 	 * 
-	 * @param cnt
 	 * @return lista maksymalnie 4 punktów
 	 */
 	private List<Point> getRectanglePointsFromContour(MatOfPoint cnt) {
@@ -330,13 +314,6 @@ public class MyCamera implements CvCameraViewListener2 {
 	/**
 	 * Metoda wycinająca obszar wyznaczony przez podane punkty i rozciągając ten
 	 * fragment na kwadratowy obraz
-	 * 
-	 * @param inputMat
-	 * @param p1
-	 * @param p2
-	 * @param p3
-	 * @param p4
-	 * @return wycięty i rozciągnięty fragment
 	 */
 	public static Mat warp(Mat inputMat, Point p1, Point p2, Point p3, Point p4) {
 		int resultWidth, resultHeight;

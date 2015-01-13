@@ -18,6 +18,9 @@ public class C {
 
 	public static final Scalar minColor = new Scalar(15, 64, 64); // min yellow
 	public static final Scalar maxColor = new Scalar(45, 255, 255); // max yelow
+	
+	public static final int thresholdBlockSize = 9;
+	public static final int thresholdMC =7;
 
 	/* minimalne pokrycie dwóch znaczników aby były uznane za ten sam */
 	public static final int minPatternCoverage = 80;
@@ -50,7 +53,10 @@ public class C {
 	public static final float robotLenght = 200.0f;
 	public static final float robotWidth = 150.0f;
 
+	/* standardowy sleep spowolniający pętle */
 	public static final int loopSleep = 10;
+	
+	/* odświeżanie widgetu baterii */
 	public static final int batterySleep = 1000;
 
 	public static final int PIDPeriod = 100;

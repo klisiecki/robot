@@ -8,10 +8,9 @@ import org.opencv.core.Point;
 import pl.poznan.put.ioiorobot.utils.C;
 
 public class CameraHelper {
+	
 	/**
-	 * @param a
-	 * @param b
-	 * @return true gdy długości boków a oraz b różnią się maksymalnie o
+	 * Zwraca true gdy długości boków a oraz b różnią się maksymalnie o
 	 *         C.rectangleFactor %
 	 */
 	public static boolean areSimilar(int a, int b) {
@@ -19,19 +18,14 @@ public class CameraHelper {
 	}
 
 	/**
-	 * @param a
-	 * @param b
-	 * @return odległość pomiędzy punktami a oraz b
+	 * Zwraca odległość pomiędzy punktami a oraz b
 	 */
 	public static int getDistance(Point a, Point b) {
 		return (int) Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 	}
 
 	/**
-	 * @param p0
-	 * @param p1
-	 * @param p2
-	 * @return Kąt przy wierzchołku p1
+	 * Zwraca kąt między wektorami p1 -> p0 i p1 -> p2
 	 */
 	public static double getAngle(Point p0, Point p1, Point p2) {
 		return Math.toDegrees(Math.atan2(p0.x - p1.x, p0.y - p1.y) - Math.atan2(p2.x - p1.x, p2.y - p1.y));
@@ -39,9 +33,6 @@ public class CameraHelper {
 
 	/**
 	 * Metoda określająca, czy podana lista punktów może tworzyć kwadrat
-	 * 
-	 * @param points
-	 * @return true gdy może być kwadratem
 	 */
 	public static boolean couldBeSquare(List<Point> points) {
 		if (points.size() != 4) {
@@ -62,9 +53,8 @@ public class CameraHelper {
 	}
 
 	/**
-	 * Metoda sortująca wierzchołki
+	 * Metoda sortująca wierzchołki czworokąta
 	 * 
-	 * @param cornersArray
 	 * @return true gry posortowano, false gdy nie da się posortować
 	 */
 	public static boolean sortCorners(List<Point> cornersArray) {

@@ -60,6 +60,10 @@ import android.widget.ViewFlipper;
  *
  */
 public class RobotActivity extends IOIOActivity {
+	
+	private SeekBar seekBar1;
+	private SeekBar seekBar2;
+	private SeekBar seekBar3;
 
 	// Views
 	private Joystick joystick;
@@ -67,15 +71,12 @@ public class RobotActivity extends IOIOActivity {
 	private ToggleButton cameraButton;
 	private ToggleButton sensorsButton;
 	private ToggleButton startButton;
-	private SeekBar seekBar1;
-	private SeekBar seekBar2;
-	private SeekBar seekBar3;
 	private BatteryStatusBar batteryStatusBar;
 	private PatternsWidget patternsWidget;
 	private MapWidget mapWidget;
 	private AreaMapWidget areaMapWidget;
 	private AreaMapWidget areaMapWidgetBig;
-	private ViewFlipper vf;
+	private ViewFlipper mapViewFlipper;
 
 	// Controls
 	private MyCamera camera;
@@ -84,12 +85,12 @@ public class RobotActivity extends IOIOActivity {
 	private IBatteryStatus batteryStatus;
 	private FrontDistanceSensor frontDistanceSensor;
 	private EncodersData encodersData;
-	private Controller controller;
-
-	private Position robotPosition;
+	private RobotController controller;
 	private PatternsQueue patternsQueue;
 	private ObstacleManager obstacleManager;
+
 	private AreaMap areaMap;
+	private Position robotPosition;
 
 	private Point screenSize;
 
@@ -106,7 +107,7 @@ public class RobotActivity extends IOIOActivity {
 				frontDistanceSensor = new FrontDistanceSensor(ioio_, 6, 7, 8, 9, 10, 11, C.minFreeDistance);
 				distanceSensor = new SharpDistanceSensor(ioio_, 13, 33);
 				batteryStatus = new BatteryStatus(ioio_, 46);
-				controller = new Controller(robotPosition, camera, motorsController, frontDistanceSensor);
+				controller = new RobotController(robotPosition, camera, motorsController, frontDistanceSensor);
 				initIOIOListeners();
 			} catch (ConnectionLostException e) {
 				Log.e(C.TAG, e.toString());
@@ -178,7 +179,6 @@ public class RobotActivity extends IOIOActivity {
 	}
 
 	private void initView() {
-
 		setContentView(R.layout.activity_main);
 
 		camera = new MyCamera((CameraBridgeViewBase) findViewById(R.id.camera_view), this);
@@ -197,8 +197,7 @@ public class RobotActivity extends IOIOActivity {
 		areaMapWidgetBig = (AreaMapWidget) findViewById(R.id.areaMapWidgetBig);
 		areaMapWidget.setAreaMap(areaMap);
 		areaMapWidgetBig.setAreaMap(areaMap);
-
-		vf = (ViewFlipper) findViewById(R.id.viewFlipper);
+		mapViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 	}
 
 	private void initListeners() {
@@ -228,8 +227,6 @@ public class RobotActivity extends IOIOActivity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
-					// motorsController.setSpeed(0);
-					// motorsController.setDirection(0);
 					camera.setMode(MyCamera.Mode.PROCESSING);
 				} else {
 					camera.setMode(MyCamera.Mode.CAMERA_ONLY);
@@ -373,7 +370,7 @@ public class RobotActivity extends IOIOActivity {
 	public boolean onOptionsItemSelected(android.view.MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.showMap:
-			vf.showNext();
+			mapViewFlipper.showNext();
 			return true;
 		case R.id.showDebug:
 			camera.switchDebug();

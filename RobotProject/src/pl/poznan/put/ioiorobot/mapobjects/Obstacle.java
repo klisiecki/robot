@@ -11,7 +11,7 @@ import android.graphics.Point;
 public class Obstacle {
 
 	private Point point;
-	private int value;
+	private int count;
 	private boolean accepted;
 
 	public boolean isAccepted() {
@@ -22,17 +22,21 @@ public class Obstacle {
 		accepted = true;
 	}
 
-	public int getValue() {
-		return value;
+	public int getCount() {
+		return count;
+	}
+
+	public Point getPoint() {
+		return point;
 	}
 
 	public void increment() {
-		value++;
+		count++;
 	}
 
 	public Obstacle(Point p) {
 		this.point = p;
-		value = 1;
+		count = 1;
 		accepted = false;
 	}
 
@@ -51,9 +55,5 @@ public class Obstacle {
 				* Math.sin(angle));
 		this.point.y = (int) (robotPosition.y() + C.wheelsToSensorDistance * Math.cos(robotPosition.angle()) + sensor.distance
 				* Math.cos(angle));
-	}
-
-	public Point getPoint() {
-		return point;
 	}
 }

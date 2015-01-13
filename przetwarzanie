@@ -1,2 +1,13 @@
 1. Konwersja klatki na HSV.
-
+2. Filtrowanie klatki wg ustalonego zakresu kolorów - powstaje maskedImage
+3. Konwersja na skalę szarości - powstaje maskedImageGray
+4. Wykonanie adaptiveTreshold - powstaje maskedImageGrayThresholded
+5. Wyszukanie konturów na maskedImageGrayThresholded. Powstaje lista konturów contours, zawierająca obszary o porządanym kolorze.
+6. Dla każdego konturu na liście:
+6.1. Wycięcie kwadratu zawierającego kontur - subMat
+6.2. Konwersja submat do skali szarości.
+6.3. Wykonanie adaptiveTreshold
+6.4. Wyszukanie konturów - lista contours
+6.5. Usunięcie małych konturów.
+6.6. Dla każdego konturu, lista posortowana w kolejności od największych:
+6.6.1 
