@@ -10,7 +10,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 
 import android.content.Context;
-import android.os.Environment;
+import android.graphics.Bitmap;
 import android.util.Log;
 
 public class DAO {
@@ -99,5 +99,22 @@ public class DAO {
 		};
 		
 		t.start();
+	}
+	
+	public static void savetBitmap(Bitmap bitmap, String fileName) {
+		File file = new File("/storage/emulated/0/debug/"+fileName+".png"); //TODO ścieżki z Environment..
+		
+		try {
+			file.createNewFile();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

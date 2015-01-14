@@ -8,5 +8,9 @@
         android:id="@+id/showDebug"
         android:title="Pokaż/ukryj debugowanie obrazu">
     </item>
+    <item
+        android:id="@+id/saveMap"
+        android:title="Zapisz mapę">
+    </item>
 
 </menu>

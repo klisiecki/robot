@@ -60,7 +60,7 @@ import android.widget.ViewFlipper;
  *
  */
 public class RobotActivity extends IOIOActivity {
-	
+
 	private SeekBar seekBar1;
 	private SeekBar seekBar2;
 	private SeekBar seekBar3;
@@ -374,6 +374,11 @@ public class RobotActivity extends IOIOActivity {
 			return true;
 		case R.id.showDebug:
 			camera.switchDebug();
+			return true;
+		case R.id.saveMap:
+			areaMapWidget.saveBitmap();
+			areaMapWidget.invalidate();
+			return true;
 		default:
 			return super.onContextItemSelected(item);
 		}
