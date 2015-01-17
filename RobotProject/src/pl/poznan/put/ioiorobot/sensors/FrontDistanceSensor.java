@@ -63,7 +63,6 @@ public class FrontDistanceSensor implements Runnable {
 				tabPos = (tabPos+1) % BUFFOR_SIZE;
 				Thread.sleep(10);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
 		}

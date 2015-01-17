@@ -1,6 +1,7 @@
 package pl.poznan.put.ioiorobot.widgets;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 
@@ -9,6 +10,7 @@ import pl.poznan.put.ioiorobot.mapobjects.Obstacle;
 import pl.poznan.put.ioiorobot.mapobjects.Pattern;
 import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.DAO;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -17,6 +19,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -38,6 +41,7 @@ public class AreaMapWidget extends View {
 	private Paint trackPaint;
 
 	private static Timer timer;
+	boolean requestSave = false;
 
 	public void setAreaMap(AreaMap areaMap) {
 		this.areaMap = areaMap;
@@ -122,6 +126,11 @@ public class AreaMapWidget extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
+		
+		Bitmap  bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), 
+				  Bitmap.Config.ARGB_8888); 
+		Canvas myCanvas = new Canvas(bitmap);
+		
 		// rysowanie markerów
 		for (Pattern p : areaMap.getPatterns()) {
 			Point position = p.getPoint();
@@ -140,7 +149,7 @@ public class AreaMapWidget extends View {
 				Rect dest = new Rect(x - (int) (size / 2 / scale), y - (int) (size / 2 / scale), x
 						+ (int) (size / 2 / scale), y + (int) (size / 2 / scale));
 
-				canvas.drawBitmap(bmp, source, dest, patternPaint);
+				myCanvas.drawBitmap(bmp, source, dest, patternPaint);
 				addPoint(position, patternPaint, canvas);
 			}
 
@@ -165,35 +174,43 @@ public class AreaMapWidget extends View {
 		}
 
 		// rysowanie robota
-		canvas.save();
+		myCanvas.save();
 		Position robotPosition = areaMap.getRobotPosition();
 		int x = (int) (robotPosition.x() / scale + width / 2);
 		int y = (int) (-robotPosition.y() / scale + height / 2);
 
-		canvas.rotate((float) (180.0 * robotPosition.angle() / Math.PI), x, y);
+		myCanvas.rotate((float) (180.0 * robotPosition.angle() / Math.PI), x, y);
 
 		// robot
-		canvas.drawRect(x - C.robotWidth / 2 / scale, y - C.robotLenght / scale, x + C.robotWidth / 2 / scale, y,
-				robotPaint);
+		myCanvas.drawRect(x - C.robotWidth / 2 / scale, y - C.robotLenght / scale, x + C.robotWidth / 2 / scale, y, robotPaint);
 
 		// koło lewe
-		canvas.drawRect(x - C.robotWidth / 2 / scale - C.robotWidth / 2 / scale / 3, y - C.robotLenght / scale / 3, x
-				- C.robotWidth / 2 / scale, y, robotPaint);
+		myCanvas.drawRect(x - C.robotWidth / 2 / scale - C.robotWidth / 2 / scale / 3, y - C.robotLenght / scale / 3, x - C.robotWidth / 2 / scale, y, robotPaint);
 
 		// koło prawe
-		canvas.drawRect(x + C.robotWidth / 2 / scale, y - C.robotLenght / scale / 3, x + C.robotWidth / 2 / scale
-				+ C.robotWidth / 2 / scale / 3, y, robotPaint);
+		myCanvas.drawRect(x + C.robotWidth / 2 / scale, y - C.robotLenght / scale / 3, x + C.robotWidth / 2 / scale + C.robotWidth / 2 / scale / 3, y, robotPaint);
 
-		canvas.drawCircle(x, y, C.robotWidth / 8 / scale, robotPaint);
-		canvas.restore();
-		canvas.save();
+		myCanvas.drawCircle(x, y, C.robotWidth / 8 / scale, robotPaint);
+		myCanvas.restore();
+		myCanvas.save();
+		
+		Log.e(C.TAG, "onDraw");
+		if(requestSave) {
+			DAO.savetBitmap(bitmap, "map"+Calendar.getInstance().get(Calendar.MILLISECOND));
+			requestSave = false;
+		}
+		
+		canvas.drawBitmap(bitmap, 0, 0, backgroundPaint);
+	}
+	
+	public void saveBitmap() {
+		requestSave = true;
 	}
 
 	private void addPoint(Point p, Paint paint, Canvas canvas) {
 		if (p != null) {
 			int x = (int) (p.x / scale + width / 2);
 			int y = (int) (-p.y / scale + height / 2);
-
 			canvas.drawCircle(x, y, 3, paint);
 		}
 	}

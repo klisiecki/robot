@@ -9,6 +9,9 @@ public class C {
 	public static int patternSize;
 	public static Point screenSize;
 
+	
+	/* -------------- PRZETWARZANIE OBRAZU ---------------- */
+
 	/* minimalne procentowe pokrycie powierzchni ekranu */
 	public static final double thresholdFactor = 0.5;
 	
@@ -18,19 +21,31 @@ public class C {
 
 	public static final Scalar minColor = new Scalar(15, 64, 64); // min yellow
 	public static final Scalar maxColor = new Scalar(45, 255, 255); // max yelow
+	
+	public static final int thresholdBlockSize = 9;
+	public static final int thresholdMC =7;
+	
+	
+	/* -------------- ZNACZNIKI -------------------------- */
 
+	/* minimalne pokrycie dwóch znaczników aby były uznane za ten sam */
 	public static final int minPatternCoverage = 80;
+	
+	/* minimalna liczba znalezień znacznika aby został zaakceptowany */
 	public static final int minPatternCount = 4; // MUSI BYĆ >=2
+	
+	/* po takiej liczbie wykrytych znaczników, dany znacznik jest usuwany jeśli nie został wykryty ponownie */
+	//TODO przemyśleć to, np gdy robot będzie jeździł po dużym obszarze?
 	public static final int patternTTL = 10;
-
-	public static final int maxSpeed = 60;
-	public static final int maxDirection = 60;
-
-	public static final float wheelsDistance = 205.0f;
-	public static final float wheelDiameter = 60.0f;
-	public static final float gearRatio = 27.0f;
-	public static final float encoderResolution = 128.0f;
-
+	
+	/* mimalny i maksymalny procentowy udział koloru czarnego w stosunku do białego, 
+	 * aby znacznik nie został odrzucony */
+	public static final int minPatternContent = 10;
+	public static final int maxPatternContent = 70;
+	//wypełnienie? fill?
+	
+	/* -------------- WYMIARY -------------------------- */
+	
 	public static final float wheelsToSensorDistance = 150.0f;
 	
 	/* przesunięcie kamery względem pozycji robota */
@@ -38,25 +53,40 @@ public class C {
 
 	public static final float robotLenght = 200.0f;
 	public static final float robotWidth = 150.0f;
-
-	public static final int loopSleep = 10;
-	public static final int batterySleep = 1000;
-
-	public static final int PIDPeriod = 100;
-
-	public static final int obstacleCellSize = 10; // kratka ma 10mm
-	public static final int obstacleRange = 4; // zasięg zaznaczania przeszkód
-												// na mapie
+	
+	public static final float cameraViewAngle = 0.96f; // 55 stopni
+	
+	
+	/* -------------- MAPOWANIE I JAZDA ------------------ */
+	
+	/* najdalszy odczyt brany pod uwagę */
+	public static final int maxObstacleDistance = 600; 
+	public static final int minFreeDistance = 250;
+	
+	/* rozmiar kratki na mapie przeszkód */
+	public static final int obstacleCellSize = 10;
+	/* zasięg zaznaczania na mapie przeszkód */
+	public static final int obstacleRange = 4; 
+	/* minimalna liczba zaznaczeń aby odczyt został zaakceptowany */
 	public static final int minObstacleCount = 3;
 
-	public static final float cameraViewAngle = 0.96f; // 55 stopni
-	public static final int maxObstacleDistance = 600; // najdalszy brany pod
-														// uwagę odczyt
-	public static final int minFreeDistance = 250;
-
+	/* odległość do przebycia przez robota pomiędzy przerwami na szukanie znaczników i przeszkód */
 	public static final float robotStepDistance = 500;
 	public static final int rotatesPerStep = 2;
 	public static final int framesPerRotate = 3;
 	public static final float rotateAngle = cameraViewAngle * 2 / 3;
+	
+	public static final int maxSpeed = 60;
+	public static final int maxDirection = 60;
 
+
+	/* -------------- INNE ------------------------------ */
+
+	/* standardowy sleep spowolniający pętle */
+	public static final int loopSleep = 10;
+	
+	/* odświeżanie widgetu baterii */
+	public static final int batterySleep = 1000;
+
+	public static final int PIDPeriod = 100;
 }

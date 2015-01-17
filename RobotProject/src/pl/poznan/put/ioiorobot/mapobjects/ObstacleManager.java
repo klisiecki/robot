@@ -65,7 +65,7 @@ public class ObstacleManager {
 			} else {
 				put(point, o =  new Obstacle(new Point(point)));
 			}
-			if (o.getValue() >= C.minObstacleCount && !o.isAccepted()) {
+			if (o.getCount() >= C.minObstacleCount && !o.isAccepted()) {
 				if (obstacleAcceptedListener != null) {
 					o.accept();
 					obstacleAcceptedListener.onObstacleAccepted(o);
