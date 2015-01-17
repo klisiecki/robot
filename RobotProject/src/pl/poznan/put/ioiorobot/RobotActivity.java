@@ -12,6 +12,7 @@ import org.opencv.android.CameraBridgeViewBase;
 
 import pl.poznan.put.ioiorobot.camera.MyCamera;
 import pl.poznan.put.ioiorobot.camera.MyCamera.PatternFoundListener;
+import pl.poznan.put.ioiorobot.camera.MyJavaCameraView;
 import pl.poznan.put.ioiorobot.mapobjects.AreaMap;
 import pl.poznan.put.ioiorobot.mapobjects.Obstacle;
 import pl.poznan.put.ioiorobot.mapobjects.ObstacleManager;
@@ -41,13 +42,17 @@ import pl.poznan.put.ioiorobot.widgets.MapWidget;
 import pl.poznan.put.ioiorobot.widgets.PatternsWidget;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
 import android.graphics.Point;
+import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar;
@@ -68,6 +73,7 @@ public class RobotActivity extends IOIOActivity {
 	// Views
 	private Joystick joystick;
 	private SimpleBarGraph barGraph;
+	private ToggleButton flashlightButton;
 	private ToggleButton cameraButton;
 	private ToggleButton sensorsButton;
 	private ToggleButton startButton;
@@ -77,6 +83,7 @@ public class RobotActivity extends IOIOActivity {
 	private AreaMapWidget areaMapWidget;
 	private AreaMapWidget areaMapWidgetBig;
 	private ViewFlipper mapViewFlipper;
+	private MyJavaCameraView javaCameraView;
 
 	// Controls
 	private MyCamera camera;
@@ -93,6 +100,9 @@ public class RobotActivity extends IOIOActivity {
 	private Position robotPosition;
 
 	private Point screenSize;
+	
+	private Button capMockBtn;
+	private ToggleButton mockingBtn;
 
 	class Looper extends BaseIOIOLooper {
 
@@ -181,9 +191,11 @@ public class RobotActivity extends IOIOActivity {
 	private void initView() {
 		setContentView(R.layout.activity_main);
 
-		camera = new MyCamera((CameraBridgeViewBase) findViewById(R.id.camera_view), this);
+		javaCameraView = (MyJavaCameraView) findViewById(R.id.camera_view);
+		camera = new MyCamera((CameraBridgeViewBase) javaCameraView, this);
 		joystick = (Joystick) findViewById(R.id.joystick);
 		barGraph = (SimpleBarGraph) findViewById(R.id.distanceBarGraph);
+		flashlightButton = (ToggleButton) findViewById(R.id.flashlightButton);
 		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);
 		sensorsButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
 		startButton = (ToggleButton) findViewById(R.id.startToggleButton);
@@ -198,6 +210,12 @@ public class RobotActivity extends IOIOActivity {
 		areaMapWidget.setAreaMap(areaMap);
 		areaMapWidgetBig.setAreaMap(areaMap);
 		mapViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+		
+		
+		javaCameraView.getCamera();
+		
+		capMockBtn = (Button) findViewById(R.id.camMockButton);
+		mockingBtn = (ToggleButton) findViewById(R.id.mockImage);
 	}
 
 	private void initListeners() {
@@ -219,6 +237,17 @@ public class RobotActivity extends IOIOActivity {
 					motorsController.setSpeed((int) (Math.sqrt(xPos * xPos + yPos * yPos) * (yPos > 0 ? 1 : -1)));
 				}
 
+			}
+		});
+		
+		flashlightButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				Camera mCamera = javaCameraView.getCamera();
+				Camera.Parameters param = mCamera.getParameters();
+				param.setFlashMode(isChecked ? Camera.Parameters.FLASH_MODE_TORCH: Camera.Parameters.FLASH_MODE_OFF);
+				mCamera.setParameters(param);				
 			}
 		});
 
@@ -298,6 +327,24 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 
+		
+		mockingBtn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				camera.setMocking(isChecked);
+				
+			}
+		});
+		
+		capMockBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				camera.saveMock();
+				
+			}
+		});
 	}
 
 	private void initIOIOListeners() {

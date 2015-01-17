@@ -1,13 +1,10 @@
 package pl.poznan.put.ioiorobot.mapobjects;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import pl.poznan.put.ioiorobot.utils.C;
-import pl.poznan.put.ioiorobot.widgets.PatternsWidget;
-import android.util.Log;
 
 /**
  * "Kolejka" wzorców, służy do odfiltrowania przypadkowo wykrytych wzorców nie
@@ -29,15 +26,13 @@ public class PatternsQueue {
 	public void add(Pattern newPattern) {
 		boolean inserted = false;
 
-		int contentPercentage = newPattern.getContenPencentage();
-		Log.d(C.TAG, contentPercentage + "%");
-		if (contentPercentage < C.minPatternContent || contentPercentage > C.maxPatternContent) {
+		int fill = newPattern.getFill();
+		if (fill < C.minPatternFill || fill > C.maxPatternFill) {
 			return;
 		}
 
 		for (Pattern p : patterns) {
 			if (p.compareTo(newPattern) > C.minPatternCoverage) {
-				Log.d(C.TAG, "accepted " + p.getContenPencentage());
 				p.merge(newPattern);
 				inserted = true;
 				if (p.incrementCount() == C.minPatternCount) {
