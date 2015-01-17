@@ -48,7 +48,7 @@ public class PatternsQueue {
 					// p.getId());
 				}
 			}
-			if (!p.check()) {
+			if (!p.checkTTL()) {
 				toRemove.add(p);
 			}
 		}

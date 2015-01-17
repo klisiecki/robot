@@ -134,7 +134,7 @@ public class Pattern {
 		return ++count;
 	}
 
-	public boolean check() {
+	public boolean checkTTL() {
 		if ((--ttl) < 0) {
 			return false;
 		}
