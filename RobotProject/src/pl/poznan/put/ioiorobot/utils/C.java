@@ -42,7 +42,7 @@ public class C {
 	 * aby znacznik nie został odrzucony */
 	public static final int minPatternContent = 10;
 	public static final int maxPatternContent = 70;
-	
+	//wypełnienie? fill?
 	
 	/* -------------- WYMIARY -------------------------- */
 	

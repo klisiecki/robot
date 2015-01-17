@@ -129,7 +129,6 @@ public class AreaMapWidget extends View {
 		
 		Bitmap  bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), 
 				  Bitmap.Config.ARGB_8888); 
-		//canvas.setBitmap(bitmap);
 		Canvas myCanvas = new Canvas(bitmap);
 		
 		// rysowanie markerów
@@ -150,7 +149,6 @@ public class AreaMapWidget extends View {
 				Rect dest = new Rect(x - (int) (size / 2 / scale), y - (int) (size / 2 / scale), x
 						+ (int) (size / 2 / scale), y + (int) (size / 2 / scale));
 
-				canvas.drawBitmap(bmp, source, dest, patternPaint);
 				myCanvas.drawBitmap(bmp, source, dest, patternPaint);
 				addPoint(position, patternPaint, canvas);
 			}
@@ -176,32 +174,24 @@ public class AreaMapWidget extends View {
 		}
 
 		// rysowanie robota
-		canvas.save();
 		myCanvas.save();
 		Position robotPosition = areaMap.getRobotPosition();
 		int x = (int) (robotPosition.x() / scale + width / 2);
 		int y = (int) (-robotPosition.y() / scale + height / 2);
 
-		canvas.rotate((float) (180.0 * robotPosition.angle() / Math.PI), x, y);
 		myCanvas.rotate((float) (180.0 * robotPosition.angle() / Math.PI), x, y);
 
 		// robot
-		canvas.drawRect(x - C.robotWidth / 2 / scale, y - C.robotLenght / scale, x + C.robotWidth / 2 / scale, y, robotPaint);
 		myCanvas.drawRect(x - C.robotWidth / 2 / scale, y - C.robotLenght / scale, x + C.robotWidth / 2 / scale, y, robotPaint);
 
 		// koło lewe
-		canvas.drawRect(x - C.robotWidth / 2 / scale - C.robotWidth / 2 / scale / 3, y - C.robotLenght / scale / 3, x - C.robotWidth / 2 / scale, y, robotPaint);
 		myCanvas.drawRect(x - C.robotWidth / 2 / scale - C.robotWidth / 2 / scale / 3, y - C.robotLenght / scale / 3, x - C.robotWidth / 2 / scale, y, robotPaint);
 
 		// koło prawe
-		canvas.drawRect(x + C.robotWidth / 2 / scale, y - C.robotLenght / scale / 3, x + C.robotWidth / 2 / scale + C.robotWidth / 2 / scale / 3, y, robotPaint);
 		myCanvas.drawRect(x + C.robotWidth / 2 / scale, y - C.robotLenght / scale / 3, x + C.robotWidth / 2 / scale + C.robotWidth / 2 / scale / 3, y, robotPaint);
 
-		canvas.drawCircle(x, y, C.robotWidth / 8 / scale, robotPaint);
 		myCanvas.drawCircle(x, y, C.robotWidth / 8 / scale, robotPaint);
-		canvas.restore();
 		myCanvas.restore();
-		canvas.save();
 		myCanvas.save();
 		
 		Log.e(C.TAG, "onDraw");
@@ -209,6 +199,8 @@ public class AreaMapWidget extends View {
 			DAO.savetBitmap(bitmap, "map"+Calendar.getInstance().get(Calendar.MILLISECOND));
 			requestSave = false;
 		}
+		
+		canvas.drawBitmap(bitmap, 0, 0, backgroundPaint);
 	}
 	
 	public void saveBitmap() {
@@ -219,7 +211,6 @@ public class AreaMapWidget extends View {
 		if (p != null) {
 			int x = (int) (p.x / scale + width / 2);
 			int y = (int) (-p.y / scale + height / 2);
-
 			canvas.drawCircle(x, y, 3, paint);
 		}
 	}
