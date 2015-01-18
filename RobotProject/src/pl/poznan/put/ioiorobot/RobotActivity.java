@@ -147,7 +147,7 @@ public class RobotActivity extends IOIOActivity {
 		initObjects();
 		initWindow();
 		initView();
-		initListeners();
+		initListeners();		
 	}
 
 	@Override
@@ -364,7 +364,7 @@ public class RobotActivity extends IOIOActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.menu, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	public boolean onOptionsItemSelected(android.view.MenuItem item) {
