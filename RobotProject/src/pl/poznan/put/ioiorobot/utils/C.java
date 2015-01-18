@@ -7,7 +7,7 @@ import android.graphics.Point;
 public class C {
 	public static final String TAG = "robot";
 	public static int patternSize;
-	public static Point screenSize;
+	public static Point screenSize = new Point(1920, 1080);
 
 	
 	/* -------------- PRZETWARZANIE OBRAZU ---------------- */
@@ -36,12 +36,12 @@ public class C {
 	
 	/* po takiej liczbie wykrytych znaczników, dany znacznik jest usuwany jeśli nie został wykryty ponownie */
 	//TODO przemyśleć to, np gdy robot będzie jeździł po dużym obszarze?
-	public static final int patternTTL = 10;
+	public static final int patternTTL = 30;
 	
 	/* mimalny i maksymalny procentowy udział koloru czarnego w stosunku do białego, 
 	 * aby znacznik nie został odrzucony */
-	public static final int minPatternContent = 10;
-	public static final int maxPatternContent = 70;
+	public static final int minPatternFill = 10;
+	public static final int maxPatternFill = 70;
 	//wypełnienie? fill?
 	
 	/* -------------- WYMIARY -------------------------- */
@@ -65,8 +65,10 @@ public class C {
 	
 	/* rozmiar kratki na mapie przeszkód */
 	public static final int obstacleCellSize = 10;
+	
 	/* zasięg zaznaczania na mapie przeszkód */
 	public static final int obstacleRange = 4; 
+	
 	/* minimalna liczba zaznaczeń aby odczyt został zaakceptowany */
 	public static final int minObstacleCount = 3;
 

@@ -17,9 +17,10 @@
             android:layout_height="wrap_content" />
     </RelativeLayout>
 
-    <ViewFlipper android:id="@+id/viewFlipper" 
-                   android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    <ViewFlipper
+        android:id="@+id/viewFlipper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
 
         <RelativeLayout
             android:id="@+id/relative_controls"
@@ -46,6 +47,32 @@
                 -->
 
                 <ToggleButton
+                    android:id="@+id/flashlightButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal|top"
+                    android:minHeight="35dip"
+                    android:textOff="Flash On"
+                    android:textOn="Flash Of" />
+
+                <Button
+                    android:id="@+id/camMockButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal|top"
+                    android:minHeight="35dip"
+                    android:text="cap mock" />
+
+                <ToggleButton
+                    android:id="@+id/mockImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal|top"
+                    android:minHeight="35dip"
+                    android:textOff="MockImg"
+                    android:textOn="MockImg" />
+
+                <ToggleButton
                     android:id="@+id/cameraToggleButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -53,19 +80,6 @@
                     android:minHeight="35dip"
                     android:textOff="@string/camera"
                     android:textOn="@string/camera" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="@color/black_overlay" />
-                <!--
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/sensor"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-                -->
 
                 <ToggleButton
                     android:id="@+id/sensorToggleButton"
@@ -76,24 +90,13 @@
                     android:textOff="@string/sensor"
                     android:textOn="@string/sensor" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="@color/black_overlay" />
-
                 <ToggleButton
                     android:id="@+id/startToggleButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical|center_horizontal|top"
-                    android:minHeight="70dip"
                     android:textOff="START"
                     android:textOn="STOP" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="@color/black_overlay" />
 
                 <pl.poznan.put.ioiorobot.widgets.BatteryStatusBar
                     android:id="@+id/batteryStatusBar"

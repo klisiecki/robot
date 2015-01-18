@@ -15,18 +15,9 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.util.Log;
 
 /**
  * Wzorzec (marker) wraz z dodatkowymi informacjami o jego położeniu itp.
- */
-/**
- * @author karol
- *
- */
-/**
- * @author karol
- *
  */
 public class Pattern {
 	private static int nextId = 0;
@@ -215,17 +206,17 @@ public class Pattern {
 	/**
 	 * Funkcja oblicza procentową zawartość faktycznego znacznika w całym jego obrysie
 	 */
-	public int getContenPencentage() {
+	public int getFill() {
 		int countBlack = 0;
 		int countAll = size * size;
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
-				if (array[i][j]) {
+				if (!array[i][j]) {
 					countBlack++;
 				}
 			}
 		}
-		return 100 - countBlack * 100 / countAll;
+		return countBlack * 100 / countAll;
 	}
 
 	@Override

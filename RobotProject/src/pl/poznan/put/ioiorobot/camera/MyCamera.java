@@ -26,8 +26,11 @@ import org.opencv.utils.Converters;
 import pl.poznan.put.ioiorobot.R;
 import pl.poznan.put.ioiorobot.mapobjects.Pattern;
 import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.DAO;
 import android.app.Activity;
 import android.content.Context;
+import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.util.Log;
 import android.widget.SeekBar;
 
@@ -39,7 +42,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	private boolean showDebug = true;
 	private int framesToProcess;
 	private Mode mode = Mode.CAMERA_ONLY;
-	private CameraBridgeViewBase cameraView;
+	private MyJavaCameraView cameraView;
 	private BaseLoaderCallback loaderCallback;
 	private Context context;
 	private PatternFoundListener patternFoundListener;
@@ -51,7 +54,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	public MyCamera(final CameraBridgeViewBase cameraView, final Context context) {
 		super();
-		this.cameraView = cameraView;
+		this.cameraView = (MyJavaCameraView) cameraView;
 		this.context = context;
 
 		cameraView.setCvCameraViewListener(this);
@@ -68,18 +71,44 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	public void resume() {
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, context, loaderCallback);
+		
 	}
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
+		Camera mCamera = cameraView.getCamera();
+		Camera.Parameters param = mCamera.getParameters();
+		param.setFocusMode(Parameters.FOCUS_MODE_AUTO);
+		mCamera.setParameters(param);
 	}
 
 	@Override
 	public void onCameraViewStopped() {
 	}
+	
+	
+	//temp begin
+	private boolean mocking = false;
+	
+	public void setMocking(boolean mocking) {
+		this.mocking = mocking;
+	}
+	
+	private boolean requestSaveMock = false;
+	
+	public void saveMock() {
+		requestSaveMock = true;
+	}
+	
+	//temp end
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+		if(requestSaveMock) {
+			DAO.saveMock(inputFrame.rgba());
+			requestSaveMock = false;
+		}
+		
 		if (mode == Mode.PROCESSING || framesToProcess > 0) {
 			framesToProcess--;
 			return processFrame(inputFrame);
@@ -103,6 +132,11 @@ public class MyCamera implements CvCameraViewListener2 {
 	private Mat processFrame(CvCameraViewFrame inputFrame) {
 		// pobranie klatki w RGB
 		Mat imgRgba = inputFrame.rgba();
+		
+		if (mocking && DAO.getMock() != null) {
+			imgRgba = DAO.getMock();
+		}
+		
 		imgRbgaRaw = new Mat();
 		imgRgba.copyTo(imgRbgaRaw);
 
