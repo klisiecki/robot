@@ -13,14 +13,15 @@ import android.util.Log;
  * Implementacja czujnika odległości Sharp 2Y0A21
  */
 public class SharpDistanceSensor extends AbstractDistanceSensor {
+	private static final int BUFFER_SIZE = 100;
+
 	private AnalogInput input;
-	int size = 100;
-	float[] buffer = new float[size];
+	float[] buffer = new float[BUFFER_SIZE];
 	
 	public SharpDistanceSensor(IOIO ioio_, int servoPin, int pin) throws ConnectionLostException {
 		super(ioio_, servoPin);
 		input = ioio_.openAnalogInput(pin);
-		input.setBuffer(size);
+		input.setBuffer(BUFFER_SIZE);
 
 		Thread t = new Thread(this);
 		t.start();
@@ -29,12 +30,12 @@ public class SharpDistanceSensor extends AbstractDistanceSensor {
 	@Override
 	public int getDistance() throws ConnectionLostException, InterruptedException {
 		//wzór z https://www.sparkfun.com/products/242
-		for (int i = 0; i < size; i++) {
-			buffer[i] = Math.round(input.getVoltageBuffered() * 1000) / 1000.0f;
+		for (int i = 0; i < BUFFER_SIZE; i++) {
+			buffer[i] = Math.round(input.getVoltageBuffered() * 1000) / 1000.0f; //TODO niepotrzebne mnożenie i dzielenie?
 		}
 		Arrays.sort(buffer);
 		Log.d(C.TAG, Arrays.toString(buffer));
-		int val = (int) (41.543 * Math.pow(buffer[size/2] + 0.30221,-1.5281)) * 10; // *10 zamienia na mm
+		int val = (int) (41.543 * Math.pow(buffer[BUFFER_SIZE/2] + 0.30221,-1.5281)) * 10; // *10 zamienia na mm
 		return val;
 	}
 

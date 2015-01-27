@@ -375,6 +375,7 @@ public class RobotActivity extends IOIOActivity {
 						if (last.distance < C.maxObstacleDistance) {
 							obstacleManager.addObstacle(new Obstacle(robotPosition, last));
 							areaMapWidgetBig.invalidate();
+							areaMapWidget.invalidate();
 						}
 					}
 				});
@@ -391,6 +392,7 @@ public class RobotActivity extends IOIOActivity {
 					@Override
 					public void run() {
 						mapWidget.addPosition(position);
+						areaMapWidget.invalidate();
 						areaMapWidgetBig.invalidate();
 					}
 				});

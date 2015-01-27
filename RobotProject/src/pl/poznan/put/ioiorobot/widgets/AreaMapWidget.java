@@ -1,6 +1,8 @@
 package pl.poznan.put.ioiorobot.widgets;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Timer;
 
 import pl.poznan.put.ioiorobot.mapobjects.AreaMap;
@@ -29,7 +31,7 @@ public class AreaMapWidget extends View {
 	private Paint obstaclePaint2;
 	private Paint robotPaint;
 
-	private float scale = 6;
+	private float scale = 5;
 
 	private int width;
 	private int height;
@@ -125,11 +127,23 @@ public class AreaMapWidget extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		
-		Bitmap  bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), 
+		Bitmap  bitmap = Bitmap.createBitmap(C.mapSize, C.mapSize, 
 				  Bitmap.Config.ARGB_8888); 
 		Canvas myCanvas = new Canvas(bitmap);
 		
-		// rysowanie markerów
+		drawPatterns(myCanvas);
+		drawObstacles(myCanvas);
+		drawRobot(myCanvas);
+		
+		if(requestSave) {
+			DAO.savetBitmap(bitmap, "map"+Calendar.getInstance().get(Calendar.MILLISECOND));
+			requestSave = false;
+		}
+		
+		canvas.drawBitmap(bitmap, 0, 0, backgroundPaint);
+	}
+
+	private void drawPatterns(Canvas myCanvas) {
 		for (Pattern p : areaMap.getPatterns()) {
 			Point position = p.getPoint();
 			if (position != null) {
@@ -151,16 +165,11 @@ public class AreaMapWidget extends View {
 				addPoint(position, patternPaint, myCanvas);
 			}
 
-//			List<Position> viewPositions = new ArrayList<Position>(p.getViewPositions());
-//			for (Position pos : viewPositions) {
-//				canvas.drawLine(pos.getPoint().x / scale + width / 2, -pos.getPoint().y / scale + width / 2,
-//						pos.getVectorPoint().x / scale + width / 2, -pos.getVectorPoint().y / scale + width / 2,
-//						patternPaint);
-//			}
-
+			//drawViewPositions(canvas, p);
 		}
+	}
 
-		// rysowanie przeszkód
+	private void drawObstacles(Canvas canvas) {
 		for (Obstacle o : areaMap.getObstacles()) {
 			if (o.isAccepted())
 				addPoint(o.getPoint(), obstaclePaint, canvas);
@@ -170,16 +179,15 @@ public class AreaMapWidget extends View {
 			if (!o.isAccepted())
 				addPoint(o.getPoint(), obstaclePaint2, canvas);
 		}
+	}
 
-		drawRobot(myCanvas);
-		
-		//Log.e(C.TAG, "onDraw");
-		if(requestSave) {
-			DAO.savetBitmap(bitmap, "map"+Calendar.getInstance().get(Calendar.MILLISECOND));
-			requestSave = false;
+	private void drawPatternViewPositions(Canvas canvas, Pattern p) {
+		List<Position> viewPositions = new ArrayList<Position>(p.getViewPositions());
+		for (Position pos : viewPositions) {
+			canvas.drawLine(pos.getPoint().x / scale + width / 2, -pos.getPoint().y / scale + width / 2,
+					pos.getVectorPoint().x / scale + width / 2, -pos.getVectorPoint().y / scale + width / 2,
+					patternPaint);
 		}
-		
-		canvas.drawBitmap(bitmap, 0, 0, backgroundPaint);
 	}
 
 	private void drawRobot(Canvas canvas) {
@@ -204,16 +212,6 @@ public class AreaMapWidget extends View {
 		canvas.save();
 	}
 	
-	int xStart = 0;
-	int yStart = 0;
-	
-//	public int transformX(int x) {
-//		
-//	}
-//	
-//	public int transformY(int y) {
-//		
-//	}
 	
 	public void saveBitmap() {
 		requestSave = true;
