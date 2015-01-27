@@ -59,6 +59,8 @@ public class C {
 	
 	/* -------------- MAPOWANIE I JAZDA ------------------ */
 	
+	public static final int mapSize = 100000;
+	
 	/* najdalszy odczyt brany pod uwagę */
 	public static final int maxObstacleDistance = 600; 
 	public static final int minFreeDistance = 250;
