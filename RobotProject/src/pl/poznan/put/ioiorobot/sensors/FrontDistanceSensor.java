@@ -35,7 +35,7 @@ public class FrontDistanceSensor implements Runnable {
 
 	public boolean isFreeLeft() throws ConnectionLostException, InterruptedException {
 		double distance =  median(leftTab);
-		//Log.d(C.TAG, distance+"");
+		Log.d(C.TAG, distance+"");
 		return median(leftTab) > freeDistance;
 	}
 

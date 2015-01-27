@@ -133,9 +133,8 @@ public class RobotActivity extends IOIOActivity {
 				}
 			});
 
-			Log.d(C.TAG,
-					"frontDistanceSensor: " + frontDistanceSensor.isFreeLeft() + "\t"
-							+ frontDistanceSensor.isFreeCenter() + "\t" + frontDistanceSensor.isFreeRight());
+			frontDistanceSensor.isFreeLeft();
+			//Log.d(C.TAG, "frontDistanceSensor: " + frontDistanceSensor.isFreeLeft() + "\t" + frontDistanceSensor.isFreeCenter() + "\t" + frontDistanceSensor.isFreeRight());
 
 			Thread.sleep(C.loopSleep);
 		}

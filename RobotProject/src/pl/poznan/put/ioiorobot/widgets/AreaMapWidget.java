@@ -173,7 +173,7 @@ public class AreaMapWidget extends View {
 
 		drawRobot(myCanvas);
 		
-		Log.e(C.TAG, "onDraw");
+		//Log.e(C.TAG, "onDraw");
 		if(requestSave) {
 			DAO.savetBitmap(bitmap, "map"+Calendar.getInstance().get(Calendar.MILLISECOND));
 			requestSave = false;
