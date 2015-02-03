@@ -23,16 +23,12 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
-import pl.poznan.put.ioiorobot.R;
 import pl.poznan.put.ioiorobot.mapping.Pattern;
 import pl.poznan.put.ioiorobot.utils.Config;
 import pl.poznan.put.ioiorobot.utils.DAO;
-import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
-import android.util.Log;
-import android.widget.SeekBar;
 
 /**
  * Główna klasa przetwarzająca obraz
@@ -149,6 +145,10 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat maskedImage = new Mat();
 		imgRgba.copyTo(maskedImage, mask);
 
+		if (true) {
+			return maskedImage;
+		}
+		
 		Mat maskedImageGray = new Mat();
 		Imgproc.cvtColor(maskedImage, maskedImageGray, Imgproc.COLOR_RGB2GRAY);
 
@@ -156,6 +156,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat maskedImageGrayThresholded = new Mat();
 		Imgproc.adaptiveThreshold(maskedImageGray, maskedImageGrayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
 				Imgproc.THRESH_BINARY_INV, Config.thresholdBlockSize, Config.thresholdMC); // blockSize = 9, mC = 7;
+		
 
 		
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
@@ -171,8 +172,11 @@ public class MyCamera implements CvCameraViewListener2 {
 				Mat subMat = imgRgba.submat(r);
 				processMat(subMat);
 				
-				// Rysowanie różowego prostokąta wokół analizowanych fragmentów
-				if(showDebug) Core.rectangle(imgRgba, r.tl(), r.br(), new Scalar(255, 0, 255), 5);
+				if(showDebug) {
+					drawContour(imgRgba, cnt, new Scalar(204,0,204));
+					// Rysowanie zielonego prostokąta wokół analizowanych fragmentów
+					Core.rectangle(imgRgba, r.tl(), r.br(), new Scalar(0, 200, 0), 3);
+				}
 				
 			}
 		}
@@ -193,7 +197,7 @@ public class MyCamera implements CvCameraViewListener2 {
 				Imgproc.THRESH_BINARY_INV, Config.thresholdBlockSize, Config.thresholdMC);
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(grayThresholded, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(grayThresholded, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		List<MatOfPoint> contoursSorted = new ArrayList<MatOfPoint>();
 
@@ -215,10 +219,10 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		// Przeglądanie znalezionych konturów od największych do najmniejszych
 		for (MatOfPoint cnt : contoursSorted) {
-			if(showDebug) drawContour(imgRgba, cnt);
+			if(showDebug) drawContour(imgRgba, cnt, new Scalar(0,0,255));
 			Mat fragment = cutContour(imgGray, imgRgba, cnt);
 
-			if (warpFragmentFromContour(imgRbgaRaw, cnt, fragment)) {
+			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
 				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRbgaRaw, cnt));
 
@@ -266,7 +270,7 @@ public class MyCamera implements CvCameraViewListener2 {
 			Point fragmentTL = rect.tl();
 			for (Point p : points) {
 				// rysujemy
-				if(showDebug) Core.circle(resultImage, p, 5, new Scalar(0, 255, 0), 5);
+				if(showDebug) Core.circle(resultImage, p, 10, new Scalar(255, 255, 255), 10);
 
 				// przesuwamy do współrzędnych fragmentu (zmiany są wprowadzane
 				// w tablicy points!)
@@ -330,7 +334,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		return fragment;
 	}
 
-	private void drawContour(Mat resultImage, MatOfPoint cnt) {
+	private void drawContour(Mat resultImage, MatOfPoint cnt, Scalar color) {
 		MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
 		MatOfPoint2f approxCurve = new MatOfPoint2f();
 		double epsilon = 0.01 * Imgproc.arcLength(cnt2f, true);
@@ -338,10 +342,10 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 		cntList.add(cnt);
-		Imgproc.drawContours(resultImage, cntList, 0, new Scalar(0, 0, 255), 3);
+		Imgproc.drawContours(resultImage, cntList, 0, color, 3);
 
 		for (Point p : approxCurve.toList()) {
-			Core.circle(resultImage, p, 5, new Scalar(255, 255, 0), 5);
+//			Core.circle(resultImage, p, 5, new Scalar(255, 255, 0), 5);
 		}
 	}
 

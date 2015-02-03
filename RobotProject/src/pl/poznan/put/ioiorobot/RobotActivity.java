@@ -67,9 +67,6 @@ import android.widget.ViewFlipper;
  */
 public class RobotActivity extends IOIOActivity {
 
-	private SeekBar seekBar1;
-	private SeekBar seekBar2;
-	private SeekBar seekBar3;
 
 	// Views
 	private Joystick joystick;
@@ -109,7 +106,7 @@ public class RobotActivity extends IOIOActivity {
 
 		@Override
 		protected void setup() {
-			showToast("Connected");
+			showToast("Połączono");
 
 			try {
 				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
@@ -128,21 +125,11 @@ public class RobotActivity extends IOIOActivity {
 
 		@Override
 		public void loop() throws ConnectionLostException, InterruptedException {
-			runOnUiThread(new Runnable() {
-				public void run() {
-					seekBar3.setProgress(100 + motorsController.getRegulacja());
-				}
-			});
-
-			frontDistanceSensor.isFreeLeft();
-			//Log.d(C.TAG, "frontDistanceSensor: " + frontDistanceSensor.isFreeLeft() + "\t" + frontDistanceSensor.isFreeCenter() + "\t" + frontDistanceSensor.isFreeRight());
-
-			Thread.sleep(Config.loopSleep);
 		}
 
 		@Override
 		public void disconnected() {
-			showToast("Disconnected!");
+			showToast("Rozłączono!");
 		}
 	}
 
@@ -199,9 +186,6 @@ public class RobotActivity extends IOIOActivity {
 		cameraButton = (ToggleButton) findViewById(R.id.cameraToggleButton);
 		sensorsButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
 		startButton = (ToggleButton) findViewById(R.id.startToggleButton);
-		seekBar1 = (SeekBar) findViewById(R.id.seekBar1);
-		seekBar2 = (SeekBar) findViewById(R.id.seekBar2);
-		seekBar3 = (SeekBar) findViewById(R.id.seekBar3);
 		batteryStatusBar = (BatteryStatusBar) findViewById(R.id.batteryStatusBar);
 		patternsWidget = (PatternsWidget) findViewById(R.id.patternsWidget);
 		mapWidget = (MapWidget) findViewById(R.id.mapWidget);
@@ -210,9 +194,6 @@ public class RobotActivity extends IOIOActivity {
 		areaMapWidget.setAreaMap(areaMap);
 		areaMapWidgetBig.setAreaMap(areaMap);
 		mapViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-		
-		
-		javaCameraView.getCamera();
 		
 		capMockBtn = (Button) findViewById(R.id.camMockButton);
 		mockingBtn = (ToggleButton) findViewById(R.id.mockImage);
@@ -236,7 +217,6 @@ public class RobotActivity extends IOIOActivity {
 					motorsController.setDirection(xPos);
 					motorsController.setSpeed((int) (Math.sqrt(xPos * xPos + yPos * yPos) * (yPos > 0 ? 1 : -1)));
 				}
-
 			}
 		});
 		

@@ -115,27 +115,6 @@
                 android:gravity="center"
                 android:orientation="vertical" >
 
-                <SeekBar
-                    android:id="@+id/seekBar1"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:max="200"
-                    android:progress="1" />
-
-                <SeekBar
-                    android:id="@+id/seekBar2"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:max="360"
-                    android:progress="1" />
-
-                <SeekBar
-                    android:id="@+id/seekBar3"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:max="200"
-                    android:progress="1" />
-
                 <pl.poznan.put.ioiorobot.widgets.MapWidget
                     android:id="@+id/mapWidget"
                     android:layout_width="fill_parent"

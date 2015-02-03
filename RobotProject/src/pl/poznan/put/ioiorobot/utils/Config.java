@@ -1,6 +1,7 @@
 package pl.poznan.put.ioiorobot.utils;
 
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 import android.graphics.Point;
 
@@ -13,17 +14,19 @@ public class Config {
 	/* -------------- PRZETWARZANIE OBRAZU ---------------- */
 
 	/* minimalne procentowe pokrycie powierzchni ekranu */
-	public static final double thresholdFactor = 0.5;
+	public static final double thresholdFactor = 0.01;
 	
 	/* maksymalna procentowa różnica w długości przeciwległych boków czworokąta, przy której jest on nadal uważany za prostokąt */
 	public static final int rectangleFactor = 20;
-	public static final int maxContoursProcessed = 3;
+	public static final int maxContoursProcessed = 10;
 
-	public static final Scalar minColor = new Scalar(15, 64, 64); // min yellow
-	public static final Scalar maxColor = new Scalar(45, 255, 255); // max yelow
+	/* zakres żółtego koloru w HSV */
+	public static final Scalar minColor = new Scalar(15, 64, 64); 
+	public static final Scalar maxColor = new Scalar(45, 255, 255);
 	
+	/* parametry do funnkcji Imgproc.adaptiveThreshold */
 	public static final int thresholdBlockSize = 9;
-	public static final int thresholdMC =7;
+	public static final int thresholdMC = 5;
 	
 	
 	/* -------------- ZNACZNIKI -------------------------- */
