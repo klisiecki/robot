@@ -1,10 +1,10 @@
-package pl.poznan.put.ioiorobot.mapobjects;
+package pl.poznan.put.ioiorobot.mapping;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 
 /**
  * "Kolejka" wzorców, służy do odfiltrowania przypadkowo wykrytych wzorców nie
@@ -27,15 +27,15 @@ public class PatternsQueue {
 		boolean inserted = false;
 
 		int fill = newPattern.getFill();
-		if (fill < C.minPatternFill || fill > C.maxPatternFill) {
+		if (fill < Config.minPatternFill || fill > Config.maxPatternFill) {
 			return;
 		}
 
 		for (Pattern p : patterns) {
-			if (p.compareTo(newPattern) > C.minPatternCoverage) {
+			if (p.compareTo(newPattern) > Config.minPatternCoverage) {
 				p.merge(newPattern);
 				inserted = true;
-				if (p.incrementCount() == C.minPatternCount) {
+				if (p.incrementCount() == Config.minPatternCount) {
 					accept(p);
 				}
 			}

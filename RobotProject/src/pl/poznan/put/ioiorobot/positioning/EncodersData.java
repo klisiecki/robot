@@ -1,4 +1,4 @@
-package pl.poznan.put.ioiorobot.motors;
+package pl.poznan.put.ioiorobot.positioning;
 
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;

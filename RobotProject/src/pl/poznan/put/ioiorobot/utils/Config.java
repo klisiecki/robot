@@ -4,7 +4,7 @@ import org.opencv.core.Scalar;
 
 import android.graphics.Point;
 
-public class C {
+public class Config {
 	public static final String TAG = "robot";
 	public static int patternSize;
 	public static Point screenSize = new Point(1920, 1080);

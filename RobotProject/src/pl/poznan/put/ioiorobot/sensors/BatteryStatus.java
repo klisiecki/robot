@@ -3,7 +3,7 @@ package pl.poznan.put.ioiorobot.sensors;
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 
 /**
  * Klasa obsługująca stan naładowania baterii
@@ -34,7 +34,7 @@ public class BatteryStatus implements IBatteryStatus {
 						listener.onBatteryStatusChanged(getStatus());
 					}
 					try {
-						sleep(C.batterySleep);
+						sleep(Config.batterySleep);
 					} catch (InterruptedException e) {
 					}
 				}

@@ -1,10 +1,8 @@
-package pl.poznan.put.ioiorobot;
+package pl.poznan.put.ioiorobot.positioning;
 
 import pl.poznan.put.ioiorobot.camera.MyCamera;
-import pl.poznan.put.ioiorobot.motors.IMotorsController;
-import pl.poznan.put.ioiorobot.motors.Position;
 import pl.poznan.put.ioiorobot.sensors.FrontDistanceSensor;
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 
 public class RobotController extends Thread {
 
@@ -34,23 +32,23 @@ public class RobotController extends Thread {
 		distance = 0;
 		while (true) {
 			motorsRunning = true;
-			while (distance < C.robotStepDistance) {
+			while (distance < Config.robotStepDistance) {
 				distance += position.distanceTo(lastPosition);
 				lastPosition = new Position(position);
 
 				try {
-					sleep(C.loopSleep);
+					sleep(Config.loopSleep);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 			distance = 0;
 			motorsRunning = false;
-			camera.setFramesToProcess(C.framesPerRotate);
+			camera.setFramesToProcess(Config.framesPerRotate);
 
 			while (!camera.isReady()) {
 				try {
-					sleep(C.loopSleep);
+					sleep(Config.loopSleep);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -64,7 +62,7 @@ public class RobotController extends Thread {
 			try {
 				while (true) {
 					if (motorsRunning) {
-						motorsController.setSpeed((int) (C.maxSpeed / 2.5));
+						motorsController.setSpeed((int) (Config.maxSpeed / 2.5));
 						if (frontDistanceSensor.isFreeLeft()) {
 							motorsController.turn(-(float) Math.PI / 60);
 						} else if (frontDistanceSensor.isFreeCenter()) {
@@ -77,7 +75,7 @@ public class RobotController extends Thread {
 					} else {
 						motorsController.stop();
 					}
-					sleep(C.loopSleep);
+					sleep(Config.loopSleep);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -3,8 +3,8 @@ package pl.poznan.put.ioiorobot.widgets;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.poznan.put.ioiorobot.mapobjects.Pattern;
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.mapping.Pattern;
+import pl.poznan.put.ioiorobot.utils.Config;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -68,15 +68,15 @@ public class PatternsWidget extends View {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		width = C.screenSize.x;
-		height = C.patternSize;
+		width = Config.screenSize.x;
+		height = Config.patternSize;
 		setMeasuredDimension(width, height);
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			int patternNr = (int) event.getX() / C.patternSize - 1;
+			int patternNr = (int) event.getX() / Config.patternSize - 1;
 			if (patternNr >= 0 && patternNr < patterns.size()) {
 				choosenPattern = patterns.get(patternNr);
 				invalidate();
@@ -95,10 +95,10 @@ public class PatternsWidget extends View {
 		int i = 1;
 		for (Pattern p : patterns) {
 			// Log.d("robot", "i = "+i);
-			canvas.drawBitmap(p.getBitmap(), (i++) * C.patternSize, 0, patternPaint);
+			canvas.drawBitmap(p.getBitmap(), (i++) * Config.patternSize, 0, patternPaint);
 		}
-		canvas.drawRect(C.patternSize, 0, C.patternSize * (patterns.size() + 1), height, borderPaint);
-		canvas.drawRect(0, 0, C.patternSize, C.patternSize, borderPaint);
+		canvas.drawRect(Config.patternSize, 0, Config.patternSize * (patterns.size() + 1), height, borderPaint);
+		canvas.drawRect(0, 0, Config.patternSize, Config.patternSize, borderPaint);
 		canvas.save();
 	}
 

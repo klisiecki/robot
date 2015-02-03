@@ -5,11 +5,11 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 
-import pl.poznan.put.ioiorobot.mapobjects.AreaMap;
-import pl.poznan.put.ioiorobot.mapobjects.Obstacle;
-import pl.poznan.put.ioiorobot.mapobjects.Pattern;
-import pl.poznan.put.ioiorobot.motors.Position;
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.mapping.AreaMap;
+import pl.poznan.put.ioiorobot.mapping.Obstacle;
+import pl.poznan.put.ioiorobot.mapping.Pattern;
+import pl.poznan.put.ioiorobot.positioning.Position;
+import pl.poznan.put.ioiorobot.utils.Config;
 import pl.poznan.put.ioiorobot.utils.DAO;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -127,7 +127,7 @@ public class AreaMapWidget extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		
-		Bitmap  bitmap = Bitmap.createBitmap(C.mapSize, C.mapSize, 
+		Bitmap  bitmap = Bitmap.createBitmap(Config.mapSize, Config.mapSize, 
 				  Bitmap.Config.ARGB_8888); 
 		Canvas myCanvas = new Canvas(bitmap);
 		
@@ -157,7 +157,7 @@ public class AreaMapWidget extends View {
 																	// bmp.getWidth()
 																	// / 2
 
-				int size = (int) (C.robotWidth * 2);
+				int size = (int) (Config.robotWidth * 2);
 				Rect dest = new Rect(x - (int) (size / 2 / scale), y - (int) (size / 2 / scale), x
 						+ (int) (size / 2 / scale), y + (int) (size / 2 / scale));
 
@@ -199,15 +199,15 @@ public class AreaMapWidget extends View {
 		canvas.rotate((float) (180.0 * robotPosition.angle() / Math.PI), x, y);
 
 		// robot
-		canvas.drawRect(x - C.robotWidth / 2 / scale, y - C.robotLenght / scale, x + C.robotWidth / 2 / scale, y, robotPaint);
+		canvas.drawRect(x - Config.robotWidth / 2 / scale, y - Config.robotLenght / scale, x + Config.robotWidth / 2 / scale, y, robotPaint);
 
 		// koło lewe
-		canvas.drawRect(x - C.robotWidth / 2 / scale - C.robotWidth / 2 / scale / 3, y - C.robotLenght / scale / 3, x - C.robotWidth / 2 / scale, y, robotPaint);
+		canvas.drawRect(x - Config.robotWidth / 2 / scale - Config.robotWidth / 2 / scale / 3, y - Config.robotLenght / scale / 3, x - Config.robotWidth / 2 / scale, y, robotPaint);
 
 		// koło prawe
-		canvas.drawRect(x + C.robotWidth / 2 / scale, y - C.robotLenght / scale / 3, x + C.robotWidth / 2 / scale + C.robotWidth / 2 / scale / 3, y, robotPaint);
+		canvas.drawRect(x + Config.robotWidth / 2 / scale, y - Config.robotLenght / scale / 3, x + Config.robotWidth / 2 / scale + Config.robotWidth / 2 / scale / 3, y, robotPaint);
 
-		canvas.drawCircle(x, y, C.robotWidth / 8 / scale, robotPaint);
+		canvas.drawCircle(x, y, Config.robotWidth / 8 / scale, robotPaint);
 		canvas.restore();
 		canvas.save();
 	}

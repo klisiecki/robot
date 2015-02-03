@@ -3,7 +3,7 @@ package pl.poznan.put.ioiorobot.widgets;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 
 import android.content.Context;
 import android.graphics.Canvas;

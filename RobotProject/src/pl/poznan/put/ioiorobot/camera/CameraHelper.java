@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.opencv.core.Point;
 
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 
 public class CameraHelper {
 	
@@ -14,7 +14,7 @@ public class CameraHelper {
 	 *         C.rectangleFactor %
 	 */
 	public static boolean areSimilar(int a, int b) {
-		return Math.abs((double) (a - b) / a) < (double) C.rectangleFactor / 100.0;
+		return Math.abs((double) (a - b) / a) < (double) Config.rectangleFactor / 100.0;
 	}
 
 	/**

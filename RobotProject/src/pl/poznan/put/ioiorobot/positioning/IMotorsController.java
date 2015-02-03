@@ -1,4 +1,4 @@
-package pl.poznan.put.ioiorobot.motors;
+package pl.poznan.put.ioiorobot.positioning;
 
 public interface IMotorsController {
 	

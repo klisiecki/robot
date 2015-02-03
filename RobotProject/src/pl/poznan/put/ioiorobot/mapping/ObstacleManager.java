@@ -1,10 +1,10 @@
-package pl.poznan.put.ioiorobot.mapobjects;
+package pl.poznan.put.ioiorobot.mapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 import android.graphics.Point;
 
 public class ObstacleManager {
@@ -43,15 +43,15 @@ public class ObstacleManager {
 	private class ObstacleHashMap extends HashMap<Point, Obstacle> {
 
 		public void addPoint(Point p) {
-			p.x = p.x / C.obstacleCellSize * C.obstacleCellSize;
-			p.y = p.y / C.obstacleCellSize * C.obstacleCellSize;
-			int xStart = p.x - C.obstacleRange * C.obstacleCellSize;
-			int yStart = p.y - C.obstacleRange * C.obstacleCellSize;
-			int xEnd = p.x + C.obstacleRange * C.obstacleCellSize;
-			int yEnd = p.y + C.obstacleRange * C.obstacleCellSize;
+			p.x = p.x / Config.obstacleCellSize * Config.obstacleCellSize;
+			p.y = p.y / Config.obstacleCellSize * Config.obstacleCellSize;
+			int xStart = p.x - Config.obstacleRange * Config.obstacleCellSize;
+			int yStart = p.y - Config.obstacleRange * Config.obstacleCellSize;
+			int xEnd = p.x + Config.obstacleRange * Config.obstacleCellSize;
+			int yEnd = p.y + Config.obstacleRange * Config.obstacleCellSize;
 
-			for (int i = xStart; i <= xEnd; i += C.obstacleCellSize) {
-				for (int j = yStart; j <= yEnd; j += C.obstacleCellSize) {
+			for (int i = xStart; i <= xEnd; i += Config.obstacleCellSize) {
+				for (int j = yStart; j <= yEnd; j += Config.obstacleCellSize) {
 					put(new Point(i, j));
 				}
 			}
@@ -65,7 +65,7 @@ public class ObstacleManager {
 			} else {
 				put(point, o =  new Obstacle(new Point(point)));
 			}
-			if (o.getCount() >= C.minObstacleCount && !o.isAccepted()) {
+			if (o.getCount() >= Config.minObstacleCount && !o.isAccepted()) {
 				if (obstacleAcceptedListener != null) {
 					o.accept();
 					obstacleAcceptedListener.onObstacleAccepted(o);

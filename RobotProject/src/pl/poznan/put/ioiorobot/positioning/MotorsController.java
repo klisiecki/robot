@@ -1,11 +1,11 @@
-package pl.poznan.put.ioiorobot.motors;
+package pl.poznan.put.ioiorobot.positioning;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.opencv.core.Mat;
 
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.PwmOutput;
@@ -62,7 +62,7 @@ public class MotorsController implements IMotorsController {
 
 		timerPID = new Timer();
 
-		timerPID.scheduleAtFixedRate(new PID(), 0, C.PIDPeriod);
+		timerPID.scheduleAtFixedRate(new PID(), 0, Config.PIDPeriod);
 	}
 
 	public int getDirection() {
@@ -70,10 +70,10 @@ public class MotorsController implements IMotorsController {
 	}
 
 	public void setDirection(int direction) {
-		if (direction > C.maxDirection) {
-			this.direction = C.maxDirection;
-		} else if (direction < -C.maxDirection) {
-			this.direction = -C.maxDirection;
+		if (direction > Config.maxDirection) {
+			this.direction = Config.maxDirection;
+		} else if (direction < -Config.maxDirection) {
+			this.direction = -Config.maxDirection;
 		} else {
 			this.direction = direction;
 		}
@@ -84,10 +84,10 @@ public class MotorsController implements IMotorsController {
 	}
 
 	public void setSpeed(int speed) {
-		if (speed > C.maxSpeed) {
-			this.speed = C.maxSpeed;
-		} else if (speed < -C.maxSpeed) {
-			this.speed = -C.maxSpeed;
+		if (speed > Config.maxSpeed) {
+			this.speed = Config.maxSpeed;
+		} else if (speed < -Config.maxSpeed) {
+			this.speed = -Config.maxSpeed;
 		} else {
 			this.speed = speed;
 		}
@@ -95,27 +95,27 @@ public class MotorsController implements IMotorsController {
 
 	
 	private void turnTo(float targetAngle) {
-		speed = C.maxSpeed;
+		speed = Config.maxSpeed;
 		start();
 
 		float changeAngle = targetAngle - encodersData.getPosition().angle();
 		try {
 			if (changeAngle < -Math.PI) {
-				direction = C.maxDirection;
+				direction = Config.maxDirection;
 				while (encodersData.getPosition().angle() > 0 && enabled)
 					Thread.sleep(20);
 				while (encodersData.getPosition().angle() < targetAngle && enabled)
 					Thread.sleep(20);
 			} else if (changeAngle >= -Math.PI && changeAngle < 0) {
-				direction = -C.maxDirection;
+				direction = -Config.maxDirection;
 				while (encodersData.getPosition().angle() > targetAngle && enabled)
 					Thread.sleep(20);
 			} else if (changeAngle >= 0 && changeAngle < Math.PI) {
-				direction = C.maxDirection;
+				direction = Config.maxDirection;
 				while (encodersData.getPosition().angle() < targetAngle && enabled)
 					Thread.sleep(20);
 			} else if (changeAngle >= Math.PI) {
-				direction = -C.maxDirection;
+				direction = -Config.maxDirection;
 				while (encodersData.getPosition().angle() < 0 && enabled)
 					Thread.sleep(20);
 				while (encodersData.getPosition().angle() > targetAngle && enabled)
@@ -145,7 +145,7 @@ public class MotorsController implements IMotorsController {
 	class MotorThread extends Thread {
 		public MotorThread() {
 			start();
-			Log.e(C.TAG, "MotorThread constructor");
+			Log.e(Config.TAG, "MotorThread constructor");
 		}
 
 		@Override
@@ -161,19 +161,19 @@ public class MotorsController implements IMotorsController {
 						l2.write(false);
 						r1.write(true);
 						r2.write(false);
-						left = right = (float)speed/C.maxSpeed;
+						left = right = (float)speed/Config.maxSpeed;
 					} else if (speed > 0 && direction < 0) {
 						l1.write(false);
 						l2.write(true);
 						r1.write(true);
 						r2.write(false);
-						left = right = (float)speed/C.maxSpeed/2;
+						left = right = (float)speed/Config.maxSpeed/2;
 					} else if (speed > 0 && direction > 0) {
 						l1.write(true);
 						l2.write(false);
 						r1.write(false);
 						r2.write(true);
-						left = right = (float)speed/C.maxSpeed/2;
+						left = right = (float)speed/Config.maxSpeed/2;
 					} else {
 						l1.write(false);
 						l2.write(false);

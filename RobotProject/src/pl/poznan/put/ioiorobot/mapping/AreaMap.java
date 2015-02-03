@@ -1,10 +1,10 @@
-package pl.poznan.put.ioiorobot.mapobjects;
+package pl.poznan.put.ioiorobot.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.poznan.put.ioiorobot.motors.Position;
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.positioning.Position;
+import pl.poznan.put.ioiorobot.utils.Config;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;

@@ -13,18 +13,19 @@ import org.opencv.android.CameraBridgeViewBase;
 import pl.poznan.put.ioiorobot.camera.MyCamera;
 import pl.poznan.put.ioiorobot.camera.MyCamera.PatternFoundListener;
 import pl.poznan.put.ioiorobot.camera.MyJavaCameraView;
-import pl.poznan.put.ioiorobot.mapobjects.AreaMap;
-import pl.poznan.put.ioiorobot.mapobjects.Obstacle;
-import pl.poznan.put.ioiorobot.mapobjects.ObstacleManager;
-import pl.poznan.put.ioiorobot.mapobjects.ObstacleManager.ObstacleAcceptedListener;
-import pl.poznan.put.ioiorobot.mapobjects.Pattern;
-import pl.poznan.put.ioiorobot.mapobjects.PatternsQueue;
-import pl.poznan.put.ioiorobot.mapobjects.PatternsQueue.PatternAcceptedListener;
-import pl.poznan.put.ioiorobot.motors.EncodersData;
-import pl.poznan.put.ioiorobot.motors.EncodersData.PositionChangedListener;
-import pl.poznan.put.ioiorobot.motors.IMotorsController;
-import pl.poznan.put.ioiorobot.motors.MotorsController;
-import pl.poznan.put.ioiorobot.motors.Position;
+import pl.poznan.put.ioiorobot.mapping.AreaMap;
+import pl.poznan.put.ioiorobot.mapping.Obstacle;
+import pl.poznan.put.ioiorobot.mapping.ObstacleManager;
+import pl.poznan.put.ioiorobot.mapping.Pattern;
+import pl.poznan.put.ioiorobot.mapping.PatternsQueue;
+import pl.poznan.put.ioiorobot.mapping.ObstacleManager.ObstacleAcceptedListener;
+import pl.poznan.put.ioiorobot.mapping.PatternsQueue.PatternAcceptedListener;
+import pl.poznan.put.ioiorobot.positioning.EncodersData;
+import pl.poznan.put.ioiorobot.positioning.IMotorsController;
+import pl.poznan.put.ioiorobot.positioning.MotorsController;
+import pl.poznan.put.ioiorobot.positioning.Position;
+import pl.poznan.put.ioiorobot.positioning.RobotController;
+import pl.poznan.put.ioiorobot.positioning.EncodersData.PositionChangedListener;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.FrontDistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
@@ -32,7 +33,7 @@ import pl.poznan.put.ioiorobot.sensors.IBatteryStatus.BatteryStatusChangedListen
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor.DistanceResultListener;
 import pl.poznan.put.ioiorobot.sensors.SharpDistanceSensor;
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 import pl.poznan.put.ioiorobot.utils.DAO;
 import pl.poznan.put.ioiorobot.widgets.AreaMapWidget;
 import pl.poznan.put.ioiorobot.widgets.BatteryStatusBar;
@@ -61,7 +62,7 @@ import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
 /**
- * Główna klasa aplikacji. Zawiera wszystkie widoki oraz główną pętlę programu.
+ * Główna klasa aplikacji. Zawiera wszystkie widoki oraz obsługę komunikacji z IOIO.
  *
  */
 public class RobotActivity extends IOIOActivity {
@@ -114,13 +115,13 @@ public class RobotActivity extends IOIOActivity {
 				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
 						robotPosition);
 				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3, encodersData);
-				frontDistanceSensor = new FrontDistanceSensor(ioio_, 6, 7, 8, 9, 10, 11, C.minFreeDistance);
-				distanceSensor = new SharpDistanceSensor(ioio_, 13, 33);
+				frontDistanceSensor = new FrontDistanceSensor(ioio_, 6, 7, 8, 9, 10, 11, Config.minFreeDistance);
+				distanceSensor = new SharpDistanceSensor(ioio_, 30, 33);
 				batteryStatus = new BatteryStatus(ioio_, 46);
 				controller = new RobotController(robotPosition, camera, motorsController, frontDistanceSensor);
 				initIOIOListeners();
 			} catch (ConnectionLostException e) {
-				Log.e(C.TAG, e.toString());
+				Log.e(Config.TAG, e.toString());
 				e.printStackTrace();
 			}
 		}
@@ -136,7 +137,7 @@ public class RobotActivity extends IOIOActivity {
 			frontDistanceSensor.isFreeLeft();
 			//Log.d(C.TAG, "frontDistanceSensor: " + frontDistanceSensor.isFreeLeft() + "\t" + frontDistanceSensor.isFreeCenter() + "\t" + frontDistanceSensor.isFreeRight());
 
-			Thread.sleep(C.loopSleep);
+			Thread.sleep(Config.loopSleep);
 		}
 
 		@Override
@@ -173,8 +174,8 @@ public class RobotActivity extends IOIOActivity {
 		DAO.setContext(getApplicationContext());
 		screenSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
-		C.patternSize = Math.min(screenSize.y, screenSize.x) / 7; // było /4
-		C.screenSize = screenSize;
+		Config.patternSize = Math.min(screenSize.y, screenSize.x) / 7; // było /4
+		Config.screenSize = screenSize;
 	}
 
 	private void initWindow() {
@@ -295,7 +296,7 @@ public class RobotActivity extends IOIOActivity {
 
 			@Override
 			public void onPatternFound(final Pattern pattern) {
-				pattern.addViewPosition(new Position(robotPosition, C.cameraShift));
+				pattern.addViewPosition(new Position(robotPosition, Config.cameraShift));
 				patternsQueue.add(pattern);
 			}
 		});
@@ -372,7 +373,7 @@ public class RobotActivity extends IOIOActivity {
 					public void run() {
 						barGraph.setValues(results);
 						// Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
-						if (last.distance < C.maxObstacleDistance) {
+						if (last.distance < Config.maxObstacleDistance) {
 							obstacleManager.addObstacle(new Obstacle(robotPosition, last));
 							areaMapWidgetBig.invalidate();
 							areaMapWidget.invalidate();

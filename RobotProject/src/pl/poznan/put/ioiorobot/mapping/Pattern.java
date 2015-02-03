@@ -1,4 +1,4 @@
-package pl.poznan.put.ioiorobot.mapobjects;
+package pl.poznan.put.ioiorobot.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +9,9 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import pl.poznan.put.ioiorobot.motors.Position;
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.positioning.Position;
+import pl.poznan.put.ioiorobot.utils.Config;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Color;
 import android.graphics.Point;
 
@@ -27,7 +26,7 @@ public class Pattern {
 	private boolean[][] array;
 	private Bitmap bitmap;
 	private int count = 1;
-	private int ttl = C.patternTTL;
+	private int ttl = Config.patternTTL;
 	private float cameraAngle;
 	private Point position;
 	private List<Position> viewPositions = new ArrayList<Position>();
@@ -128,7 +127,7 @@ public class Pattern {
 	}
 
 	public int incrementCount() {
-		ttl = C.patternTTL * 2;
+		ttl = Config.patternTTL * 2;
 		return ++count;
 	}
 
@@ -162,7 +161,7 @@ public class Pattern {
 	
 	public Pattern() {
 		id = nextId++;
-		size = C.patternSize;
+		size = Config.patternSize;
 		array = new boolean[size][size];
 	}
 
@@ -171,7 +170,7 @@ public class Pattern {
 		Imgproc.resize(mat, mat, new Size(size, size));
 		MinMaxLocResult minmax = Core.minMaxLoc(mat);
 		double mean = (minmax.minVal + minmax.maxVal) / 2;
-		bitmap = Bitmap.createBitmap(size, size, Config.ARGB_4444);
+		bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_4444);
 		for (int i = 0; i < mat.height(); i++) {
 			for (int j = 0; j < mat.width(); j++) {
 				double[] val = mat.get(i, j);
