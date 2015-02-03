@@ -7,7 +7,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 import android.util.Log;
 
 /**
@@ -63,7 +63,7 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 	
 	@Override
 	public void run() {
-		Log.d(C.TAG, "distance sensor run");
+		Log.d(Config.TAG, "distance sensor run");
 		try {
 			int position = ANGLE_MIN;
 			servo.setPulseWidth(map(position));
@@ -105,7 +105,7 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 				}
 			}
 		} catch (Exception e) {
-			Log.e(C.TAG, e.toString());
+			Log.e(Config.TAG, e.toString());
 		}
 	}
 	

@@ -96,9 +96,9 @@ public class DAO {
 			OutputStreamWriter oss = new OutputStreamWriter(fOut);
 			oss.append(data);
 			oss.close();
-			Log.e(C.TAG, "SAVED");
+			Log.e(Config.TAG, "SAVED");
 		} catch (Exception e) {
-			Log.e(C.TAG, e.getMessage());
+			Log.e(Config.TAG, e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -115,7 +115,7 @@ public class DAO {
 			oss.close();
 			return new String(result);
 		} catch (Exception e) {
-			Log.e(C.TAG, e.getMessage());
+			Log.e(Config.TAG, e.getMessage());
 			e.printStackTrace();
 			return null;
 		}
@@ -185,9 +185,9 @@ public class DAO {
 		String filename = file.toString();
 		Boolean bool = Highgui.imwrite(filename, mIntermediateMat);
 		if (bool)
-			Log.i(C.TAG, "SUCCESS writing image to external storage");
+			Log.i(Config.TAG, "SUCCESS writing image to external storage");
 		else
-			Log.i(C.TAG, "Fail writing image to external storage");
+			Log.i(Config.TAG, "Fail writing image to external storage");
 	}
 	
 	public static Mat getImage() {
@@ -227,7 +227,7 @@ public class DAO {
 
 			return json;
 		} else {
-			Log.e(C.TAG, "Mat not continuous.");
+			Log.e(Config.TAG, "Mat not continuous.");
 		}
 		return "{}";
 	}

@@ -1,6 +1,6 @@
 package pl.poznan.put.ioiorobot.widgets;
 
-import pl.poznan.put.ioiorobot.motors.Position;
+import pl.poznan.put.ioiorobot.positioning.Position;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

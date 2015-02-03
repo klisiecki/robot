@@ -24,8 +24,8 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
 import pl.poznan.put.ioiorobot.R;
-import pl.poznan.put.ioiorobot.mapobjects.Pattern;
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.mapping.Pattern;
+import pl.poznan.put.ioiorobot.utils.Config;
 import pl.poznan.put.ioiorobot.utils.DAO;
 import android.app.Activity;
 import android.content.Context;
@@ -144,7 +144,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat mask = new Mat();
 		imgRgba.copyTo(mask);
 		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
-		Core.inRange(mask, C.minColor, C.maxColor, mask);
+		Core.inRange(mask, Config.minColor, Config.maxColor, mask);
 		
 		Mat maskedImage = new Mat();
 		imgRgba.copyTo(maskedImage, mask);
@@ -155,7 +155,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		Mat maskedImageGrayThresholded = new Mat();
 		Imgproc.adaptiveThreshold(maskedImageGray, maskedImageGrayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
-				Imgproc.THRESH_BINARY_INV, C.thresholdBlockSize, C.thresholdMC); // blockSize = 9, mC = 7;
+				Imgproc.THRESH_BINARY_INV, Config.thresholdBlockSize, Config.thresholdMC); // blockSize = 9, mC = 7;
 
 		
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
@@ -165,7 +165,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		// pętla dla wszystkich konturów zawierających poszukiwany kolor
 		for (MatOfPoint cnt : contours) {
 			// Pomijanie małych obiektów
-			int threshold = (int) (C.screenSize.x * C.screenSize.y * C.thresholdFactor / 100);
+			int threshold = (int) (Config.screenSize.x * Config.screenSize.y * Config.thresholdFactor / 100);
 			if (Imgproc.contourArea(cnt) > threshold) {
 				Rect r = Imgproc.boundingRect(cnt);
 				Mat subMat = imgRgba.submat(r);
@@ -190,7 +190,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		Mat grayThresholded = new Mat();
 		Imgproc.adaptiveThreshold(imgGray, grayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
-				Imgproc.THRESH_BINARY_INV, C.thresholdBlockSize, C.thresholdMC);
+				Imgproc.THRESH_BINARY_INV, Config.thresholdBlockSize, Config.thresholdMC);
 
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(grayThresholded, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -199,7 +199,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		for (MatOfPoint cnt : contours) {
 			// Pomijanie małych obiektów
-			int threshold = (int) (C.screenSize.x * C.screenSize.y * C.thresholdFactor / 100);
+			int threshold = (int) (Config.screenSize.x * Config.screenSize.y * Config.thresholdFactor / 100);
 			if (Imgproc.contourArea(cnt) > threshold)
 				contoursSorted.add(cnt);
 		}
@@ -226,7 +226,7 @@ public class MyCamera implements CvCameraViewListener2 {
 					patternFoundListener.onPatternFound(pattern);
 				}
 			}
-			if (contoursProcessed == C.maxContoursProcessed) {
+			if (contoursProcessed == Config.maxContoursProcessed) {
 				break;
 			}
 		}
@@ -246,7 +246,7 @@ public class MyCamera implements CvCameraViewListener2 {
 		Point offset = new Point();
 		image.locateROI(wholeSize, offset);
 		
-		float result = ((float) center + (float)offset.x) / (float)wholeSize.width * C.cameraViewAngle - C.cameraViewAngle / 2;
+		float result = ((float) center + (float)offset.x) / (float)wholeSize.width * Config.cameraViewAngle - Config.cameraViewAngle / 2;
 		return result;
 	}
 
@@ -351,7 +351,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	 */
 	public static Mat warp(Mat inputMat, Point p1, Point p2, Point p3, Point p4) {
 		int resultWidth, resultHeight;
-		resultWidth = resultHeight = C.patternSize;
+		resultWidth = resultHeight = Config.patternSize;
 
 		Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);
 

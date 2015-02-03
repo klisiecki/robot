@@ -1,8 +1,8 @@
-package pl.poznan.put.ioiorobot.mapobjects;
+package pl.poznan.put.ioiorobot.mapping;
 
-import pl.poznan.put.ioiorobot.motors.Position;
+import pl.poznan.put.ioiorobot.positioning.Position;
 import pl.poznan.put.ioiorobot.sensors.IDistanceSensor;
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 import android.graphics.Point;
 
 /**
@@ -51,9 +51,9 @@ public class Obstacle {
 		}
 
 		// pozycja robota + pozycja czujnika + odczyt czujnika
-		this.point.x = (int) (robotPosition.x() + C.wheelsToSensorDistance * Math.sin(robotPosition.angle()) + sensor.distance
+		this.point.x = (int) (robotPosition.x() + Config.wheelsToSensorDistance * Math.sin(robotPosition.angle()) + sensor.distance
 				* Math.sin(angle));
-		this.point.y = (int) (robotPosition.y() + C.wheelsToSensorDistance * Math.cos(robotPosition.angle()) + sensor.distance
+		this.point.y = (int) (robotPosition.y() + Config.wheelsToSensorDistance * Math.cos(robotPosition.angle()) + sensor.distance
 				* Math.cos(angle));
 	}
 }

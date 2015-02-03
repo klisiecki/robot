@@ -6,7 +6,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 
 import java.util.Arrays;
 
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 import android.util.Log;
 
 /**
@@ -34,7 +34,7 @@ public class SharpDistanceSensor extends AbstractDistanceSensor {
 			buffer[i] = Math.round(input.getVoltageBuffered() * 1000) / 1000.0f; //TODO niepotrzebne mnożenie i dzielenie?
 		}
 		Arrays.sort(buffer);
-		Log.d(C.TAG, Arrays.toString(buffer));
+		Log.d(Config.TAG, Arrays.toString(buffer));
 		int val = (int) (41.543 * Math.pow(buffer[BUFFER_SIZE/2] + 0.30221,-1.5281)) * 10; // *10 zamienia na mm
 		return val;
 	}

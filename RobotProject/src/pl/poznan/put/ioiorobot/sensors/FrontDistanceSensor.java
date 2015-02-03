@@ -5,7 +5,7 @@ import ioio.lib.api.exception.ConnectionLostException;
 
 import java.util.Arrays;
 
-import pl.poznan.put.ioiorobot.utils.C;
+import pl.poznan.put.ioiorobot.utils.Config;
 import android.util.Log;
 
 public class FrontDistanceSensor implements Runnable {
@@ -35,7 +35,7 @@ public class FrontDistanceSensor implements Runnable {
 
 	public boolean isFreeLeft() throws ConnectionLostException, InterruptedException {
 		double distance =  median(leftTab);
-		Log.d(C.TAG, distance+"");
+		Log.d(Config.TAG, distance+"");
 		return median(leftTab) > freeDistance;
 	}
 
