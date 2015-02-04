@@ -21,6 +21,19 @@
         android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
+        
+        <RelativeLayout
+            android:id="@+id/relative2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true" >
+
+            <pl.poznan.put.ioiorobot.widgets.AreaMapWidget
+                android:id="@+id/areaMapWidgetBig"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/relative_controls"
@@ -52,8 +65,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical|center_horizontal|top"
                     android:minHeight="35dip"
-                    android:textOff="Flash On"
-                    android:textOn="Flash Of" />
+                    android:textOff="LED"
+                    android:textOn="LED" />
 
                 <Button
                     android:id="@+id/camMockButton"
@@ -61,6 +74,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical|center_horizontal|top"
                     android:minHeight="35dip"
+                    android:visibility="gone"
                     android:text="cap mock" />
 
                 <ToggleButton
@@ -69,6 +83,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical|center_horizontal|top"
                     android:minHeight="35dip"
+                    android:visibility="gone"
                     android:textOff="MockImg"
                     android:textOn="MockImg" />
 
@@ -148,19 +163,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/relative2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true" >
-
-            <pl.poznan.put.ioiorobot.widgets.AreaMapWidget
-                android:id="@+id/areaMapWidgetBig"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
         </RelativeLayout>
     </ViewFlipper>
 

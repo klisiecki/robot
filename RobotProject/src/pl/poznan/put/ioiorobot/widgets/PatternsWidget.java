@@ -24,7 +24,6 @@ public class PatternsWidget extends View {
 	private Paint borderPaint;
 	private Paint patternPaint;
 
-	private Pattern choosenPattern;
 	private List<Pattern> patterns;
 
 	public void addPattern(Pattern pattern) {
@@ -73,32 +72,15 @@ public class PatternsWidget extends View {
 		setMeasuredDimension(width, height);
 	}
 
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			int patternNr = (int) event.getX() / Config.patternSize - 1;
-			if (patternNr >= 0 && patternNr < patterns.size()) {
-				choosenPattern = patterns.get(patternNr);
-				invalidate();
-			}
-		}
 
-		return true;
-	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		// Log.d("robot", "onDraw patterns " + patterns.size());
-		if (choosenPattern != null) {
-			canvas.drawBitmap(choosenPattern.getBitmap(), 0, 0, patternPaint);
-		}
-		int i = 1;
+		int i = 0;
 		for (Pattern p : patterns) {
-			// Log.d("robot", "i = "+i);
 			canvas.drawBitmap(p.getBitmap(), (i++) * Config.patternSize, 0, patternPaint);
 		}
-		canvas.drawRect(Config.patternSize, 0, Config.patternSize * (patterns.size() + 1), height, borderPaint);
-		canvas.drawRect(0, 0, Config.patternSize, Config.patternSize, borderPaint);
+		canvas.drawRect(0, 0, Config.patternSize * (patterns.size()), height, borderPaint);
 		canvas.save();
 	}
 

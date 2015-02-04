@@ -145,13 +145,8 @@ public class MyCamera implements CvCameraViewListener2 {
 		Mat maskedImage = new Mat();
 		imgRgba.copyTo(maskedImage, mask);
 
-		if (true) {
-			return maskedImage;
-		}
-		
 		Mat maskedImageGray = new Mat();
 		Imgproc.cvtColor(maskedImage, maskedImageGray, Imgproc.COLOR_RGB2GRAY);
-
 
 		Mat maskedImageGrayThresholded = new Mat();
 		Imgproc.adaptiveThreshold(maskedImageGray, maskedImageGrayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,

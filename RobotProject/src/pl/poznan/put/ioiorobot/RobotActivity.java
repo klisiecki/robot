@@ -16,16 +16,16 @@ import pl.poznan.put.ioiorobot.camera.MyJavaCameraView;
 import pl.poznan.put.ioiorobot.mapping.AreaMap;
 import pl.poznan.put.ioiorobot.mapping.Obstacle;
 import pl.poznan.put.ioiorobot.mapping.ObstacleManager;
+import pl.poznan.put.ioiorobot.mapping.ObstacleManager.ObstacleAcceptedListener;
 import pl.poznan.put.ioiorobot.mapping.Pattern;
 import pl.poznan.put.ioiorobot.mapping.PatternsQueue;
-import pl.poznan.put.ioiorobot.mapping.ObstacleManager.ObstacleAcceptedListener;
 import pl.poznan.put.ioiorobot.mapping.PatternsQueue.PatternAcceptedListener;
 import pl.poznan.put.ioiorobot.positioning.EncodersData;
+import pl.poznan.put.ioiorobot.positioning.EncodersData.PositionChangedListener;
 import pl.poznan.put.ioiorobot.positioning.IMotorsController;
 import pl.poznan.put.ioiorobot.positioning.MotorsController;
 import pl.poznan.put.ioiorobot.positioning.Position;
 import pl.poznan.put.ioiorobot.positioning.RobotController;
-import pl.poznan.put.ioiorobot.positioning.EncodersData.PositionChangedListener;
 import pl.poznan.put.ioiorobot.sensors.BatteryStatus;
 import pl.poznan.put.ioiorobot.sensors.FrontDistanceSensor;
 import pl.poznan.put.ioiorobot.sensors.IBatteryStatus;
@@ -44,11 +44,11 @@ import pl.poznan.put.ioiorobot.widgets.PatternsWidget;
 import pl.poznan.put.ioiorobot.widgets.SimpleBarGraph;
 import android.graphics.Point;
 import android.hardware.Camera;
-import android.hardware.Camera.Parameters;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -56,17 +56,16 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
 /**
- * Główna klasa aplikacji. Zawiera wszystkie widoki oraz obsługę komunikacji z IOIO.
+ * Główna klasa aplikacji. Zawiera wszystkie widoki oraz obsługę komunikacji z
+ * IOIO.
  *
  */
 public class RobotActivity extends IOIOActivity {
-
 
 	// Views
 	private Joystick joystick;
@@ -82,6 +81,7 @@ public class RobotActivity extends IOIOActivity {
 	private AreaMapWidget areaMapWidgetBig;
 	private ViewFlipper mapViewFlipper;
 	private MyJavaCameraView javaCameraView;
+	private MenuItem startStopMenuItem;
 
 	// Controls
 	private MyCamera camera;
@@ -98,7 +98,7 @@ public class RobotActivity extends IOIOActivity {
 	private Position robotPosition;
 
 	private Point screenSize;
-	
+
 	private Button capMockBtn;
 	private ToggleButton mockingBtn;
 
@@ -125,6 +125,7 @@ public class RobotActivity extends IOIOActivity {
 
 		@Override
 		public void loop() throws ConnectionLostException, InterruptedException {
+			Thread.sleep(Config.loopSleep);
 		}
 
 		@Override
@@ -144,7 +145,7 @@ public class RobotActivity extends IOIOActivity {
 		initObjects();
 		initWindow();
 		initView();
-		initListeners();		
+		initListeners();
 	}
 
 	@Override
@@ -161,7 +162,8 @@ public class RobotActivity extends IOIOActivity {
 		DAO.setContext(getApplicationContext());
 		screenSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
-		Config.patternSize = Math.min(screenSize.y, screenSize.x) / 7; // było /4
+		Config.patternSize = Math.min(screenSize.y, screenSize.x) / 7; // było
+																		// /4
 		Config.screenSize = screenSize;
 	}
 
@@ -194,7 +196,7 @@ public class RobotActivity extends IOIOActivity {
 		areaMapWidget.setAreaMap(areaMap);
 		areaMapWidgetBig.setAreaMap(areaMap);
 		mapViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-		
+
 		capMockBtn = (Button) findViewById(R.id.camMockButton);
 		mockingBtn = (ToggleButton) findViewById(R.id.mockImage);
 	}
@@ -219,15 +221,15 @@ public class RobotActivity extends IOIOActivity {
 				}
 			}
 		});
-		
+
 		flashlightButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				Camera mCamera = javaCameraView.getCamera();
 				Camera.Parameters param = mCamera.getParameters();
-				param.setFlashMode(isChecked ? Camera.Parameters.FLASH_MODE_TORCH: Camera.Parameters.FLASH_MODE_OFF);
-				mCamera.setParameters(param);				
+				param.setFlashMode(isChecked ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
+				mCamera.setParameters(param);
 			}
 		});
 
@@ -307,22 +309,21 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 
-		
 		mockingBtn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				camera.setMocking(isChecked);
-				
+
 			}
 		});
-		
+
 		capMockBtn.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				camera.saveMock();
-				
+
 			}
 		});
 	}
@@ -388,16 +389,27 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.menu, menu);
+		startStopMenuItem = (MenuItem) findViewById(R.id.startStop);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	public boolean onOptionsItemSelected(android.view.MenuItem item) {
 		switch (item.getItemId()) {
+
+		case R.id.startStop:
+			if (controller.isAlive()) {
+				controller.interrupt();
+				startStopMenuItem.setTitle("Start");
+			} else {
+				controller.start();
+				startStopMenuItem.setTitle("Stop");
+			}
+			return true;
 		case R.id.showMap:
 			mapViewFlipper.showNext();
 			return true;
