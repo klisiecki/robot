@@ -3,6 +3,7 @@ package pl.poznan.put.ioiorobot.positioning;
 import pl.poznan.put.ioiorobot.camera.MyCamera;
 import pl.poznan.put.ioiorobot.sensors.FrontDistanceSensor;
 import pl.poznan.put.ioiorobot.utils.Config;
+import android.util.Log;
 
 public class RobotController extends Thread {
 
@@ -10,7 +11,7 @@ public class RobotController extends Thread {
 	private Position lastPosition;
 	private Position position;
 	private MyCamera camera;
-	private IMotorsController motorsController;
+	private IMotorsController motorsController; 
 	private FrontDistanceSensor frontDistanceSensor;
 	private DrivingThread drivingThread;
 	private boolean motorsRunning = false;
@@ -30,28 +31,34 @@ public class RobotController extends Thread {
 	@Override
 	public void run() {
 		distance = 0;
+		Log.d("thread", "camera");
 		while (true) {
 			motorsRunning = true;
-			while (distance < Config.robotStepDistance) {
-				distance += position.distanceTo(lastPosition);
-				lastPosition = new Position(position);
-
-				try {
-					sleep(Config.loopSleep);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			distance = 0;
-			motorsRunning = false;
-			camera.setFramesToProcess(Config.framesPerRotate);
-
-			while (!camera.isReady()) {
-				try {
-					sleep(Config.loopSleep);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+//			while (distance < Config.robotStepDistance) {
+//				distance += position.distanceTo(lastPosition);
+//				lastPosition = new Position(position);
+//
+//				try {
+//					sleep(Config.loopSleep);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//			distance = 0;
+//			motorsRunning = false;
+//			camera.setFramesToProcess(Config.framesPerRotate);
+//
+//			while (!camera.isReady()) {
+//				try {
+//					sleep(Config.loopSleep);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+			try {
+				sleep(Config.loopSleep);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -59,17 +66,24 @@ public class RobotController extends Thread {
 	private class DrivingThread extends Thread {
 		@Override
 		public void run() {
+			Log.d("thread", "driving");
 			try {
 				while (true) {
+					Log.d("thread", "driving..");
 					if (motorsRunning) {
-						motorsController.setSpeed((int) (Config.maxSpeed / 2.5));
+//						motorsController.start();
+						motorsController.setSpeed((int) (Config.maxSpeed));
 						if (frontDistanceSensor.isFreeLeft()) {
+							Log.d(Config.TAG, "left");
 							motorsController.turn(-(float) Math.PI / 60);
 						} else if (frontDistanceSensor.isFreeCenter()) {
+							Log.d(Config.TAG, "center");
 							motorsController.start();
 						} else if (frontDistanceSensor.isFreeRight()) {
+							Log.d(Config.TAG, "right");
 							motorsController.turn((float) Math.PI / 2);
 						} else {
+							Log.d(Config.TAG, "stop");
 							motorsController.stop();
 						}
 					} else {
@@ -79,6 +93,7 @@ public class RobotController extends Thread {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
+				Log.d("thread", "driving.. ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			}
 		}
 	}

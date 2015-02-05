@@ -109,12 +109,12 @@ public class RobotActivity extends IOIOActivity {
 			showToast("Połączono");
 
 			try {
-				encodersData = new EncodersData(ioio_, 27, 28, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
+				encodersData = new EncodersData(ioio_, 28, 27, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
 						robotPosition);
-				motorsController = new MotorsController(ioio_, 16, 17, 14, 1, 2, 3, encodersData);
+				motorsController = new MotorsController(ioio_, 1, 2, 3, 17, 16, 14, encodersData);
 				frontDistanceSensor = new FrontDistanceSensor(ioio_, 6, 7, 8, 9, 10, 11, Config.minFreeDistance);
 				distanceSensor = new SharpDistanceSensor(ioio_, 30, 33);
-				batteryStatus = new BatteryStatus(ioio_, 46);
+				batteryStatus = new BatteryStatus(ioio_, 34);
 				controller = new RobotController(robotPosition, camera, motorsController, frontDistanceSensor);
 				initIOIOListeners();
 			} catch (ConnectionLostException e) {
@@ -265,7 +265,9 @@ public class RobotActivity extends IOIOActivity {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
 					// camera.setMode(MyCamera.Mode.MOCK);
-					controller.start();
+					if (!controller.isAlive()) {
+						controller.start();
+					}
 				} else {
 					// camera.setMode(MyCamera.Mode.CAMERA_ONLY);
 					controller.interrupt();
@@ -404,10 +406,10 @@ public class RobotActivity extends IOIOActivity {
 		case R.id.startStop:
 			if (controller.isAlive()) {
 				controller.interrupt();
-				startStopMenuItem.setTitle("Start");
+				//startStopMenuItem.setTitle("Start");
 			} else {
 				controller.start();
-				startStopMenuItem.setTitle("Stop");
+				//startStopMenuItem.setTitle("Stop");
 			}
 			return true;
 		case R.id.showMap:

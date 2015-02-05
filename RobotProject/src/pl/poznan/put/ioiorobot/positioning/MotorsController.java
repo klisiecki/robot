@@ -157,10 +157,10 @@ public class MotorsController implements IMotorsController {
 					float right = 0; // = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
 
 					if (speed > 0 && direction == 0) {
-						l1.write(true);
-						l2.write(false);
-						r1.write(true);
-						r2.write(false);
+						l2.write(true);
+						l1.write(false);
+						r2.write(true);
+						r1.write(false);
 						left = right = (float)speed/Config.maxSpeed;
 					} else if (speed > 0 && direction < 0) {
 						l1.write(false);
