@@ -153,7 +153,13 @@ public class RobotActivity extends IOIOActivity {
 		super.onResume();
 		camera.resume();
 	}
-
+	
+	@Override
+	protected void onPause() {		controller.kill();
+		frontDistanceSensor.kill();
+		super.onPause();
+	}
+	
 	private void initObjects() {
 		patternsQueue = new PatternsQueue();
 		obstacleManager = new ObstacleManager();
@@ -265,13 +271,10 @@ public class RobotActivity extends IOIOActivity {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
 					// camera.setMode(MyCamera.Mode.MOCK);
-					if (!controller.isAlive()) {
-						controller.start();
-					}
+					controller.enable();
 				} else {
 					// camera.setMode(MyCamera.Mode.CAMERA_ONLY);
-					controller.interrupt();
-					motorsController.stop();
+					controller.disable();
 				}
 			}
 		});
@@ -404,13 +407,7 @@ public class RobotActivity extends IOIOActivity {
 		switch (item.getItemId()) {
 
 		case R.id.startStop:
-			if (controller.isAlive()) {
-				controller.interrupt();
-				//startStopMenuItem.setTitle("Start");
-			} else {
-				controller.start();
-				//startStopMenuItem.setTitle("Stop");
-			}
+			
 			return true;
 		case R.id.showMap:
 			mapViewFlipper.showNext();

@@ -93,33 +93,61 @@ public class MotorsController implements IMotorsController {
 		}
 	}
 
-	
-	private void turnTo(float targetAngle) {
+	public void turnTo(float targetAngle) {
+		if (targetAngle > Math.PI) {
+			targetAngle -= 2 * Math.PI;
+		} else if (targetAngle < -Math.PI) {
+			targetAngle += 2 * Math.PI;
+		}
+		
 		speed = Config.maxSpeed;
+		float curAngle,lastAngle;
 		start();
 
 		float changeAngle = targetAngle - encodersData.getPosition().angle();
 		try {
 			if (changeAngle < -Math.PI) {
 				direction = Config.maxDirection;
-				while (encodersData.getPosition().angle() > 0 && enabled)
+				lastAngle = encodersData.getPosition().angle();
+				while ((curAngle = encodersData.getPosition().angle()) > 0 && lastAngle <= curAngle && enabled) {
+					lastAngle = curAngle;
+					Log.d("loop", "while1: " + encodersData.getPosition().angle());
 					Thread.sleep(20);
-				while (encodersData.getPosition().angle() < targetAngle && enabled)
+				}
+				while (encodersData.getPosition().angle() < targetAngle && enabled) {
+					Log.d("loop", "while2: " + encodersData.getPosition().angle());
 					Thread.sleep(20);
+				}
 			} else if (changeAngle >= -Math.PI && changeAngle < 0) {
 				direction = -Config.maxDirection;
-				while (encodersData.getPosition().angle() > targetAngle && enabled)
+				lastAngle = encodersData.getPosition().angle();
+				while ((curAngle = encodersData.getPosition().angle()) > targetAngle && lastAngle >= curAngle && enabled) {
+					lastAngle = curAngle;
 					Thread.sleep(20);
+					Log.d("loop", "while3: " + encodersData.getPosition().angle() + " target = " + targetAngle);
+				}
+				Log.d("loop", "....while3");
 			} else if (changeAngle >= 0 && changeAngle < Math.PI) {
 				direction = Config.maxDirection;
-				while (encodersData.getPosition().angle() < targetAngle && enabled)
+				lastAngle = encodersData.getPosition().angle();
+				while ((curAngle = encodersData.getPosition().angle()) < targetAngle && lastAngle <= curAngle && enabled) {
+					lastAngle = curAngle;
 					Thread.sleep(20);
+					Log.d("loop", "while4: " + encodersData.getPosition().angle());
+				}
+				Log.d("loop", "....while4");
 			} else if (changeAngle >= Math.PI) {
 				direction = -Config.maxDirection;
-				while (encodersData.getPosition().angle() < 0 && enabled)
+				lastAngle = encodersData.getPosition().angle();
+				while ((curAngle = encodersData.getPosition().angle()) < 0 && lastAngle >= curAngle && enabled) {
+					lastAngle = curAngle;
 					Thread.sleep(20);
-				while (encodersData.getPosition().angle() > targetAngle && enabled)
+					Log.d("loop", "while5: " + encodersData.getPosition().angle());
+				}
+				while (encodersData.getPosition().angle() > targetAngle && enabled) {
 					Thread.sleep(20);
+					Log.d("loop", "while6: " + encodersData.getPosition().angle());
+				}
 			}
 		} catch (Exception e) {
 		}
@@ -130,11 +158,6 @@ public class MotorsController implements IMotorsController {
 
 	public void turn(float angle) {
 		float targetAngle = encodersData.getPosition().angle() + angle;
-		if (targetAngle > Math.PI) {
-			targetAngle -= 2 * Math.PI;
-		} else if (targetAngle < -Math.PI) {
-			targetAngle += 2 * Math.PI;
-		}
 		turnTo(targetAngle);
 	}
 
@@ -153,59 +176,60 @@ public class MotorsController implements IMotorsController {
 			while (true) {
 
 				try {
-					float left = 0; // = ((float) Math.abs(speed) + (float) direction * speed / 100f) / 200f;
-					float right = 0; // = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
+					float left = 0; // = ((float) Math.abs(speed) + (float)
+									// direction * speed / 100f) / 200f;
+					float right = 0; // = ((float) Math.abs(speed) - (float)
+										// direction * speed / 100f) / 200f;
 
 					if (speed > 0 && direction == 0) {
 						l2.write(true);
 						l1.write(false);
 						r2.write(true);
 						r1.write(false);
-						left = right = (float)speed/Config.maxSpeed;
+						left = right = (float) speed / Config.maxSpeed;
 					} else if (speed > 0 && direction < 0) {
 						l1.write(false);
 						l2.write(true);
 						r1.write(true);
 						r2.write(false);
-						left = right = (float)speed/Config.maxSpeed/2;
+						left = right = (float) speed / Config.maxSpeed / 2;
 					} else if (speed > 0 && direction > 0) {
 						l1.write(true);
 						l2.write(false);
 						r1.write(false);
 						r2.write(true);
-						left = right = (float)speed/Config.maxSpeed/2;
+						left = right = (float) speed / Config.maxSpeed / 2;
 					} else {
 						l1.write(false);
 						l2.write(false);
 						r1.write(false);
 						r2.write(false);
 					}
-					
-					
-					
-//					float left = ((float) Math.abs(speed) + (float) direction * speed / 100f) / 200f;
-//					float right = ((float) Math.abs(speed) - (float) direction * speed / 100f) / 200f;
-//
-//					if (speed > 5) {
-//						l1.write(true);
-//						l2.write(false);
-//						r1.write(true);
-//						r2.write(false);
-//					} else if (speed < -5) {
-//						l1.write(false);
-//						l2.write(true);
-//						r1.write(false);
-//						r2.write(true);
-//						float tmp = left;
-//						left = right;
-//						right = tmp;
-//					} else {
-//						l1.write(false);
-//						l2.write(false);
-//						r1.write(false);
-//						r2.write(false);
-//					}
-					
+
+					// float left = ((float) Math.abs(speed) + (float) direction
+					// * speed / 100f) / 200f;
+					// float right = ((float) Math.abs(speed) - (float)
+					// direction * speed / 100f) / 200f;
+					//
+					// if (speed > 5) {
+					// l1.write(true);
+					// l2.write(false);
+					// r1.write(true);
+					// r2.write(false);
+					// } else if (speed < -5) {
+					// l1.write(false);
+					// l2.write(true);
+					// r1.write(false);
+					// r2.write(true);
+					// float tmp = left;
+					// left = right;
+					// right = tmp;
+					// } else {
+					// l1.write(false);
+					// l2.write(false);
+					// r1.write(false);
+					// r2.write(false);
+					// }
 
 					if (!enabled) {
 						left = right = 0;

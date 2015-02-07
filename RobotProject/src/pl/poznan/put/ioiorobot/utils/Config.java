@@ -14,7 +14,7 @@ public class Config {
 	/* -------------- PRZETWARZANIE OBRAZU ---------------- */
 
 	/* minimalne procentowe pokrycie powierzchni ekranu */
-	public static final double thresholdFactor = 0.01;
+	public static final double thresholdFactor = 0.5;
 	
 	/* maksymalna procentowa różnica w długości przeciwległych boków czworokąta, przy której jest on nadal uważany za prostokąt */
 	public static final int rectangleFactor = 20;

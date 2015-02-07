@@ -21,6 +21,8 @@ public class FrontDistanceSensor implements Runnable {
 	private int[] rightTab = new int[BUFFOR_SIZE];
 
 	private int tabPos = 0;
+	private static Thread t;
+	private boolean killed;
 
 	public FrontDistanceSensor(IOIO ioio_, int lTriggerPin, int lEchoPin, int cTriggerPin, int cEchoPin,
 			int rTriggerPin, int rEchoPin, int freeDistance) throws ConnectionLostException {
@@ -28,9 +30,20 @@ public class FrontDistanceSensor implements Runnable {
 		centerSensor = new HCSR04DistanceSensor(ioio_, -1, cTriggerPin, cEchoPin);
 		rightSensor = new HCSR04DistanceSensor(ioio_, -1, rTriggerPin, rEchoPin);
 		this.freeDistance = freeDistance;
+		
+		Log.d("thread", "sensor constructor");
+		if (t == null || !t.isAlive()) {
+			Log.d("thread", "sensor constructor create thread");
+			t = new Thread(this);
+			t.start();
+		}
 
-		Thread t = new Thread(this);
-		t.start();
+		killed = false;
+	}
+	
+	public void kill() {
+		t.interrupt();
+		killed = true;
 	}
 
 	public boolean isFreeLeft() throws ConnectionLostException, InterruptedException {
@@ -55,20 +68,25 @@ public class FrontDistanceSensor implements Runnable {
 	@Override
 	public void run() {
 		Log.d("thread", "sensor");
-		while(true) {
-			Log.d("thread", "sensor..");
+		while (!killed) {
+			Log.d("thread", "\t\t\tsensor.. X");
 			try {
 				leftTab[tabPos] = leftSensor.getDistance();
+				Log.d("thread", "\t\t\tsensor.. 1");
 				centerTab[tabPos] = centerSensor.getDistance();
+				Log.d("thread", "\t\t\tsensor.. 2");
 				rightTab[tabPos] = rightSensor.getDistance();
-				tabPos = (tabPos+1) % BUFFOR_SIZE;
-				Log.d(Config.TAG, leftSensor.getDistance() + " | " + centerSensor.getDistance() + " | " + rightSensor.getDistance());
+				Log.d("thread", "\t\t\tsensor.. 3");
+				tabPos = (tabPos + 1) % BUFFOR_SIZE;
+				// Log.d(Config.TAG, leftSensor.getDistance() + " | " +
+				// centerSensor.getDistance() + " | " +
+				// rightSensor.getDistance());
 				Thread.sleep(10);
 			} catch (Exception e) {
 				e.printStackTrace();
 				Log.d("thread", "sensor ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			} 
+			}
 		}
-		
+		Log.d("thread", "\t\t\tsensor.. END");
 	}
 }
