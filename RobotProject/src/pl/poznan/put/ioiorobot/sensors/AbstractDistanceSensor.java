@@ -55,6 +55,7 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 	}
 
 	abstract public int getDistance() throws ConnectionLostException, InterruptedException;
+	abstract public void getDistanceInit() throws ConnectionLostException, InterruptedException;
 
 	@Override
 	public void startSensor() {

@@ -31,6 +31,7 @@ public interface IDistanceSensor {
 	void startSensor();
 
 	int getDistance() throws ConnectionLostException, InterruptedException;
+	void getDistanceInit() throws ConnectionLostException, InterruptedException;
 
 	public class AngleDistancePair {
 		public AngleDistancePair(int angle, int distance) {

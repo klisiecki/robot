@@ -39,5 +39,11 @@ public class SharpDistanceSensor extends AbstractDistanceSensor {
 		return val;
 	}
 
+	@Override
+	public void getDistanceInit() throws ConnectionLostException, InterruptedException {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }
