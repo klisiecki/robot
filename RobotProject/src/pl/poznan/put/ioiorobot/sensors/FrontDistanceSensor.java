@@ -32,7 +32,7 @@ public class FrontDistanceSensor implements Runnable {
 		this.freeDistance = freeDistance;
 
 		Log.d("thread", "sensor constructor");
-		if (t == null || !t.isAlive()) {
+		if (t == null || t.isAlive()) {
 			Log.d("thread", "sensor constructor create thread");
 			t = new Thread(this);
 			t.start();
@@ -61,7 +61,7 @@ public class FrontDistanceSensor implements Runnable {
 
 	private int median(int[] tab) {
 		int[] copy = Arrays.copyOf(tab, BUFFOR_SIZE);
-		// Arrays.sort(copy);
+		Arrays.sort(copy);
 		return copy[BUFFOR_SIZE / 2];
 	}
 
@@ -79,9 +79,9 @@ public class FrontDistanceSensor implements Runnable {
 				rightTab[tabPos] = rightSensor.getDistance();
 				Log.d("thread", "\t\t\tsensor.. 3");
 				tabPos = (tabPos + 1) % BUFFOR_SIZE;
-				// Log.d(Config.TAG, leftSensor.getDistance() + " | " +
-				// centerSensor.getDistance() + " | " +
-				// rightSensor.getDistance());
+				 Log.d(Config.TAG, leftSensor.getDistance() + " | " +
+			 centerSensor.getDistance() + " | " +
+				 rightSensor.getDistance());
 				Thread.sleep(10);
 			}
 		} catch (Exception e) {

@@ -94,17 +94,21 @@ public class AreaMapWidget extends View {
 		robotPaint.setColor(Color.rgb(0x00, 0x00, 0xdd));
 		robotPaint.setStrokeWidth(4);
 		robotPaint.setStyle(Paint.Style.STROKE);
-
 	}
 
+	private float ratio;
+	
+	private float ratio(int x, int y) {
+		return (float) x / (float) y;
+	}
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		int desiredWidth = 1000;
-		int desiredHeight = 1000;
+		int desiredWidth = 1920;
+		int desiredHeight = 1080;
 		width = measureSize(widthMeasureSpec, desiredWidth);
 		height = measureSize(heightMeasureSpec, desiredHeight);
-		width = height = Math.min(width, height);
-
+		//width = height = Math.min(width, height);
+		ratio = ratio(width, height);
 		setMeasuredDimension(width, height);
 	}
 
@@ -129,6 +133,7 @@ public class AreaMapWidget extends View {
 
 		Bitmap bitmap = Bitmap.createBitmap(Config.mapSize, Config.mapSize, Bitmap.Config.ARGB_8888);
 		Canvas myCanvas = new Canvas(bitmap);
+		//canvas.drawRect(0, 0, width, height, obstaclePaint);
 
 		drawPatterns(myCanvas);
 		drawObstacles(myCanvas);
@@ -141,8 +146,19 @@ public class AreaMapWidget extends View {
 
 		int w = br.x-tl.x;
 		int h = br.y-tl.y;
-		//Bitmap bmp = Bitmap.createBitmap(bitmap, tl.x, tl.y, w, h);
-		canvas.drawBitmap(bitmap, 0, 0, backgroundPaint);
+		Log.d("draw", tl + " | " + br);
+		Bitmap bmp = Bitmap.createBitmap(bitmap, tl.x, tl.y, w, h);
+		float mapRatio = ratio(w, h);
+		int dstWidth, dstHeight;
+		if (ratio > mapRatio) {
+			dstWidth = width;
+			dstHeight = (int) (((float) width / (float) w) * h);
+		} else {
+			dstWidth = (int) (((float) height / (float) h) * w);
+			dstHeight = height;
+		}
+		Bitmap bmpScaled = Bitmap.createScaledBitmap(bmp, dstWidth, dstHeight, false);
+		canvas.drawBitmap(bmpScaled, 0, 0, backgroundPaint);
 	}
 
 	private void drawPatterns(Canvas myCanvas) {
@@ -221,8 +237,9 @@ public class AreaMapWidget extends View {
 		requestSave = true;
 	}
 
-	private Point tl = new Point(Config.mapSize - 50, Config.mapSize - 50);
-	private Point br = new Point(Config.mapSize + 50, Config.mapSize + 50);
+	private static int offset = 100;
+	private Point tl = new Point(Config.mapSize/2 - offset, Config.mapSize/2 - offset);
+	private Point br = new Point(Config.mapSize/2 + offset, Config.mapSize/2 + offset);
 
 	private void addPoint(Point p, Paint paint, Canvas canvas) {
 		if (p != null) {
@@ -230,11 +247,11 @@ public class AreaMapWidget extends View {
 			int y = (int) (-p.y / scale + height / 2);
 			canvas.drawCircle(x, y, 3, paint);
 
-			// tl.x = Math.min(tl.x, p.x);
-			// tl.y = Math.min(tl.y, p.y);
-			//
-			// br.x = Math.max(br.x, p.x);
-			// br.y = Math.max(br.y, p.y);
+			 tl.x = Math.min(tl.x, x);
+			 tl.y = Math.min(tl.y, y);
+			
+			 br.x = Math.max(br.x, x);
+			 br.y = Math.max(br.y, y);
 		}
 	}
 

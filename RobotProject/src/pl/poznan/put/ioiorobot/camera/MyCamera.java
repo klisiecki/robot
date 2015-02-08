@@ -317,7 +317,6 @@ public class MyCamera implements CvCameraViewListener2 {
 	/**
 	 * @param baseImage
 	 * @param resultImage
-	 *            //TODO usunąc
 	 * @param cnt
 	 * @return
 	 */
