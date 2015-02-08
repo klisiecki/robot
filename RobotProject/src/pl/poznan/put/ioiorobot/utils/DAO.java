@@ -132,7 +132,7 @@ public class DAO {
 		t.start();
 	}
 
-	public static void savetBitmap(Bitmap bitmap, String fileName) {
+	public static void saveBitmap(Bitmap bitmap, String fileName) {
 		File file = new File("/storage/sdcard0/debug/" + fileName + ".png"); // TODO
 																				// ścieżki
 																				// z

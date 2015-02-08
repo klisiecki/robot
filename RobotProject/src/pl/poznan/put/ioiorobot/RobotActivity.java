@@ -77,7 +77,6 @@ public class RobotActivity extends IOIOActivity {
 	private BatteryStatusBar batteryStatusBar;
 	private PatternsWidget patternsWidget;
 	private MapWidget mapWidget;
-	private AreaMapWidget areaMapWidget;
 	private AreaMapWidget areaMapWidgetBig;
 	private ViewFlipper mapViewFlipper;
 	private MyJavaCameraView javaCameraView;
@@ -197,9 +196,7 @@ public class RobotActivity extends IOIOActivity {
 		batteryStatusBar = (BatteryStatusBar) findViewById(R.id.batteryStatusBar);
 		patternsWidget = (PatternsWidget) findViewById(R.id.patternsWidget);
 		mapWidget = (MapWidget) findViewById(R.id.mapWidget);
-		areaMapWidget = (AreaMapWidget) findViewById(R.id.areaMapWidget);
 		areaMapWidgetBig = (AreaMapWidget) findViewById(R.id.areaMapWidgetBig);
-		areaMapWidget.setAreaMap(areaMap);
 		areaMapWidgetBig.setAreaMap(areaMap);
 		mapViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 
@@ -232,10 +229,7 @@ public class RobotActivity extends IOIOActivity {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				Camera mCamera = javaCameraView.getCamera();
-				Camera.Parameters param = mCamera.getParameters();
-				param.setFlashMode(isChecked ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
-				mCamera.setParameters(param);
+				camera.setLedMode(isChecked);
 			}
 		});
 
@@ -269,13 +263,7 @@ public class RobotActivity extends IOIOActivity {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (isChecked) {
-					// camera.setMode(MyCamera.Mode.MOCK);
-					controller.enable();
-				} else {
-					// camera.setMode(MyCamera.Mode.CAMERA_ONLY);
-					controller.disable();
-				}
+				setControllerRunning(isChecked);
 			}
 		});
 
@@ -308,7 +296,6 @@ public class RobotActivity extends IOIOActivity {
 			@Override
 			public void onObstacleAccepted(Obstacle obstacle) {
 				areaMap.addObstacle(obstacle);
-				areaMapWidget.invalidate();
 				areaMapWidgetBig.invalidate();
 
 			}
@@ -331,6 +318,16 @@ public class RobotActivity extends IOIOActivity {
 
 			}
 		});
+	}
+	
+	private void setControllerRunning(boolean running) {
+		if (running) {
+			controller.enable();
+			distanceSensor.startSensor();
+		} else {
+			controller.disable();
+			distanceSensor.stopSensor();
+		}
 	}
 
 	private void initIOIOListeners() {
@@ -362,7 +359,6 @@ public class RobotActivity extends IOIOActivity {
 						if (last.distance < Config.maxObstacleDistance) {
 							obstacleManager.addObstacle(new Obstacle(robotPosition, last));
 							areaMapWidgetBig.invalidate();
-							areaMapWidget.invalidate();
 						}
 					}
 				});
@@ -379,7 +375,6 @@ public class RobotActivity extends IOIOActivity {
 					@Override
 					public void run() {
 						mapWidget.addPosition(position);
-						areaMapWidget.invalidate();
 						areaMapWidgetBig.invalidate();
 					}
 				});
@@ -402,12 +397,15 @@ public class RobotActivity extends IOIOActivity {
 		startStopMenuItem = (MenuItem) findViewById(R.id.startStop);
 		return super.onCreateOptionsMenu(menu);
 	}
+	
+	private boolean controllerRunning = false;
 
 	public boolean onOptionsItemSelected(android.view.MenuItem item) {
 		switch (item.getItemId()) {
 
 		case R.id.startStop:
-			
+			controllerRunning = !controllerRunning;
+			setControllerRunning(controllerRunning);
 			return true;
 		case R.id.showMap:
 			mapViewFlipper.showNext();
@@ -416,8 +414,8 @@ public class RobotActivity extends IOIOActivity {
 			camera.switchDebug();
 			return true;
 		case R.id.saveMap:
-			areaMapWidget.saveBitmap();
-			areaMapWidget.invalidate();
+			areaMapWidgetBig.saveBitmap();
+			areaMapWidgetBig.invalidate();
 			return true;
 		default:
 			return super.onContextItemSelected(item);

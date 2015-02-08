@@ -70,6 +70,8 @@ public class FrontDistanceSensor implements Runnable {
 		Log.d("thread", "sensor");
 		try {
 			leftSensor.getDistanceInit();
+			centerSensor.getDistanceInit();
+			rightSensor.getDistanceInit();
 			while (!killed) {
 				Log.d("thread", "\t\t\tsensor.. X");
 				leftTab[tabPos] = leftSensor.getDistance();
@@ -79,9 +81,9 @@ public class FrontDistanceSensor implements Runnable {
 				rightTab[tabPos] = rightSensor.getDistance();
 				Log.d("thread", "\t\t\tsensor.. 3");
 				tabPos = (tabPos + 1) % BUFFOR_SIZE;
-				 Log.d(Config.TAG, leftSensor.getDistance() + " | " +
-			 centerSensor.getDistance() + " | " +
-				 rightSensor.getDistance());
+//				 Log.d(Config.TAG, leftSensor.getDistance() + " | " +
+//			 centerSensor.getDistance() + " | " +
+//				 rightSensor.getDistance());
 				Thread.sleep(10);
 			}
 		} catch (Exception e) {

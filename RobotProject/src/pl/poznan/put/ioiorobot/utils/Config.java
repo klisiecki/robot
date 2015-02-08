@@ -21,7 +21,7 @@ public class Config {
 	public static final int maxContoursProcessed = 10;
 
 	/* zakres żółtego koloru w HSV */
-	public static final Scalar minColor = new Scalar(15, 64, 64); 
+	public static final Scalar minColor = new Scalar(15, 5, 32); 
 	public static final Scalar maxColor = new Scalar(45, 255, 255);
 	
 	/* parametry do funnkcji Imgproc.adaptiveThreshold */
@@ -45,7 +45,7 @@ public class Config {
 	 * aby znacznik nie został odrzucony */
 	public static final int minPatternFill = 10;
 	public static final int maxPatternFill = 70;
-	//wypełnienie? fill?
+
 	
 	/* -------------- WYMIARY -------------------------- */
 	
@@ -62,11 +62,11 @@ public class Config {
 	
 	/* -------------- MAPOWANIE I JAZDA ------------------ */
 	
-	public static final int mapSize = 2000;
+	public static final int mapSize = 3000;
 	
 	/* najdalszy odczyt brany pod uwagę */
 	public static final int maxObstacleDistance = 600; 
-	public static final int minFreeDistance = 250;
+	public static final int minFreeDistance = 300;
 	
 	/* rozmiar kratki na mapie przeszkód */
 	public static final int obstacleCellSize = 10;
@@ -80,7 +80,7 @@ public class Config {
 	/* odległość do przebycia przez robota pomiędzy przerwami na szukanie znaczników i przeszkód */
 	public static final float robotStepDistance = 500;
 	public static final int rotatesPerStep = 2;
-	public static final int framesPerRotate = 3;
+	public static final int framesPerRotate = 1;
 	public static final float rotateAngle = cameraViewAngle * 2 / 3;
 	
 	public static final int maxSpeed = 60;

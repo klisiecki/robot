@@ -37,13 +37,16 @@ public class HCSR04DistanceSensor extends AbstractDistanceSensor {
 		Log.d("thread", "duration za");
 		return (int) echoSeconds / 29 / 2 * 10; // *10 zamienia na mm
 	}
-	
+
 	@Override
 	public void getDistanceInit() throws ConnectionLostException, InterruptedException {
-		trigger.write(true);
-		Thread.sleep(1);
-		trigger.write(false);
-		Thread.sleep(10);
+		int i = 50;
+		while (i-- != 0) {
+			trigger.write(true);
+			Thread.sleep(1);
+			trigger.write(false);
+			Thread.sleep(10);
+		}
 		Log.d("thread", "getDistanceInit");
 	}
 }

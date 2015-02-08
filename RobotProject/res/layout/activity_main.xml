@@ -112,7 +112,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/distanceBarGraph"
-                android:layout_toLeftOf="@+id/areaMapWidget"
+                android:layout_toLeftOf="@+id/joystick"
                 android:layout_toRightOf="@+id/linear1"
                 android:gravity="center"
                 android:orientation="vertical" >
@@ -122,13 +122,6 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
-
-            <pl.poznan.put.ioiorobot.widgets.AreaMapWidget
-                android:id="@+id/areaMapWidget"
-                android:layout_width="255dp"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/distanceBarGraph"
-                android:layout_toLeftOf="@+id/joystick" />
 
             <pl.poznan.put.ioiorobot.widgets.Joystick
                 android:id="@+id/joystick"

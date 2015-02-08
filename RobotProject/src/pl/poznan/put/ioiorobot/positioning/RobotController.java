@@ -70,10 +70,12 @@ public class RobotController {
 			// Log.d("thread", "camera");
 			while (!killed) {
 				if (running) {
+					
 					// Log.d("thread", "camera thread " +
 					// Thread.currentThread().getId());
 					motorsRunning = true;
 					while (distance < Config.robotStepDistance) {
+						Log.d(Config.TAG, "distance = " + distance);
 						distance += position.distanceTo(lastPosition);
 						lastPosition = new Position(position);
 
@@ -86,15 +88,17 @@ public class RobotController {
 					distance = 0;
 					motorsRunning = false;
 
+					camera.setLedMode(true);
 					float angle = position.angle();
 					int i = 0;
 					do {
-						angle -= Math.PI / 9;
+						angle += 2 * Math.PI / 9;
 						doCameraProcessing();
-						Log.d(Config.TAG, "rotate " + i + " to " + angle);
+						Log.d(Config.TAG, "rotate " + i + " to " + angle + " (cur = " + position.angle() + ")");
 						motorsController.turnTo(angle);
-					} while (i++ < 9);
-
+					} while (i++ < 9 && running);
+					Log.d(Config.TAG, "led off");
+					camera.setLedMode(false);
 				}
 			}
 			try {
@@ -109,7 +113,7 @@ public class RobotController {
 
 	void doCameraProcessing() {
 		camera.setFramesToProcess(Config.framesPerRotate);
-		while (!camera.isReady()) {
+		while (!camera.isReady() && running) {
 			try {
 				Thread.sleep(Config.loopSleep);
 			} catch (InterruptedException e) {
@@ -144,7 +148,7 @@ public class RobotController {
 							Log.d(Config.TAG, "stop");
 							motorsController.stop();
 						}
-					} else {
+					} else if(!running) {
 						motorsController.stop();
 					}
 					sleep(Config.loopSleep);

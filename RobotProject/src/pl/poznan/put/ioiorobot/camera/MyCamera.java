@@ -29,6 +29,7 @@ import pl.poznan.put.ioiorobot.utils.DAO;
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
+import android.util.Log;
 
 /**
  * Główna klasa przetwarzająca obraz
@@ -63,6 +64,14 @@ public class MyCamera implements CvCameraViewListener2 {
 				cameraView.enableView();
 			}
 		};
+	}
+	
+	public void setLedMode(boolean isChecked) {
+//		Log.d(Config.TAG, "led mode " + isChecked);
+		Camera mCamera = cameraView.getCamera();
+		Camera.Parameters param = mCamera.getParameters();
+		param.setFlashMode(isChecked ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
+		mCamera.setParameters(param);
 	}
 
 	public void resume() {

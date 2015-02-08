@@ -92,8 +92,14 @@ public class MotorsController implements IMotorsController {
 			this.speed = speed;
 		}
 	}
+	
+	public boolean isZero(float value){
+//		Log.d(Config.TAG, "sprawdzam " + value);
+	    return value >= -0.001 && value <= 0.001;
+	}
 
 	public void turnTo(float targetAngle) {
+		
 		if (targetAngle > Math.PI) {
 			targetAngle -= 2 * Math.PI;
 		} else if (targetAngle < -Math.PI) {
@@ -105,6 +111,7 @@ public class MotorsController implements IMotorsController {
 		start();
 
 		float changeAngle = targetAngle - encodersData.getPosition().angle();
+		Log.d(Config.TAG, "change = " + changeAngle + ", target = " + targetAngle);
 		try {
 			if (changeAngle < -Math.PI) {
 				direction = Config.maxDirection;
@@ -131,11 +138,13 @@ public class MotorsController implements IMotorsController {
 				direction = Config.maxDirection;
 				lastAngle = encodersData.getPosition().angle();
 				while ((curAngle = encodersData.getPosition().angle()) < targetAngle && lastAngle <= curAngle && enabled) {
+//					Log.d(Config.TAG, "last = " + lastAngle + ", cur = " + curAngle);
 					lastAngle = curAngle;
 					Thread.sleep(20);
-					Log.d("loop", "while4: " + encodersData.getPosition().angle());
+//					Log.d(Config.TAG, "while4: " + encodersData.getPosition().angle());
 				}
-				Log.d("loop", "....while4");
+				Log.d(Config.TAG, " "+((curAngle = encodersData.getPosition().angle()) < targetAngle) + "|"+ (lastAngle < curAngle || isZero(curAngle-lastAngle)) + "|"+ enabled);
+//				Log.d(Config.TAG, "....while4 " + curAngle);
 			} else if (changeAngle >= Math.PI) {
 				direction = -Config.maxDirection;
 				lastAngle = encodersData.getPosition().angle();
