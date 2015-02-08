@@ -110,7 +110,7 @@ public class RobotActivity extends IOIOActivity {
 			try {
 				encodersData = new EncodersData(ioio_, 28, 27, 26, 115200, Uart.Parity.NONE, Uart.StopBits.ONE,
 						robotPosition);
-				motorsController = new MotorsController(ioio_, 1, 2, 3, 17, 16, 14, encodersData);
+				motorsController = new MotorsController(ioio_, 17, 16, 14, 1, 2, 3, encodersData);
 				frontDistanceSensor = new FrontDistanceSensor(ioio_, 6, 7, 8, 9, 10, 11, Config.minFreeDistance);
 				distanceSensor = new SharpDistanceSensor(ioio_, 30, 33);
 				batteryStatus = new BatteryStatus(ioio_, 34);

@@ -70,7 +70,7 @@ public class RobotController {
 			// Log.d("thread", "camera");
 			while (!killed) {
 				if (running) {
-					
+
 					// Log.d("thread", "camera thread " +
 					// Thread.currentThread().getId());
 					motorsRunning = true;
@@ -88,17 +88,18 @@ public class RobotController {
 					distance = 0;
 					motorsRunning = false;
 
-					camera.setLedMode(true);
-					float angle = position.angle();
-					int i = 0;
-					do {
-						angle += 2 * Math.PI / 9;
-						doCameraProcessing();
-						Log.d(Config.TAG, "rotate " + i + " to " + angle + " (cur = " + position.angle() + ")");
-						motorsController.turnTo(angle);
-					} while (i++ < 9 && running);
-					Log.d(Config.TAG, "led off");
-					camera.setLedMode(false);
+					// camera.setLedMode(true);
+					// float angle = position.angle();
+					// int i = 0;
+					// do {
+					// angle += 2 * Math.PI / 9;
+					// doCameraProcessing();
+					// Log.d(Config.TAG, "rotate " + i + " to " + angle +
+					// " (cur = " + position.angle() + ")");
+					// motorsController.turnTo(angle);
+					// } while (i++ < 9 && running);
+					// Log.d(Config.TAG, "led off");
+					// camera.setLedMode(false);
 				}
 			}
 			try {
@@ -132,23 +133,34 @@ public class RobotController {
 					// Thread.currentThread().getId());
 					if (running && motorsRunning) {
 						// motorsController.start();
-						motorsController.setSpeed((int) (Config.maxSpeed));
-						if (frontDistanceSensor.isFreeLeft()) {
-							Log.d(Config.TAG, "left");
-							motorsController.turn(-(float) Math.PI / 60);
-							Log.d(Config.TAG, "left DONE");
-						} else if (frontDistanceSensor.isFreeCenter()) {
-							Log.d("loop", "przod");
-							Log.d(Config.TAG, "center");
-							motorsController.start();
-						} else if (frontDistanceSensor.isFreeRight()) {
-							Log.d(Config.TAG, "right");
-							motorsController.turn((float) Math.PI / 6);
-						} else {
-							Log.d(Config.TAG, "stop");
-							motorsController.stop();
+						// motorsController.setSpeed((int) (Config.maxSpeed));
+						// if (frontDistanceSensor.isFreeLeft()) {
+						// Log.d(Config.TAG, "left");
+						// motorsController.turn(-(float) Math.PI / 60);
+						// Log.d(Config.TAG, "left DONE");
+
+						// } else if (frontDistanceSensor.isFreeCenter()) {
+						// Log.d("loop", "przod");
+						// Log.d(Config.TAG, "center");
+						// motorsController.start();
+						// } else if (frontDistanceSensor.isFreeRight()) {
+						// Log.d(Config.TAG, "right");
+						// motorsController.turn((float) Math.PI / 6);
+						// } else {
+						// Log.d(Config.TAG, "stop");
+						// motorsController.stop();
+						// }
+
+						int value = (Config.minFreeDistance - frontDistanceSensor.getLeft()) / 10;
+						if (frontDistanceSensor.getCenter() < Config.minFreeDistance) {
+							value = (Config.minFreeDistance - frontDistanceSensor.getCenter()) * 3;
 						}
-					} else if(!running) {
+						Log.d("motor", "value = " + value);
+						motorsController.start();
+						motorsController.setSpeed((int) (Config.maxSpeed));
+						motorsController.setDirection(Math.max(Math.min(value, 60), -60));
+
+					} else if (!running) {
 						motorsController.stop();
 					}
 					sleep(Config.loopSleep);
