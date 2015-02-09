@@ -3,12 +3,12 @@
     
     <item
         android:id="@+id/startStop"
-        android:title="Start">
+        android:title="Start/Stop">
     </item>
     
     <item
         android:id="@+id/showMap"
-        android:title="Sterowanie ręczne">
+        android:title="Przełącz tryb">
     </item>
     <item
         android:id="@+id/showDebug"

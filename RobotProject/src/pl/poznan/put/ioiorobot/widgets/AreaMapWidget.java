@@ -31,7 +31,7 @@ public class AreaMapWidget extends View {
 	private Paint obstaclePaint2;
 	private Paint robotPaint;
 
-	private float scale = 10;
+	private float scale = 5;
 
 	private int widgetWidth;
 	private int widgetHeight;
@@ -139,8 +139,8 @@ public class AreaMapWidget extends View {
 		Canvas myCanvas = new Canvas(bitmap);
 		// canvas.drawRect(0, 0, width, height, obstaclePaint);
 
-		drawPatterns(myCanvas);
 		drawObstacles(myCanvas);
+		drawPatterns(myCanvas);
 		if (!requestSave) {
 			drawRobot(myCanvas);
 		}
@@ -182,12 +182,12 @@ public class AreaMapWidget extends View {
 				// bmp.getWidth()
 				// / 2
 
-				int size = (int) (Config.robotWidth);
+				int size = 200;
 				Rect dest = new Rect(x - (int) (size / 2 / scale), y - (int) (size / 2 / scale), x
 						+ (int) (size / 2 / scale), y + (int) (size / 2 / scale));
 
 				myCanvas.drawBitmap(bmp, source, dest, patternPaint);
-				addPoint(position, patternPaint, myCanvas);
+//				addPoint(position, patternPaint, myCanvas);
 			}
 
 			// drawViewPositions(canvas, p);
@@ -200,10 +200,10 @@ public class AreaMapWidget extends View {
 				addPoint(o.getPoint(), obstaclePaint, canvas);
 		}
 
-		for (Obstacle o : areaMap.getObstacles()) {
-			if (!o.isAccepted())
-				addPoint(o.getPoint(), obstaclePaint2, canvas);
-		}
+//		for (Obstacle o : areaMap.getObstacles()) {
+//			if (!o.isAccepted())
+//				addPoint(o.getPoint(), obstaclePaint2, canvas);
+//		}
 	}
 
 	private void drawPatternViewPositions(Canvas canvas, Pattern p) {

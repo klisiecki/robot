@@ -69,10 +69,10 @@ public class Config {
 	public static final int minFreeDistance = 300;
 	
 	/* rozmiar kratki na mapie przeszkód */
-	public static final int obstacleCellSize = 10;
+	public static final int obstacleCellSize = 4;
 	
 	/* zasięg zaznaczania na mapie przeszkód */
-	public static final int obstacleRange = 4; 
+	public static final int obstacleRange = 8; 
 	
 	/* minimalna liczba zaznaczeń aby odczyt został zaakceptowany */
 	public static final int minObstacleCount = 3;

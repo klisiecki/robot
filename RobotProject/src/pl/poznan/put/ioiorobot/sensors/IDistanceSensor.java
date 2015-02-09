@@ -5,11 +5,11 @@ import ioio.lib.api.exception.ConnectionLostException;
 import java.util.List;
 
 public interface IDistanceSensor {
-	static final int SERVO_MIN = 800; // 600
-	static final int SERVO_MAX = 2300; // 2300
+	static final int SERVO_MIN = 800; 
+	static final int SERVO_MAX = 2300;
 
 	static final int ANGLE_MIN = -60;
-	static final int ANGLE_MAX = 60; // TODO robi 16 kroków zamiast 17
+	static final int ANGLE_MAX = 60;
 	static final int ANGLE_STEP = 5;
 
 	static final int STEP_DELAY = 150;
