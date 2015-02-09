@@ -16,7 +16,7 @@ double positionY = 0;
 double positionAngle = 0;
 
 
-double wheelsDistance = 205.0;
+double wheelsDistance = 142.0;
 double wheelDiameter = 60.0;
 double gearRatio = 27.0;
 double encoderResolution = 128.0;
@@ -93,9 +93,9 @@ void serialEvent() {
 void blinkL()                                            
 {
   if(digitalRead(leftPin) == HIGH) {
-    counterL--;
-  } else {
     counterL++;
+  } else {
+    counterL--;
   }
 }
 

@@ -13,6 +13,10 @@ public interface IMotorsController {
 	void stop();
 	
 	void start();
+	
+	void enablePid();
+	
+	void disablePid();
 
 	void turn(float d);
 	

@@ -115,7 +115,7 @@ public class MapWidget extends View {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		bmp.eraseColor(Color.TRANSPARENT);
+		//bmp.eraseColor(Color.TRANSPARENT);
 		return super.onTouchEvent(event);
 	}
 }

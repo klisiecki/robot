@@ -15,7 +15,7 @@ public class FrontDistanceSensor implements Runnable {
 	private IDistanceSensor rightSensor;
 	private int freeDistance;
 
-	private final static int BUFFOR_SIZE = 9;
+	private final static int BUFFOR_SIZE = 1;
 	private int[] leftTab = new int[BUFFOR_SIZE];
 	private int[] centerTab = new int[BUFFOR_SIZE];
 	private int[] rightTab = new int[BUFFOR_SIZE];
@@ -61,7 +61,7 @@ public class FrontDistanceSensor implements Runnable {
 	}
 
 	public boolean isFreeCenter() throws ConnectionLostException, InterruptedException {
-		return median(centerTab) > freeDistance;
+		return median(centerTab) > freeDistance/2;
 	}
 
 	public boolean isFreeRight() throws ConnectionLostException, InterruptedException {
@@ -71,7 +71,7 @@ public class FrontDistanceSensor implements Runnable {
 	private int median(int[] tab) {
 		int[] copy = Arrays.copyOf(tab, BUFFOR_SIZE);
 		Arrays.sort(copy);
-		return copy[BUFFOR_SIZE / 4];
+		return copy[BUFFOR_SIZE / 2];
 	}
 
 	@Override

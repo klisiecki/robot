@@ -138,7 +138,6 @@ public class AreaMapWidget extends View {
 	protected void onDraw(Canvas canvas) {
 		bitmap.eraseColor(Color.TRANSPARENT);
 		Canvas myCanvas = new Canvas(bitmap);
-		// canvas.drawRect(0, 0, width, height, obstaclePaint);
 
 		drawObstacles(myCanvas);
 		drawPatterns(myCanvas);
@@ -162,7 +161,7 @@ public class AreaMapWidget extends View {
 		canvas.drawBitmap(bmpScaled, 0, 0, backgroundPaint);
 
 		if (requestSave) {
-			DAO.saveBitmap(bmpScaled, "map" + Calendar.getInstance().getTime());
+			DAO.saveBitmap(bmpScaled, "map_" + Calendar.getInstance().getTime());
 			requestSave = false;
 		}
 	}

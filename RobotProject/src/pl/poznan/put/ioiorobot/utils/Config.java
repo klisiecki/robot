@@ -35,7 +35,7 @@ public class Config {
 	public static final int minPatternCoverage = 80;
 	
 	/* minimalna liczba znalezień znacznika aby został zaakceptowany */
-	public static final int minPatternCount = 4; // MUSI BYĆ >=2
+	public static final int minPatternCount = 2; // MUSI BYĆ >=2
 	
 	/* po takiej liczbie wykrytych znaczników, dany znacznik jest usuwany jeśli nie został wykryty ponownie */
 	public static final int patternTTL = 30;
@@ -61,25 +61,25 @@ public class Config {
 	
 	/* -------------- MAPOWANIE I JAZDA ------------------ */
 	
-	public static final int mapSize = 3000;
+	public static final int mapSize = 2000;
 	
 	/* najdalszy odczyt brany pod uwagę */
-	public static final int maxObstacleDistance = 600; 
+	public static final int maxObstacleDistance = 800; 
 	public static final int minFreeDistance = 300;
 	
 	/* rozmiar kratki na mapie przeszkód */
-	public static final int obstacleCellSize = 4;
+	public static final int obstacleCellSize = 20;
 	
 	/* zasięg zaznaczania na mapie przeszkód */
-	public static final int obstacleRange = 8; 
+	public static final int obstacleRange = 1; 
 	
 	/* minimalna liczba zaznaczeń aby odczyt został zaakceptowany */
 	public static final int minObstacleCount = 3;
 
 	/* odległość do przebycia przez robota pomiędzy przerwami na szukanie znaczników i przeszkód */
-	public static final float robotStepDistance = 500;
+	public static final float robotStepDistance = 700;
 	public static final int rotatesPerStep = 2;
-	public static final int framesPerRotate = 1;
+	public static final int framesPerRotate = 3;
 	
 	public static final int maxSpeed = 60;
 	public static final int maxDirection = 60;

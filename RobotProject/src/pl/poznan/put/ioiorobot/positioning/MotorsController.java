@@ -103,7 +103,7 @@ public class MotorsController implements IMotorsController {
 			targetAngle += 2 * Math.PI;
 		}
 
-		speed = Config.maxSpeed;
+		speed = Config.maxSpeed / 2;
 		float curAngle, lastAngle;
 		start();
 
@@ -113,7 +113,8 @@ public class MotorsController implements IMotorsController {
 			if (changeAngle < -Math.PI) {
 				direction = Config.maxDirection;
 				lastAngle = encodersData.getPosition().angle();
-				while ((curAngle = encodersData.getPosition().angle()) > 0 && lastAngle <= curAngle && enabled) {
+				while ((curAngle = encodersData.getPosition().angle()) > 0 && lastAngle <= curAngle + Math.PI
+						&& enabled) {
 					lastAngle = curAngle;
 					Log.d("loop", "while1: " + encodersData.getPosition().angle());
 					Thread.sleep(20);
@@ -125,7 +126,7 @@ public class MotorsController implements IMotorsController {
 			} else if (changeAngle >= -Math.PI && changeAngle < 0) {
 				direction = -Config.maxDirection;
 				lastAngle = encodersData.getPosition().angle();
-				while ((curAngle = encodersData.getPosition().angle()) > targetAngle && lastAngle >= curAngle
+				while ((curAngle = encodersData.getPosition().angle()) > targetAngle && lastAngle + Math.PI >= curAngle
 						&& enabled) {
 					lastAngle = curAngle;
 					Thread.sleep(20);
@@ -135,14 +136,13 @@ public class MotorsController implements IMotorsController {
 			} else if (changeAngle >= 0 && changeAngle < Math.PI) {
 				direction = Config.maxDirection;
 				lastAngle = encodersData.getPosition().angle();
-				while ((curAngle = encodersData.getPosition().angle()) < targetAngle && lastAngle <= curAngle
+				while ((curAngle = encodersData.getPosition().angle()) < targetAngle && lastAngle <= curAngle + Math.PI
 						&& enabled) {
 					// Log.d(Config.TAG, "last = " + lastAngle + ", cur = " +
 					// curAngle);
 					lastAngle = curAngle;
 					Thread.sleep(20);
-					// Log.d(Config.TAG, "while4: " +
-					// encodersData.getPosition().angle());
+					Log.d(Config.TAG, "while4: " + encodersData.getPosition().angle());
 				}
 				Log.d(Config.TAG, " " + ((curAngle = encodersData.getPosition().angle()) < targetAngle) + "|"
 						+ (lastAngle < curAngle || isZero(curAngle - lastAngle)) + "|" + enabled);
@@ -150,7 +150,8 @@ public class MotorsController implements IMotorsController {
 			} else if (changeAngle >= Math.PI) {
 				direction = -Config.maxDirection;
 				lastAngle = encodersData.getPosition().angle();
-				while ((curAngle = encodersData.getPosition().angle()) < 0 && lastAngle >= curAngle && enabled) {
+				while ((curAngle = encodersData.getPosition().angle()) < 0 && lastAngle + Math.PI >= curAngle
+						&& enabled) {
 					lastAngle = curAngle;
 					Thread.sleep(20);
 					Log.d("loop", "while5: " + encodersData.getPosition().angle());
@@ -175,7 +176,7 @@ public class MotorsController implements IMotorsController {
 	public int getRegulacja() {
 		return regulation;
 	}
-	
+
 	class MotorThread extends Thread {
 		public MotorThread() {
 			start();
@@ -202,14 +203,14 @@ public class MotorsController implements IMotorsController {
 					} else if (speed > 0 && regulation <= -Config.maxDirection / 2) {
 						left();
 						right = 1;
-						left = 2 * ((float) -regulation - Config.maxDirection/2) / Config.maxDirection;
+						left = 2 * ((float) -regulation - Config.maxDirection / 2) / Config.maxDirection;
 					} else if (speed > 0 && regulation > 0 && regulation < Config.maxDirection / 2) {
 						forward();
 						right = 1 - 2 * (float) (regulation) / Config.maxDirection;
 						left = 1;
 					} else if (speed > 0 && regulation >= Config.maxDirection / 2) {
 						right();
-						right =  2 * ((float) regulation - Config.maxDirection/2) / Config.maxDirection;
+						right = 2 * ((float) regulation - Config.maxDirection / 2) / Config.maxDirection;
 						left = 1;
 					} else {
 						l1.write(false);
@@ -250,9 +251,13 @@ public class MotorsController implements IMotorsController {
 						left = 0;
 					if (right < 0.1f)
 						right = 0;
-					lPwm.setDutyCycle(Math.min(left, 1f)); // float [0 ; 1]
-					rPwm.setDutyCycle(Math.min(right, 1f));
-					Log.d("motor", "\t\t\tx= " + direction + " , y= " + speed + "      regulation =  " + regulation + "     L = " + left + "   R = " + right);
+					lPwm.setDutyCycle(Math.min(left * speed / Config.maxSpeed, 1f)); // float
+																						// [0
+																						// ;
+																						// 1]
+					rPwm.setDutyCycle(Math.min(right * speed / Config.maxSpeed, 1f));
+					Log.d("motor", "\t\t\tx= " + direction + " , y= " + speed + "      regulation =  " + regulation
+							+ "     L = " + left + "   R = " + right);
 					Thread.sleep(10);
 				} catch (Exception e) {
 				}
@@ -292,37 +297,50 @@ public class MotorsController implements IMotorsController {
 		enabled = true;
 	}
 
-	
+	private boolean PIDenabled = true;
+
+	public void enablePid() {
+		PIDenabled = true;
+	}
+
+	public void disablePid() {
+		PIDenabled = false;
+	}
+
 	private class PID extends TimerTask {
 		private int integral = 0;
 		private int popError = 0;
 		private int iteration = 0;
 
 		private int pdRegulationLenght = 10;
-		private int integralBound = Config.maxDirection/5;
+		private int integralBound = Config.maxDirection / 2;
 
 		private int Kp = 10;
 		private int Ki = 5;
 		private int Kd = 0;
 
 		public void run() {
-			int error = direction;
+			if (PIDenabled) {
+				int error = direction;
 
-			integral += error/3;
-			integral = Math.min(Math.max(integral, -integralBound), integralBound);
+				integral += error / 5;
+				integral = Math.min(Math.max(integral, -integralBound), integralBound);
 
-			int differential = error - popError;
+				int differential = error - popError;
 
-			if (iteration == pdRegulationLenght) {
-				popError = error;
-				iteration = 0;
+				if (iteration == pdRegulationLenght) {
+					popError = error;
+					iteration = 0;
+				} else {
+					iteration++;
+				}
+
+				/* Obliczenie właściwej wartości regulacji. */
+				regulation = Math.round((Kp * error + Kd * differential + Ki * integral) / (Kp + Kd + Ki));
+				regulation = Math.min(Math.max(regulation, -Config.maxDirection), Config.maxDirection);
 			} else {
-				iteration++;
+				regulation = direction;
 			}
-
-			/* Obliczenie właściwej wartości regulacji. */
-			regulation = Math.round((Kp * error + Kd * differential + Ki * integral) / (Kp + Kd + Ki));
-			regulation = Math.min(Math.max(regulation, -Config.maxDirection), Config.maxDirection);
 		}
 	}
 }

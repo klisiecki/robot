@@ -30,7 +30,7 @@ public class RobotController {
 			drivingThread = new DrivingThread();
 			drivingThread.start();
 		}
-		
+
 		if (cameraThread == null) {
 			cameraThread = new CameraThread();
 			cameraThread.start();
@@ -66,6 +66,9 @@ public class RobotController {
 					// Log.d("thread", "camera thread " +
 					// Thread.currentThread().getId());
 					motorsRunning = true;
+					camera.setLedMode(false);
+					motorsController.enablePid();
+					
 					while (distance < Config.robotStepDistance) {
 						Log.d(Config.TAG, "distance = " + distance);
 						distance += position.distanceTo(lastPosition);
@@ -78,20 +81,19 @@ public class RobotController {
 						}
 					}
 					distance = 0;
+					
 					motorsRunning = false;
+					camera.setLedMode(true);
+					motorsController.disablePid();
+					float angle = position.angle();
+					int i = 0;
+					do {
+						angle += 2 * Math.PI / 9;
+						doCameraProcessing();
+						Log.d(Config.TAG, "rotate " + i + " to " + angle + " (cur = " + position.angle() + ")");
+						motorsController.turnTo(angle);
+					} while (++i < 9 && running);
 
-					// camera.setLedMode(true);
-					// float angle = position.angle();
-					// int i = 0;
-					// do {
-					// angle += 2 * Math.PI / 9;
-					// doCameraProcessing();
-					// Log.d(Config.TAG, "rotate " + i + " to " + angle +
-					// " (cur = " + position.angle() + ")");
-					// motorsController.turnTo(angle);
-					// } while (i++ < 9 && running);
-					// Log.d(Config.TAG, "led off");
-					// camera.setLedMode(false);
 				}
 			}
 			try {
@@ -120,6 +122,20 @@ public class RobotController {
 		public void run() {
 			// Log.d("thread", "driving");
 			try {
+//				while (!running) {
+//					sleep(Config.loopSleep);
+//				}
+//				Log.d("while", !killed +"|"+ frontDistanceSensor.isFreeCenter() +"|"+ frontDistanceSensor.isFreeLeft());
+//				while (!killed && frontDistanceSensor.isFreeCenter() && frontDistanceSensor.isFreeLeft()) {
+//					Log.d("while", !killed +"|"+ frontDistanceSensor.isFreeCenter() +"|"+ frontDistanceSensor.isFreeLeft());
+//					motorsController.setSpeed(Config.maxSpeed);
+//					motorsController.setDirection(0);
+//					motorsController.start();
+//					sleep(Config.loopSleep);
+//				}
+
+				//motorsController.turn((float) (Math.PI / 2));
+
 				while (!killed) {
 					// Log.d("thread", "driving.. " +
 					// Thread.currentThread().getId());
@@ -143,9 +159,9 @@ public class RobotController {
 						// motorsController.stop();
 						// }
 
-						int value = (Config.minFreeDistance - frontDistanceSensor.getLeft()) / 10;
+						int value = (Config.minFreeDistance - Math.min(frontDistanceSensor.getLeft(), Config.minFreeDistance*2)) / 12;
 						if (frontDistanceSensor.getCenter() < Config.minFreeDistance) {
-							value = (Config.minFreeDistance - frontDistanceSensor.getCenter()) * 3;
+							value = (Config.minFreeDistance - frontDistanceSensor.getCenter());
 						}
 						Log.d("motor", "value = " + value);
 						motorsController.start();

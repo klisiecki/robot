@@ -69,7 +69,7 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 		try {
 			int position = ANGLE_MIN;
 			servo.setPulseWidth(map(position));
-			Thread.sleep(1000);
+			Thread.sleep(500);
 			while (true) {
 				if (isRunning) {
 					for (int i = 0; i < RESULTS_SIZE; i++) {
@@ -85,7 +85,7 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 					}
 					position = ANGLE_MIN;
 					servo.setPulseWidth(map(position));
-					Thread.sleep(1000);
+					Thread.sleep(300);
 				} else {
 					servo.setPulseWidth(0);
 					Thread.sleep(Config.loopSleep);
