@@ -40,7 +40,6 @@ public class Pattern {
 	}
 
 	public void addViewPosition(Position p) {
-		// Log.d(C.TAG, id + " ...adViewPosition" + p);
 		// jednorazowe dodanie kąta wynikającego z położenia patternu na obrazie
 		// kamery
 		p.addAngle(cameraAngle);
@@ -52,11 +51,8 @@ public class Pattern {
 	}
 
 	/**
-	 * Układ równań z:
-	 * http://stackoverflow.com/questions/2931573/determining-if-
-	 * two-rays-intersect
-	 * 
 	 * Funkcja zwraca punkt przecięcia dwóch półprostych
+	 * 
 	 * @return punkt przecięcia, null gdy półproste są równoległe
 	 */
 	public Point intersection2(final Point as, final Point ae, final Point bs, final Point be) {
@@ -83,7 +79,8 @@ public class Pattern {
 	}
 
 	/**
-	 * Funkcja przelicza estymowaną pozycję Patternu na podstawie pozycji z których był widziany
+	 * Funkcja przelicza estymowaną pozycję Patternu na podstawie pozycji z
+	 * których był widziany
 	 */
 	private void recalculatePosition() {
 		List<Point> intersections = new ArrayList<Point>();
@@ -118,7 +115,7 @@ public class Pattern {
 	}
 
 	/**
-	 * Funkcja scala dwa Patterny 
+	 * Funkcja scala dwa Patterny
 	 */
 	public void merge(Pattern p) {
 		for (Position pos : p.viewPositions) {
@@ -158,7 +155,7 @@ public class Pattern {
 		this(mat);
 		this.cameraAngle = cameraAngle;
 	}
-	
+
 	public Pattern() {
 		id = nextId++;
 		size = Config.patternSize;
@@ -203,7 +200,8 @@ public class Pattern {
 	}
 
 	/**
-	 * Funkcja oblicza procentową zawartość faktycznego znacznika w całym jego obrysie
+	 * Funkcja oblicza procentową zawartość faktycznego znacznika w całym jego
+	 * obrysie
 	 */
 	public int getFill() {
 		int countBlack = 0;

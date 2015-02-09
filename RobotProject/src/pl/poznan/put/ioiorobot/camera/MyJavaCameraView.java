@@ -7,7 +7,7 @@ import android.hardware.Camera;
 import android.util.AttributeSet;
 
 /**
- *	View widoku kamery
+ *	Klasa rozszerzająca JavaCameraView o dostęp do pola mCamera
  */
 public class MyJavaCameraView extends JavaCameraView {
 	

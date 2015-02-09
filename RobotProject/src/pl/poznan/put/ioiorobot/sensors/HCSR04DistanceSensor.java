@@ -32,9 +32,7 @@ public class HCSR04DistanceSensor extends AbstractDistanceSensor {
 		Thread.sleep(1);
 		trigger.write(false);
 		Thread.sleep(10);
-		Log.d("thread", "duration przed");
 		int echoSeconds = (int) (echo.getDuration() * 1000 * 1000);
-		Log.d("thread", "duration za");
 		return (int) echoSeconds / 29 / 2 * 10; // *10 zamienia na mm
 	}
 
@@ -47,6 +45,5 @@ public class HCSR04DistanceSensor extends AbstractDistanceSensor {
 			trigger.write(false);
 			Thread.sleep(10);
 		}
-		Log.d("thread", "getDistanceInit");
 	}
 }

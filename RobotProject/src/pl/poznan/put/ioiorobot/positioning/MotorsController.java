@@ -61,7 +61,6 @@ public class MotorsController implements IMotorsController {
 		}
 
 		timerPID = new Timer();
-
 		timerPID.scheduleAtFixedRate(new PID(), 0, Config.PIDPeriod);
 	}
 
@@ -94,12 +93,10 @@ public class MotorsController implements IMotorsController {
 	}
 
 	public boolean isZero(float value) {
-		// Log.d(Config.TAG, "sprawdzam " + value);
 		return value >= -0.001 && value <= 0.001;
 	}
 
 	public void turnTo(float targetAngle) {
-
 		if (targetAngle > Math.PI) {
 			targetAngle -= 2 * Math.PI;
 		} else if (targetAngle < -Math.PI) {

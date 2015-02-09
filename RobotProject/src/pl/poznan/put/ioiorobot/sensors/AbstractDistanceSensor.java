@@ -11,7 +11,8 @@ import pl.poznan.put.ioiorobot.utils.Config;
 import android.util.Log;
 
 /**
- * Bazowa klasa sensora odległości, zawiera obsługę serwa obracającego faktyczny czujnik
+ * Bazowa klasa sensora odległości, zawiera obsługę serwa obracającego faktyczny
+ * czujnik
  */
 public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnable {
 
@@ -55,16 +56,16 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 	}
 
 	abstract public int getDistance() throws ConnectionLostException, InterruptedException;
+
 	abstract public void getDistanceInit() throws ConnectionLostException, InterruptedException;
 
 	@Override
 	public void startSensor() {
 		isRunning = true;
 	}
-	
+
 	@Override
 	public void run() {
-		Log.d(Config.TAG, "distance sensor run");
 		try {
 			int position = ANGLE_MIN;
 			servo.setPulseWidth(map(position));
@@ -75,8 +76,6 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 						servo.setPulseWidth(map(position));
 						Thread.sleep(STEP_DELAY);
 						results.set(i, new AngleDistancePair(position, getDistance()));
-						// Log.d(C.TAG, i + "+, " + position + ", map: " +
-						// map(position) + " | "+results.get(i).distance);
 						if (i != RESULTS_SIZE - 1) {
 							position += ANGLE_STEP;
 						}
@@ -87,32 +86,18 @@ public abstract class AbstractDistanceSensor implements IDistanceSensor, Runnabl
 					position = ANGLE_MIN;
 					servo.setPulseWidth(map(position));
 					Thread.sleep(1000);
-/*
-					for (int i = RESULTS_SIZE - 2; i > 0; i--) {
-						position -= ANGLE_STEP;
-						servo.setPulseWidth(map(position));
-						Thread.sleep(STEP_DELAY);
-						results.set(i, new Pair(position, getDistance()));
-//						Log.d(" ", i + "-, " + position + ", map: " + map(position) + " | " + results.get(i).distance);
-						if (listener != null) {
-							listener.onResult(getResultsOnly(), results.get(i));
-						}
-					}
-					position -= ANGLE_STEP;
-*/
 				} else {
 					servo.setPulseWidth(0);
-					Thread.sleep(200);
+					Thread.sleep(Config.loopSleep);
 				}
 			}
 		} catch (Exception e) {
 			Log.e(Config.TAG, e.toString());
 		}
 	}
-	
+
 	private long map(long x) {
 		return (x - ANGLE_MIN) * (SERVO_MAX - SERVO_MIN) / (ANGLE_MAX - ANGLE_MIN) + SERVO_MIN;
 	}
-	
 
 }

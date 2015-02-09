@@ -33,11 +33,8 @@ public class AreaMap {
 		return robotPosition;
 	}
 
-
 	public AreaMap(Position robotPosition) {
 		this.robotPosition = robotPosition;
-
-
 	}
 
 	public void addPattern(Pattern pattern) {

@@ -9,10 +9,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 
 public class PatternsWidget extends View {
@@ -56,7 +53,7 @@ public class PatternsWidget extends View {
 		choosenBorderPaint.setColor(Color.rgb(0xff, 0x00, 0x00));
 		choosenBorderPaint.setStrokeWidth(8);
 		choosenBorderPaint.setStyle(Paint.Style.STROKE);
-		
+
 		patternPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		patternPaint.setColor(Color.rgb(0xbb, 0xe0, 0xf0));
 		patternPaint.setStrokeWidth(1);
@@ -71,8 +68,6 @@ public class PatternsWidget extends View {
 		height = Config.patternSize;
 		setMeasuredDimension(width, height);
 	}
-
-
 
 	@Override
 	protected void onDraw(Canvas canvas) {

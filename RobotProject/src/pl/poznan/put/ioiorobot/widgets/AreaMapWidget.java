@@ -41,7 +41,10 @@ public class AreaMapWidget extends View {
 	private Paint trackPaint;
 	private Bitmap bitmap;
 
-	private static Timer timer;
+	private static int offset = 0;
+	private Point tl = new Point(Config.mapSize / 2 - offset, Config.mapSize / 2 - offset);
+	private Point br = new Point(Config.mapSize / 2 + offset, Config.mapSize / 2 + offset);
+	
 	boolean requestSave = false;
 
 	public void setAreaMap(AreaMap areaMap) {
@@ -111,8 +114,6 @@ public class AreaMapWidget extends View {
 		int desiredHeight = 1080;
 		widgetWidth = measureSize(widthMeasureSpec, desiredWidth);
 		widgetHeight = measureSize(heightMeasureSpec, desiredHeight);
-		// width = height = Math.min(width, height);
-		Log.d("map", "onMeasure, " + widgetWidth + " x " + widgetHeight);
 		widgetRatio = ratio(widgetWidth, widgetHeight);
 		setMeasuredDimension(widgetWidth, widgetHeight);
 	}
@@ -147,11 +148,9 @@ public class AreaMapWidget extends View {
 
 		int mapWidth = br.x - tl.x;
 		int mapHeight = br.y - tl.y;
-		Log.d("map", tl + " | " + br + "(" + mapWidth + " x " + mapHeight + ")");
 		Bitmap bmp = Bitmap.createBitmap(bitmap, tl.x, tl.y, mapWidth, mapHeight);
 		float mapRatio = ratio(mapWidth, mapHeight);
 		int dstWidth, dstHeight;
-		Log.d("map", "ratio: " + widgetRatio + " | " + mapRatio);
 		if (widgetRatio < mapRatio) {
 			dstWidth = widgetWidth;
 			dstHeight = (int) (((float) widgetWidth / (float) mapWidth) * mapHeight);
@@ -175,22 +174,15 @@ public class AreaMapWidget extends View {
 				Bitmap bmp = p.getBitmap();
 				Rect source = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
 
-				int x = (int) (position.x / scale + Config.mapSize / 2); // +
-				// bmp.getWidth()
-				// / 2
-				int y = (int) (-position.y / scale + Config.mapSize / 2); // +
-				// bmp.getWidth()
-				// / 2
+				int x = (int) (position.x / scale + Config.mapSize / 2);
+				int y = (int) (-position.y / scale + Config.mapSize / 2); 
 
 				int size = 200;
 				Rect dest = new Rect(x - (int) (size / 2 / scale), y - (int) (size / 2 / scale), x
 						+ (int) (size / 2 / scale), y + (int) (size / 2 / scale));
 
 				myCanvas.drawBitmap(bmp, source, dest, patternPaint);
-//				addPoint(position, patternPaint, myCanvas);
 			}
-
-			// drawViewPositions(canvas, p);
 		}
 	}
 
@@ -199,11 +191,6 @@ public class AreaMapWidget extends View {
 			if (o.isAccepted())
 				addPoint(o.getPoint(), obstaclePaint, canvas);
 		}
-
-//		for (Obstacle o : areaMap.getObstacles()) {
-//			if (!o.isAccepted())
-//				addPoint(o.getPoint(), obstaclePaint2, canvas);
-//		}
 	}
 
 	private void drawPatternViewPositions(Canvas canvas, Pattern p) {
@@ -250,9 +237,6 @@ public class AreaMapWidget extends View {
 		requestSave = true;
 	}
 
-	private static int offset = 0;
-	private Point tl = new Point(Config.mapSize / 2 - offset, Config.mapSize / 2 - offset);
-	private Point br = new Point(Config.mapSize / 2 + offset, Config.mapSize / 2 + offset);
 
 	private void addPoint(Point p, Paint paint, Canvas canvas) {
 		if (p != null) {
@@ -273,5 +257,4 @@ public class AreaMapWidget extends View {
 		invalidate();
 		return super.onTouchEvent(event);
 	}
-
 }

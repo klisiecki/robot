@@ -45,6 +45,9 @@ public class MyCamera implements CvCameraViewListener2 {
 	private PatternFoundListener patternFoundListener;
 	private Mat imgRbgaRaw;
 	
+	private boolean mocking = false;
+	private boolean requestSaveMock = false;
+	
 	public void setPatternFoundListener(PatternFoundListener patternFoundListener) {
 		this.patternFoundListener = patternFoundListener;
 	}
@@ -67,7 +70,6 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 	
 	public void setLedMode(boolean isChecked) {
-//		Log.d(Config.TAG, "led mode " + isChecked);
 		Camera mCamera = cameraView.getCamera();
 		Camera.Parameters param = mCamera.getParameters();
 		param.setFlashMode(isChecked ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
@@ -76,7 +78,6 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	public void resume() {
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, context, loaderCallback);
-		
 	}
 
 	@Override
@@ -92,20 +93,13 @@ public class MyCamera implements CvCameraViewListener2 {
 	}
 	
 	
-	//temp begin
-	private boolean mocking = false;
-	
 	public void setMocking(boolean mocking) {
 		this.mocking = mocking;
 	}
 	
-	private boolean requestSaveMock = false;
-	
 	public void saveMock() {
 		requestSaveMock = true;
 	}
-	
-	//temp end
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
@@ -130,9 +124,6 @@ public class MyCamera implements CvCameraViewListener2 {
 
 	/**
 	 * Główna funkcja prztwarzająca obraz
-	 * 
-	 * @param inputFrame
-	 * @return
 	 */
 	private Mat processFrame(CvCameraViewFrame inputFrame) {
 		// pobranie klatki w RGB
@@ -282,7 +273,6 @@ public class MyCamera implements CvCameraViewListener2 {
 				p.y -= fragmentTL.y;
 			}
 
-			// To musi być tak jak jest, w 2 linijkach, nie udoskonalać!
 			Mat fragmentTmp = warp(fragment, points.get(0), points.get(3), points.get(2), points.get(1));
 			fragmentTmp.copyTo(fragment);
 
@@ -346,10 +336,6 @@ public class MyCamera implements CvCameraViewListener2 {
 		List<MatOfPoint> cntList = new ArrayList<MatOfPoint>();
 		cntList.add(cnt);
 		Imgproc.drawContours(resultImage, cntList, 0, color, 3);
-
-		for (Point p : approxCurve.toList()) {
-//			Core.circle(resultImage, p, 5, new Scalar(255, 255, 0), 5);
-		}
 	}
 
 	/**

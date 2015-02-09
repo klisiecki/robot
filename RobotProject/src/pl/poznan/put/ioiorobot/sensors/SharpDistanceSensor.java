@@ -17,7 +17,7 @@ public class SharpDistanceSensor extends AbstractDistanceSensor {
 
 	private AnalogInput input;
 	float[] buffer = new float[BUFFER_SIZE];
-	
+
 	public SharpDistanceSensor(IOIO ioio_, int servoPin, int pin) throws ConnectionLostException {
 		super(ioio_, servoPin);
 		input = ioio_.openAnalogInput(pin);
@@ -29,20 +29,20 @@ public class SharpDistanceSensor extends AbstractDistanceSensor {
 
 	@Override
 	public int getDistance() throws ConnectionLostException, InterruptedException {
-		//wzór z https://www.sparkfun.com/products/242
+		// wzór z https://www.sparkfun.com/products/242
 		for (int i = 0; i < BUFFER_SIZE; i++) {
-			buffer[i] = Math.round(input.getVoltageBuffered() * 1000) / 1000.0f; //TODO niepotrzebne mnożenie i dzielenie?
+			buffer[i] = input.getVoltageBuffered();
 		}
 		Arrays.sort(buffer);
-		int val = (int) (41.543 * Math.pow(buffer[BUFFER_SIZE/2] + 0.30221,-1.5281)) * 10; // *10 zamienia na mm
+		int val = (int) (41.543 * Math.pow(buffer[BUFFER_SIZE / 2] + 0.30221, -1.5281)) * 10; // *10
+																								// zamienia
+																								// na
+																								// mm
 		return val;
 	}
 
 	@Override
 	public void getDistanceInit() throws ConnectionLostException, InterruptedException {
-		// TODO Auto-generated method stub
-		
 	}
-
 
 }

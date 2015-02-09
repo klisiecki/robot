@@ -8,11 +8,9 @@ import pl.poznan.put.ioiorobot.utils.Config;
 import android.graphics.Point;
 
 public class ObstacleManager {
-	// TODO "wypalanie" punktów wokół robota po jakimś czasie
-
 	private ObstacleHashMap obstacleHashMap;
 	private List<Obstacle> rawObstacleList;
-	
+
 	public List<Obstacle> getRawObstacleList() {
 		return rawObstacleList;
 	}
@@ -27,7 +25,7 @@ public class ObstacleManager {
 		obstacleHashMap = new ObstacleHashMap();
 		rawObstacleList = new ArrayList<Obstacle>();
 	}
-	
+
 	public void setObstacleAcceptedListener(ObstacleAcceptedListener obstacleAcceptedListener) {
 		this.obstacleAcceptedListener = obstacleAcceptedListener;
 	}
@@ -38,7 +36,6 @@ public class ObstacleManager {
 			obstacleAcceptedListener.onObstacleAccepted(obstacle);
 		}
 	}
-	
 
 	private class ObstacleHashMap extends HashMap<Point, Obstacle> {
 
@@ -63,7 +60,7 @@ public class ObstacleManager {
 				o = get(point);
 				o.increment();
 			} else {
-				put(point, o =  new Obstacle(new Point(point)));
+				put(point, o = new Obstacle(new Point(point)));
 			}
 			if (o.getCount() >= Config.minObstacleCount && !o.isAccepted()) {
 				if (obstacleAcceptedListener != null) {
@@ -73,5 +70,4 @@ public class ObstacleManager {
 			}
 		}
 	}
-
 }

@@ -63,7 +63,6 @@ import android.widget.ViewFlipper;
 /**
  * Główna klasa aplikacji. Zawiera wszystkie widoki oraz obsługę komunikacji z
  * IOIO.
- *
  */
 public class RobotActivity extends IOIOActivity {
 
@@ -80,7 +79,8 @@ public class RobotActivity extends IOIOActivity {
 	private AreaMapWidget areaMapWidgetBig;
 	private ViewFlipper mapViewFlipper;
 	private MyJavaCameraView javaCameraView;
-	private MenuItem startStopMenuItem;
+	private Button capMockBtn;
+	private ToggleButton mockingBtn;
 
 	// Controls
 	private MyCamera camera;
@@ -95,11 +95,7 @@ public class RobotActivity extends IOIOActivity {
 
 	private AreaMap areaMap;
 	private Position robotPosition;
-
 	private Point screenSize;
-
-	private Button capMockBtn;
-	private ToggleButton mockingBtn;
 
 	class Looper extends BaseIOIOLooper {
 
@@ -152,13 +148,14 @@ public class RobotActivity extends IOIOActivity {
 		super.onResume();
 		camera.resume();
 	}
-	
+
 	@Override
-	protected void onPause() {		controller.kill();
+	protected void onPause() {
+		controller.kill();
 		frontDistanceSensor.kill();
 		super.onPause();
 	}
-	
+
 	private void initObjects() {
 		patternsQueue = new PatternsQueue();
 		obstacleManager = new ObstacleManager();
@@ -167,8 +164,7 @@ public class RobotActivity extends IOIOActivity {
 		DAO.setContext(getApplicationContext());
 		screenSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(screenSize);
-		Config.patternSize = Math.min(screenSize.y, screenSize.x) / 7; // było
-																		// /4
+		Config.patternSize = Math.min(screenSize.y, screenSize.x) / 7; 
 		Config.screenSize = screenSize;
 	}
 
@@ -199,7 +195,6 @@ public class RobotActivity extends IOIOActivity {
 		areaMapWidgetBig = (AreaMapWidget) findViewById(R.id.areaMapWidgetBig);
 		areaMapWidgetBig.setAreaMap(areaMap);
 		mapViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-
 		capMockBtn = (Button) findViewById(R.id.camMockButton);
 		mockingBtn = (ToggleButton) findViewById(R.id.mockImage);
 	}
@@ -319,7 +314,7 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 	}
-	
+
 	private void setControllerRunning(boolean running) {
 		if (running) {
 			controller.enable();
@@ -355,7 +350,6 @@ public class RobotActivity extends IOIOActivity {
 					@Override
 					public void run() {
 						barGraph.setValues(results);
-						// Log.d(C.TAG, "\t\tDISTANCE = " + last.distance);
 						if (last.distance < Config.maxObstacleDistance) {
 							obstacleManager.addObstacle(new Obstacle(robotPosition, last));
 							areaMapWidgetBig.invalidate();
@@ -389,15 +383,14 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.menu, menu);
-		startStopMenuItem = (MenuItem) findViewById(R.id.startStop);
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	private boolean controllerRunning = false;
 
 	public boolean onOptionsItemSelected(android.view.MenuItem item) {

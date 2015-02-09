@@ -31,9 +31,7 @@ public class FrontDistanceSensor implements Runnable {
 		rightSensor = new HCSR04DistanceSensor(ioio_, -1, rTriggerPin, rEchoPin);
 		this.freeDistance = freeDistance;
 
-		Log.d("thread", "sensor constructor");
 		if (t == null || t.isAlive()) {
-			Log.d("thread", "sensor constructor create thread");
 			t = new Thread(this);
 			t.start();
 		}
@@ -78,29 +76,19 @@ public class FrontDistanceSensor implements Runnable {
 
 	@Override
 	public void run() {
-		Log.d("thread", "sensor");
 		try {
 			leftSensor.getDistanceInit();
 			centerSensor.getDistanceInit();
 			rightSensor.getDistanceInit();
 			while (!killed) {
-				Log.d("thread", "\t\t\tsensor.. X");
 				leftTab[tabPos] = leftSensor.getDistance();
-				Log.d("thread", "\t\t\tsensor.. 1");
 				centerTab[tabPos] = centerSensor.getDistance();
-				Log.d("thread", "\t\t\tsensor.. 2");
 				rightTab[tabPos] = rightSensor.getDistance();
-				Log.d("thread", "\t\t\tsensor.. 3");
 				tabPos = (tabPos + 1) % BUFFOR_SIZE;
-//				 Log.d(Config.TAG, leftSensor.getDistance() + " | " +
-//			 centerSensor.getDistance() + " | " +
-//				 rightSensor.getDistance());
 				Thread.sleep(10);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.d("thread", "sensor ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
-		Log.d("thread", "\t\t\tsensor.. END");
 	}
 }

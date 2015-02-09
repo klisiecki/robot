@@ -26,19 +26,11 @@ public class RobotController {
 		this.motorsController = motorsController;
 		this.frontDistanceSensor = frontDistanceSensor;
 
-		// if (null != drivingThread) {
-		// drivingThread.interrupt();
-		// drivingThread = null;
-		// }
-
 		if (drivingThread == null) {
 			drivingThread = new DrivingThread();
 			drivingThread.start();
 		}
-		// if (null != cameraThread) {
-		// cameraThread.interrupt();
-		// cameraThread = null;
-		// }
+		
 		if (cameraThread == null) {
 			cameraThread = new CameraThread();
 			cameraThread.start();

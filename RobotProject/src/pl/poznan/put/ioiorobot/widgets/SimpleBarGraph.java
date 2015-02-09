@@ -52,7 +52,6 @@ public class SimpleBarGraph extends View {
 		barPaint.setColor(Color.rgb(0x00, 0x77, 0xaa));
 		barPaint.setStrokeWidth(1);
 		barPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-
 	}
 
 	public void setValues(List<Integer> values) {
@@ -66,7 +65,6 @@ public class SimpleBarGraph extends View {
 		int desiredHeight = 3000;
 		width = measureSize(widthMeasureSpec, desiredWidth);
 		height = measureSize(heightMeasureSpec, desiredHeight);
-
 		setMeasuredDimension(width, height);
 	}
 
@@ -98,7 +96,6 @@ public class SimpleBarGraph extends View {
 			int scaledValue = value > maxValue ? maxValue : value;
 
 			int left = width * i / barsNumber + 5;
-
 			int top = height - (int) (height * ((float) scaledValue / maxValue));
 			int right = width * (i + 1) / barsNumber;
 			int bottom = height;

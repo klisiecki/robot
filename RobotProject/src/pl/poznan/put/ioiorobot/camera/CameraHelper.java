@@ -8,10 +8,10 @@ import org.opencv.core.Point;
 import pl.poznan.put.ioiorobot.utils.Config;
 
 public class CameraHelper {
-	
+
 	/**
 	 * Zwraca true gdy długości boków a oraz b różnią się maksymalnie o
-	 *         C.rectangleFactor %
+	 * C.rectangleFactor %
 	 */
 	public static boolean areSimilar(int a, int b) {
 		return Math.abs((double) (a - b) / a) < (double) Config.rectangleFactor / 100.0;

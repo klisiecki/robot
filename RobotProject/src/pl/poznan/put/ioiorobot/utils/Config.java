@@ -38,7 +38,6 @@ public class Config {
 	public static final int minPatternCount = 4; // MUSI BYĆ >=2
 	
 	/* po takiej liczbie wykrytych znaczników, dany znacznik jest usuwany jeśli nie został wykryty ponownie */
-	//TODO przemyśleć to, np gdy robot będzie jeździł po dużym obszarze?
 	public static final int patternTTL = 30;
 	
 	/* mimalny i maksymalny procentowy udział koloru czarnego w stosunku do białego, 
@@ -81,7 +80,6 @@ public class Config {
 	public static final float robotStepDistance = 500;
 	public static final int rotatesPerStep = 2;
 	public static final int framesPerRotate = 1;
-	public static final float rotateAngle = cameraViewAngle * 2 / 3;
 	
 	public static final int maxSpeed = 60;
 	public static final int maxDirection = 60;

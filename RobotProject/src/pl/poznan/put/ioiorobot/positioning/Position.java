@@ -28,7 +28,6 @@ public class Position {
 	}
 
 	public Point getVectorPoint() {
-//		Log.d(C.TAG, "\t\t\t angle == " + angle + "   x == " + Math.sin(angle)*100 + "    y == " + Math.cos(angle)*100);
 		return new Point((int) (Math.sin(angle) * 10000 + x), (int) (Math.cos(angle) * 10000 + y));
 	}
 
@@ -72,21 +71,4 @@ public class Position {
 	public float distanceTo(Position position) {
 		return (float) Math.sqrt((position.x - x)*(position.x - x) + (position.y - y)*(position.y - y));
 	}
-
-	// public void move(float x, float y, float angle) {
-	// this.x += x;
-	// this.y += y;
-	// this.angle += angle;
-	// if (this.angle > Math.PI) {
-	// this.angle -= 2 * Math.PI;
-	// }
-	// if (this.angle < (-Math.PI)) {
-	// this.angle += 2 * Math.PI;
-	// }
-	//
-	// // Log.d(C.TAG, "x = " + this.x + "   y = " + this.y + "   angle = " +
-	// angle360);
-	//
-	// }
-
 }

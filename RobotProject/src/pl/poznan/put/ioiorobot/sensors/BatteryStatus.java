@@ -11,11 +11,9 @@ import pl.poznan.put.ioiorobot.utils.Config;
 public class BatteryStatus implements IBatteryStatus {
 	private final static double MIN = 5.5;
 	private final static double MAX = 6.2;
-
 	private final static int CAPACITY = 100;
 
 	private AnalogInput pin;
-
 	private BatteryStatusChangedListener listener;
 
 	public void setBatteryStatusChangedListener(BatteryStatusChangedListener listener) {

@@ -133,11 +133,8 @@ public class DAO {
 	}
 
 	public static void saveBitmap(Bitmap bitmap, String fileName) {
-		File file = new File("/storage/sdcard0/debug/" + fileName + ".png"); // TODO
-																				// ścieżki
-																				// z
-																				// Environment..
-
+		File file = new File("/storage/sdcard0/debug/" + fileName + ".png"); 
+		
 		try {
 			file.createNewFile();
 		} catch (IOException e1) {
@@ -146,7 +143,6 @@ public class DAO {
 		try {
 			bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
