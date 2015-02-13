@@ -79,8 +79,10 @@ public class RobotActivity extends IOIOActivity {
 	private AreaMapWidget areaMapWidgetBig;
 	private ViewFlipper mapViewFlipper;
 	private MyJavaCameraView javaCameraView;
+	private ToggleButton colorFiltrButton;
 	private Button capMockBtn;
 	private ToggleButton mockingBtn;
+	
 
 	// Controls
 	private MyCamera camera;
@@ -110,7 +112,7 @@ public class RobotActivity extends IOIOActivity {
 				frontDistanceSensor = new FrontDistanceSensor(ioio_, 6, 7, 8, 9, 10, 11, Config.minFreeDistance);
 				distanceSensor = new SharpDistanceSensor(ioio_, 30, 33);
 				batteryStatus = new BatteryStatus(ioio_, 34);
-				controller = new RobotController(robotPosition, camera, motorsController, frontDistanceSensor);
+				controller = new RobotController(robotPosition, camera, motorsController, frontDistanceSensor, distanceSensor);
 				initIOIOListeners();
 			} catch (ConnectionLostException e) {
 				Log.e(Config.TAG, e.toString());
@@ -195,8 +197,10 @@ public class RobotActivity extends IOIOActivity {
 		areaMapWidgetBig = (AreaMapWidget) findViewById(R.id.areaMapWidgetBig);
 		areaMapWidgetBig.setAreaMap(areaMap);
 		mapViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+		colorFiltrButton = (ToggleButton) findViewById(R.id.colorFiltrButton);
 		capMockBtn = (Button) findViewById(R.id.camMockButton);
 		mockingBtn = (ToggleButton) findViewById(R.id.mockImage);
+		mapViewFlipper.showNext();
 	}
 
 	private void initListeners() {
@@ -318,10 +322,8 @@ public class RobotActivity extends IOIOActivity {
 	private void setControllerRunning(boolean running) {
 		if (running) {
 			controller.enable();
-			distanceSensor.startSensor();
 		} else {
 			controller.disable();
-			distanceSensor.stopSensor();
 		}
 	}
 

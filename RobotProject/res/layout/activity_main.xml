@@ -54,6 +54,15 @@
                     android:minHeight="35dip"
                     android:textOff="LED"
                     android:textOn="LED" />
+                
+                <ToggleButton
+                    android:id="@+id/colorFiltrButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal|top"
+                    android:minHeight="35dip"
+                    android:textOff="Filtr koloru"
+                    android:textOn="Filtr koloru" />
 
                 <Button
                     android:id="@+id/camMockButton"

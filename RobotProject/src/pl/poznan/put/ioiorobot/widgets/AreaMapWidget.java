@@ -81,7 +81,7 @@ public class AreaMapWidget extends View {
 
 		patternPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		patternPaint.setColor(Color.rgb(0x00, 0xaa, 0x00));
-		patternPaint.setStrokeWidth(5);
+		patternPaint.setStrokeWidth(2);
 		patternPaint.setStyle(Paint.Style.STROKE);
 
 		obstaclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -181,6 +181,8 @@ public class AreaMapWidget extends View {
 						+ (int) (size / 2 / scale), y + (int) (size / 2 / scale));
 
 				myCanvas.drawBitmap(bmp, source, dest, patternPaint);
+				addPoint(position, patternPaint, myCanvas);
+//				drawPatternViewPositions(myCanvas, p);
 			}
 		}
 	}

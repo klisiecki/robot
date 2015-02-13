@@ -17,6 +17,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -165,6 +166,11 @@ public class MyCamera implements CvCameraViewListener2 {
 			if (Imgproc.contourArea(cnt) > threshold) {
 				Rect r = Imgproc.boundingRect(cnt);
 				Mat subMat = imgRgba.submat(r);
+				
+				subMat.locateROI(wholeSize, offset);
+				Log.d("cangle2", "cutenter = " + cutcenter + " size = " + wholeSize + ", offset = " + offset);
+				
+				
 				processMat(subMat);
 				
 				if(showDebug) {
@@ -178,6 +184,15 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		return imgRgba;
 	}
+	
+	boolean filter = true;
+	
+	public void setFilter(boolean filter) {
+		this.filter = filter;
+	}
+	
+	Size wholeSize = new Size();
+	Point offset = new Point();
 
 	/**
 	 * Funkcja przeszukująca fragment obrazu w celu znalezienia markerów
@@ -219,12 +234,20 @@ public class MyCamera implements CvCameraViewListener2 {
 
 			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
-				Pattern pattern = new Pattern(fragment, calculateCameraAngle(imgRbgaRaw, cnt));
+				
+				Rect r = Imgproc.boundingRect(cnt);
+				Pattern pattern = new Pattern(fragment, calculateCameraAngle(fragment, cnt));
 
 				if (patternFoundListener != null) {
 					patternFoundListener.onPatternFound(pattern);
 				}
 			}
+			
+			Rect rect = Imgproc.boundingRect(cnt);
+			if(showDebug) Core.rectangle(imgRgba, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
+					new Scalar(255, 0, 0), 3);
+			
+			
 			if (contoursProcessed == Config.maxContoursProcessed) {
 				break;
 			}
@@ -241,13 +264,18 @@ public class MyCamera implements CvCameraViewListener2 {
 		Rect r = Imgproc.boundingRect(cnt);
 		int center = r.x + r.width / 2; //pozycja konturu w submacie
 		
-		Size wholeSize = new Size();
-		Point offset = new Point();
-		image.locateROI(wholeSize, offset);
+		Size wSize = wholeSize;
+		Point off = offset;
+		off.x += offset2.x;
+		Log.d("cangle", "cutenter = " + cutcenter + " size = " + wSize + ", offset = " + off);
 		
-		float result = ((float) center + (float)offset.x) / (float)wholeSize.width * Config.cameraViewAngle - Config.cameraViewAngle / 2;
+		
+		float result = ((float) center + (float)off.x) / (float)wSize.width * Config.cameraViewAngle - Config.cameraViewAngle / 2;
+		Log.d("cangle", result+"");
 		return result;
 	}
+	
+	private int cutcenter = 0;
 
 	/**
 	 * Funkcja tworzy czworokąt z podanego konturu i przekształca do kwadratu
@@ -256,7 +284,11 @@ public class MyCamera implements CvCameraViewListener2 {
 	 */
 	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint cnt, Mat fragment) {
 		List<Point> points = getRectanglePointsFromContour(cnt);
-
+		cutcenter = 0;
+		for (Point p: points) {
+			cutcenter += p.x;
+		}
+		cutcenter /= 4;
 		// jeżlii znaleziony kontur przypomina kwadrat oraz udało się
 		// posortować jego wierzchołki
 		if (CameraHelper.couldBeSquare(points) && CameraHelper.sortCorners(points)) {
@@ -266,7 +298,7 @@ public class MyCamera implements CvCameraViewListener2 {
 			for (Point p : points) {
 				// rysujemy
 				if(showDebug) Core.circle(resultImage, p, 10, new Scalar(255, 255, 255), 10);
-
+				Log.d("rys", "rysuje " + p);
 				// przesuwamy do współrzędnych fragmentu (zmiany są wprowadzane
 				// w tablicy points!)
 				p.x -= fragmentTL.x;
@@ -312,6 +344,9 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 		return points;
 	}
+	
+	Size wholeSize2 = new Size();
+	Point offset2 = new Point();
 
 	/**
 	 * @param baseImage
@@ -321,9 +356,10 @@ public class MyCamera implements CvCameraViewListener2 {
 	 */
 	private Mat cutContour(Mat baseImage, Mat resultImage, MatOfPoint cnt) {
 		Rect rect = Imgproc.boundingRect(cnt);
-		if(showDebug) Core.rectangle(resultImage, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
-				new Scalar(255, 0, 0), 3);
+//		if(showDebug) Core.rectangle(resultImage, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
+//				new Scalar(255, 0, 0), 3);
 		Mat fragment = baseImage.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
+		fragment.locateROI(wholeSize2, offset2);
 		return fragment;
 	}
 

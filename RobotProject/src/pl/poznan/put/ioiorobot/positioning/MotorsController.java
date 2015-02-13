@@ -95,6 +95,16 @@ public class MotorsController implements IMotorsController {
 	public boolean isZero(float value) {
 		return value >= -0.001 && value <= 0.001;
 	}
+	
+	
+	
+	private int maxTurnSpeed = 40;
+	private void turnSleep() throws InterruptedException {
+		Thread.sleep(20);
+		if (speed < maxTurnSpeed) {
+			speed++;
+		}
+	}
 
 	public void turnTo(float targetAngle) {
 		if (targetAngle > Math.PI) {
@@ -103,7 +113,7 @@ public class MotorsController implements IMotorsController {
 			targetAngle += 2 * Math.PI;
 		}
 
-		speed = Config.maxSpeed / 2;
+		speed = 20;
 		float curAngle, lastAngle;
 		start();
 
@@ -117,11 +127,11 @@ public class MotorsController implements IMotorsController {
 						&& enabled) {
 					lastAngle = curAngle;
 					Log.d("loop", "while1: " + encodersData.getPosition().angle());
-					Thread.sleep(20);
+					turnSleep();
 				}
 				while (encodersData.getPosition().angle() < targetAngle && enabled) {
 					Log.d("loop", "while2: " + encodersData.getPosition().angle());
-					Thread.sleep(20);
+					turnSleep();
 				}
 			} else if (changeAngle >= -Math.PI && changeAngle < 0) {
 				direction = -Config.maxDirection;
@@ -129,7 +139,7 @@ public class MotorsController implements IMotorsController {
 				while ((curAngle = encodersData.getPosition().angle()) > targetAngle && lastAngle + Math.PI >= curAngle
 						&& enabled) {
 					lastAngle = curAngle;
-					Thread.sleep(20);
+					turnSleep();
 					Log.d("loop", "while3: " + encodersData.getPosition().angle() + " target = " + targetAngle);
 				}
 				Log.d("loop", "....while3");
@@ -141,7 +151,7 @@ public class MotorsController implements IMotorsController {
 					// Log.d(Config.TAG, "last = " + lastAngle + ", cur = " +
 					// curAngle);
 					lastAngle = curAngle;
-					Thread.sleep(20);
+					turnSleep();
 					Log.d(Config.TAG, "while4: " + encodersData.getPosition().angle());
 				}
 				Log.d(Config.TAG, " " + ((curAngle = encodersData.getPosition().angle()) < targetAngle) + "|"
@@ -153,11 +163,11 @@ public class MotorsController implements IMotorsController {
 				while ((curAngle = encodersData.getPosition().angle()) < 0 && lastAngle + Math.PI >= curAngle
 						&& enabled) {
 					lastAngle = curAngle;
-					Thread.sleep(20);
+					turnSleep();
 					Log.d("loop", "while5: " + encodersData.getPosition().angle());
 				}
 				while (encodersData.getPosition().angle() > targetAngle && enabled) {
-					Thread.sleep(20);
+					turnSleep();
 					Log.d("loop", "while6: " + encodersData.getPosition().angle());
 				}
 			}
@@ -251,11 +261,11 @@ public class MotorsController implements IMotorsController {
 						left = 0;
 					if (right < 0.1f)
 						right = 0;
-					lPwm.setDutyCycle(Math.min(left * speed / Config.maxSpeed, 1f)); // float
-																						// [0
-																						// ;
-																						// 1]
-					rPwm.setDutyCycle(Math.min(right * speed / Config.maxSpeed, 1f));
+					
+					left = left * speed / Config.maxSpeed;
+					right = right * speed / Config.maxSpeed;
+					lPwm.setDutyCycle(Math.min(left, 1f));
+					rPwm.setDutyCycle(Math.min(right, 1f));
 					Log.d("motor", "\t\t\tx= " + direction + " , y= " + speed + "      regulation =  " + regulation
 							+ "     L = " + left + "   R = " + right);
 					Thread.sleep(10);

@@ -14,6 +14,7 @@ import pl.poznan.put.ioiorobot.utils.Config;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.util.Log;
 
 /**
  * Wzorzec (marker) wraz z dodatkowymi informacjami o jego położeniu itp.
@@ -55,7 +56,7 @@ public class Pattern {
 	 * 
 	 * @return punkt przecięcia, null gdy półproste są równoległe
 	 */
-	public Point intersection2(final Point as, final Point ae, final Point bs, final Point be) {
+	public Point intersection(final Point as, final Point ae, final Point bs, final Point be) {
 		Point ad = new Point(ae.x - as.x, ae.y - as.y);
 		Point bd = new Point(be.x - bs.x, be.y - bs.y);
 
@@ -70,6 +71,9 @@ public class Pattern {
 		} else {
 			v = (float) (as.y + ad.y * u - bs.y) / bd.y;
 		}
+
+		double angle = Math.atan2(bd.y, bd.x) - Math.atan2(ad.y, ad.x);
+		Log.d("angle", "angle = " + angle + ", u = " + u + ", v = " + v);
 
 		if (u <= 0 || v <= 0) {
 			return null;
@@ -86,13 +90,19 @@ public class Pattern {
 		List<Point> intersections = new ArrayList<Point>();
 		for (int i = 0; i < viewPositions.size(); i++) {
 			for (int j = i + 1; j < viewPositions.size(); j++) {
-				Point o1 = viewPositions.get(i).getPoint();
-				Point p1 = viewPositions.get(i).getVectorPoint();
-				Point o2 = viewPositions.get(j).getPoint();
-				Point p2 = viewPositions.get(j).getVectorPoint();
-				Point intersection = intersection2(o1, p1, o2, p2);
-				if (intersection != null) {
-					intersections.add(intersection);
+				Position pos1 = viewPositions.get(i);
+				Position pos2 = viewPositions.get(j);
+				if (pos1.distanceTo(pos2) > 100) {
+					Log.d("angle", i + " vs " + j);
+					
+					Point o1 = pos1.getPoint();
+					Point p1 = pos1.getVectorPoint();
+					Point o2 = pos2.getPoint();
+					Point p2 = pos2.getVectorPoint();
+					Point intersection = intersection(o1, p1, o2, p2);
+					if (intersection != null) {
+						intersections.add(intersection);
+					}
 				}
 			}
 		}
@@ -117,10 +127,21 @@ public class Pattern {
 	/**
 	 * Funkcja scala dwa Patterny
 	 */
-	public void merge(Pattern p) {
-		for (Position pos : p.viewPositions) {
-			addViewPosition(new Position(pos));
+	public void merge(Pattern pattern) {
+
+		//		for (Position pos : p.viewPositions) {
+//			addViewPosition(new Position(pos));
+//		}
+		
+		Position pos = pattern.viewPositions.get(0);
+		
+		for (Position p: viewPositions) {
+			if (p.distanceTo(pos) < 100) {
+				return;
+			}
 		}
+		
+		addViewPosition(new Position(pos));
 	}
 
 	public int incrementCount() {
