@@ -198,6 +198,7 @@ public class RobotActivity extends IOIOActivity {
 		areaMapWidgetBig.setAreaMap(areaMap);
 		mapViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 		colorFiltrButton = (ToggleButton) findViewById(R.id.colorFiltrButton);
+		colorFiltrButton.setChecked(true);
 		capMockBtn = (Button) findViewById(R.id.camMockButton);
 		mockingBtn = (ToggleButton) findViewById(R.id.mockImage);
 		mapViewFlipper.showNext();
@@ -266,6 +267,15 @@ public class RobotActivity extends IOIOActivity {
 			}
 		});
 
+		colorFiltrButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+				// TODO Auto-generated method stub
+				camera.setFilter(arg1);
+			}
+		});
+		
 		camera.setPatternFoundListener(new PatternFoundListener() {
 
 			@Override

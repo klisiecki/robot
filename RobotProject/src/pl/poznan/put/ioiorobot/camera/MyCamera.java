@@ -36,7 +36,7 @@ import android.util.Log;
  * Główna klasa przetwarzająca obraz
  */
 public class MyCamera implements CvCameraViewListener2 {
-	
+
 	private boolean showDebug = true;
 	private int framesToProcess;
 	private Mode mode = Mode.CAMERA_ONLY;
@@ -45,10 +45,16 @@ public class MyCamera implements CvCameraViewListener2 {
 	private Context context;
 	private PatternFoundListener patternFoundListener;
 	private Mat imgRbgaRaw;
-	
+
 	private boolean mocking = false;
 	private boolean requestSaveMock = false;
 	
+	private Size subMatWholeSize = new Size();
+	private Point subMatOffset = new Point();
+	
+	private Size fragmentWholeSize = new Size();
+	private Point fragmentOffset = new Point();
+
 	public void setPatternFoundListener(PatternFoundListener patternFoundListener) {
 		this.patternFoundListener = patternFoundListener;
 	}
@@ -69,7 +75,7 @@ public class MyCamera implements CvCameraViewListener2 {
 			}
 		};
 	}
-	
+
 	public void setLedMode(boolean isChecked) {
 		Camera mCamera = cameraView.getCamera();
 		Camera.Parameters param = mCamera.getParameters();
@@ -92,23 +98,22 @@ public class MyCamera implements CvCameraViewListener2 {
 	@Override
 	public void onCameraViewStopped() {
 	}
-	
-	
+
 	public void setMocking(boolean mocking) {
 		this.mocking = mocking;
 	}
-	
+
 	public void saveMock() {
 		requestSaveMock = true;
 	}
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		if(requestSaveMock) {
+		if (requestSaveMock) {
 			DAO.saveMock(inputFrame.rgba());
 			requestSaveMock = false;
 		}
-		
+
 		if (mode == Mode.PROCESSING || framesToProcess > 0) {
 			framesToProcess--;
 			return processFrame(inputFrame);
@@ -129,20 +134,22 @@ public class MyCamera implements CvCameraViewListener2 {
 	private Mat processFrame(CvCameraViewFrame inputFrame) {
 		// pobranie klatki w RGB
 		Mat imgRgba = inputFrame.rgba();
-		
+
 		if (mocking && DAO.getMock() != null) {
 			imgRgba = DAO.getMock();
 		}
-		
+
 		imgRbgaRaw = new Mat();
 		imgRgba.copyTo(imgRbgaRaw);
 
 		// filtrowanie klatki wg ustalonego koloru
 		Mat mask = new Mat();
-		imgRgba.copyTo(mask);
-		Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
-		Core.inRange(mask, Config.minColor, Config.maxColor, mask);
-		
+		if (filter) {
+			imgRgba.copyTo(mask);
+			Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGB2HSV, 3);
+			Core.inRange(mask, Config.minColor, Config.maxColor, mask);
+		}
+
 		Mat maskedImage = new Mat();
 		imgRgba.copyTo(maskedImage, mask);
 
@@ -151,10 +158,13 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		Mat maskedImageGrayThresholded = new Mat();
 		Imgproc.adaptiveThreshold(maskedImageGray, maskedImageGrayThresholded, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
-				Imgproc.THRESH_BINARY_INV, Config.thresholdBlockSize, Config.thresholdMC); // blockSize = 9, mC = 7;
-		
+				Imgproc.THRESH_BINARY_INV, Config.thresholdBlockSize, Config.thresholdMC); // blockSize
+																							// =
+																							// 9,
+																							// mC
+																							// =
+																							// 7;
 
-		
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(maskedImageGrayThresholded, contours, new Mat(), Imgproc.RETR_EXTERNAL,
 				Imgproc.CHAIN_APPROX_SIMPLE);
@@ -166,33 +176,30 @@ public class MyCamera implements CvCameraViewListener2 {
 			if (Imgproc.contourArea(cnt) > threshold) {
 				Rect r = Imgproc.boundingRect(cnt);
 				Mat subMat = imgRgba.submat(r);
-				
-				subMat.locateROI(wholeSize, offset);
-				Log.d("cangle2", "cutenter = " + cutcenter + " size = " + wholeSize + ", offset = " + offset);
-				
-				
+
+				subMat.locateROI(subMatWholeSize, subMatOffset);
+				Log.d("cangle2", "cutenter = " + cutcenter + " size = " + subMatWholeSize + ", offset = " + subMatOffset);
+
 				processMat(subMat);
-				
-				if(showDebug) {
-					drawContour(imgRgba, cnt, new Scalar(204,0,204));
-					// Rysowanie zielonego prostokąta wokół analizowanych fragmentów
+
+				if (showDebug) {
+					drawContour(imgRgba, cnt, new Scalar(204, 0, 204));
+					// Rysowanie zielonego prostokąta wokół analizowanych
+					// fragmentów
 					Core.rectangle(imgRgba, r.tl(), r.br(), new Scalar(0, 200, 0), 3);
 				}
-				
+
 			}
 		}
 
 		return imgRgba;
 	}
-	
+
 	boolean filter = true;
-	
+
 	public void setFilter(boolean filter) {
 		this.filter = filter;
 	}
-	
-	Size wholeSize = new Size();
-	Point offset = new Point();
 
 	/**
 	 * Funkcja przeszukująca fragment obrazu w celu znalezienia markerów
@@ -229,12 +236,13 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		// Przeglądanie znalezionych konturów od największych do najmniejszych
 		for (MatOfPoint cnt : contoursSorted) {
-			if(showDebug) drawContour(imgRgba, cnt, new Scalar(0,0,255));
+			if (showDebug)
+				drawContour(imgRgba, cnt, new Scalar(0, 0, 255));
 			Mat fragment = cutContour(imgGray, imgRgba, cnt);
 
 			if (warpFragmentFromContour(imgRgba, cnt, fragment)) {
 				contoursProcessed++;
-				
+
 				Rect r = Imgproc.boundingRect(cnt);
 				Pattern pattern = new Pattern(fragment, calculateCameraAngle(fragment, cnt));
 
@@ -242,12 +250,12 @@ public class MyCamera implements CvCameraViewListener2 {
 					patternFoundListener.onPatternFound(pattern);
 				}
 			}
-			
+
 			Rect rect = Imgproc.boundingRect(cnt);
-			if(showDebug) Core.rectangle(imgRgba, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
-					new Scalar(255, 0, 0), 3);
-			
-			
+			if (showDebug)
+				Core.rectangle(imgRgba, new Point(rect.x, rect.y),
+						new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 0, 0), 3);
+
 			if (contoursProcessed == Config.maxContoursProcessed) {
 				break;
 			}
@@ -262,19 +270,19 @@ public class MyCamera implements CvCameraViewListener2 {
 	 */
 	private float calculateCameraAngle(Mat image, MatOfPoint cnt) {
 		Rect r = Imgproc.boundingRect(cnt);
-		int center = r.x + r.width / 2; //pozycja konturu w submacie
-		
-		Size wSize = wholeSize;
-		Point off = offset;
-		off.x += offset2.x;
+		int center = r.x + r.width / 2; // pozycja konturu w submacie
+
+		Size wSize = subMatWholeSize;
+		Point off = subMatOffset;
+		off.x += fragmentOffset.x;
 		Log.d("cangle", "cutenter = " + cutcenter + " size = " + wSize + ", offset = " + off);
-		
-		
-		float result = ((float) center + (float)off.x) / (float)wSize.width * Config.cameraViewAngle - Config.cameraViewAngle / 2;
-		Log.d("cangle", result+"");
+
+		float result = ((float) center + (float) off.x) / (float) wSize.width * Config.cameraViewAngle
+				- Config.cameraViewAngle / 2;
+		Log.d("cangle", result + "");
 		return result;
 	}
-	
+
 	private int cutcenter = 0;
 
 	/**
@@ -285,7 +293,7 @@ public class MyCamera implements CvCameraViewListener2 {
 	private boolean warpFragmentFromContour(Mat resultImage, MatOfPoint cnt, Mat fragment) {
 		List<Point> points = getRectanglePointsFromContour(cnt);
 		cutcenter = 0;
-		for (Point p: points) {
+		for (Point p : points) {
 			cutcenter += p.x;
 		}
 		cutcenter /= 4;
@@ -297,7 +305,8 @@ public class MyCamera implements CvCameraViewListener2 {
 			Point fragmentTL = rect.tl();
 			for (Point p : points) {
 				// rysujemy
-				if(showDebug) Core.circle(resultImage, p, 10, new Scalar(255, 255, 255), 10);
+				if (showDebug)
+					Core.circle(resultImage, p, 10, new Scalar(255, 255, 255), 10);
 				Log.d("rys", "rysuje " + p);
 				// przesuwamy do współrzędnych fragmentu (zmiany są wprowadzane
 				// w tablicy points!)
@@ -344,9 +353,6 @@ public class MyCamera implements CvCameraViewListener2 {
 		}
 		return points;
 	}
-	
-	Size wholeSize2 = new Size();
-	Point offset2 = new Point();
 
 	/**
 	 * @param baseImage
@@ -356,10 +362,11 @@ public class MyCamera implements CvCameraViewListener2 {
 	 */
 	private Mat cutContour(Mat baseImage, Mat resultImage, MatOfPoint cnt) {
 		Rect rect = Imgproc.boundingRect(cnt);
-//		if(showDebug) Core.rectangle(resultImage, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
-//				new Scalar(255, 0, 0), 3);
+		// if(showDebug) Core.rectangle(resultImage, new Point(rect.x, rect.y),
+		// new Point(rect.x + rect.width, rect.y + rect.height),
+		// new Scalar(255, 0, 0), 3);
 		Mat fragment = baseImage.submat(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
-		fragment.locateROI(wholeSize2, offset2);
+		fragment.locateROI(fragmentWholeSize, fragmentOffset);
 		return fragment;
 	}
 
@@ -405,7 +412,7 @@ public class MyCamera implements CvCameraViewListener2 {
 
 		return outputMat;
 	}
-	
+
 	public interface PatternFoundListener {
 		void onPatternFound(Pattern pattern);
 	}
@@ -425,11 +432,11 @@ public class MyCamera implements CvCameraViewListener2 {
 	public void switchDebug() {
 		this.showDebug = !showDebug;
 	}
-	
+
 	public void setFramesToProcess(int framesToProcess) {
 		this.framesToProcess = framesToProcess;
 	}
-	
+
 	public boolean isReady() {
 		return framesToProcess == 0;
 	}

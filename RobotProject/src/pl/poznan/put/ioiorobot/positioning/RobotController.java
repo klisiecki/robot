@@ -67,46 +67,8 @@ public class RobotController {
 			try {
 				while (!killed) {
 					if (running) {
-
-						// try {
-						// sleep(200);
-						// } catch (InterruptedException e1) {
-						// // TODO Auto-generated catch block
-						// e1.printStackTrace();
-						// }
-						//
-						// motorsRunning = false;
-						// // camera.setLedMode(true);
-						// motorsController.disablePid();
-						// motorsController.stop();
-						// float angle = position.angle();
-						// float startAngle = angle;
-						// while (true) {
-						// Log.d("angle", "angle = " + angle);
-						// int i = 0;
-						// do {
-						// angle += 2 * Math.PI / 9;
-						// // doCameraProcessing();
-						// try {
-						// sleep(200);
-						// } catch (InterruptedException e) {
-						// // TODO Auto-generated catch block
-						// e.printStackTrace();
-						// }
-						// motorsController.turnTo(angle);
-						// } while (++i < 9 && running);
-						// try {
-						// sleep(3000);
-						// } catch (InterruptedException e) {
-						// // TODO Auto-generated catch block
-						// e.printStackTrace();
-						// }
-						// angle = startAngle;
-						// }
-
-						
 						motorsRunning = true;
-						// camera.setLedMode(false);
+						camera.setLedMode(false);
 						motorsController.enablePid();
 						while (distance < Config.robotStepDistance) {
 							distance += position.distanceTo(lastPosition);
@@ -117,7 +79,7 @@ public class RobotController {
 						distance = 0;
 
 						motorsRunning = false;
-						// camera.setLedMode(true);
+						camera.setLedMode(true);
 						motorsController.disablePid();
 						motorsController.stop();
 						float angle = position.angle();
@@ -138,8 +100,6 @@ public class RobotController {
 							doCameraProcessing();
 						} while (++i < 3 && running);
 						motorsController.turnTo(startAngle);
-						// turn *= -1;
-
 					}
 				}
 
@@ -179,8 +139,6 @@ public class RobotController {
 				}
 				running = false;
 				sleep(2000);
-//				doCameraProcessing();
-//				sleep(4000);
 				while (!killed && frontDistanceSensor.isFreeCenter() && frontDistanceSensor.isFreeLeft()) {
 					motorsController.setSpeed(Config.maxSpeed);
 					motorsController.setDirection(0);
